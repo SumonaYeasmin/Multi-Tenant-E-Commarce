@@ -1,0 +1,20 @@
+All types will be inside this folder:
+- index.ts
+- user.ts
+- product.ts
+- order.ts
+- category.ts
+- brand.ts
+- review.ts
+- payment.ts
+- shipping.ts
+- coupon.ts
+- notification.ts
+- chat.ts
+- file.ts
+- image.ts
+- pdf.ts
+- excel.ts
+- video.ts
+- audio.ts
+- other.ts

@@ -1,0 +1,19 @@
+All validations will be inside this folder:
+- user-validation.ts
+- product-validation.ts
+- order-validation.ts
+- category-validation.ts
+- brand-validation.ts
+- review-validation.ts
+- payment-validation.ts
+- shipping-validation.ts
+- coupon-validation.ts
+- notification-validation.ts
+- chat-validation.ts
+- file-validation.ts
+- image-validation.ts
+- pdf-validation.ts
+- excel-validation.ts
+- video-validation.ts
+- audio-validation.ts
+- other-validation.ts

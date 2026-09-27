@@ -1,0 +1,4 @@
+All hooks will be inside this folder:
+- useAuth.ts
+- usePermission.ts
+- useRole.ts

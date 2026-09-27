@@ -1,0 +1,13 @@
+all dashboard routes will be inside this folder:
+ - admin
+    - page.tsx
+    - layout.tsx
+ - manager
+    - page.tsx
+    - layout.tsx
+ - user
+    - page.tsx
+    - layout.tsx
+
+Note: All roles will share a common layout file called inside the root layout.tsx file
+

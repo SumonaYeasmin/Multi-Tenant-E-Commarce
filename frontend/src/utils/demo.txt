@@ -1,0 +1,15 @@
+All util functions will be inside this folder:
+- currency.ts
+- date.ts
+- time.ts
+- number.ts
+- string.ts
+- array.ts
+- object.ts
+- file.ts
+- image.ts
+- pdf.ts
+- excel.ts
+- video.ts
+- audio.ts
+- other.ts

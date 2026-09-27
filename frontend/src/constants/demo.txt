@@ -1,0 +1,2 @@
+All constants will be inside this folder:
+- roles.ts

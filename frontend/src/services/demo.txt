@@ -1,0 +1,14 @@
+All API calls will be inside this folder:
+- auth-service.ts
+- user-service.ts
+- product-service.ts
+- order-service.ts
+- category-service.ts
+- brand-service.ts
+- review-service.ts
+- payment-service.ts
+- shipping-service.ts
+- coupon-service.ts
+- notification-service.ts
+- chat-service.ts
+- other-service.ts

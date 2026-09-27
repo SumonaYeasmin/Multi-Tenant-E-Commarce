@@ -1,0 +1,4 @@
+(All dashboard components will be inside this folder)
+ - admin
+ - manager
+ - user

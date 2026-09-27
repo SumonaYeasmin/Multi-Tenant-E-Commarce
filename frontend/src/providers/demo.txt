@@ -1,0 +1,10 @@
+all providers will be inside this folder:
+- ThemeProvider.tsx
+- AuthProvider.tsx
+- PermissionProvider.tsx
+- RoleProvider.tsx
+- ToastProvider.tsx
+- TooltipProvider.tsx
+- ModalProvider.tsx
+- DrawerProvider.tsx
+- DropdownProvider.tsx

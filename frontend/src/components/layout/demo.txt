@@ -1,0 +1,4 @@
+All layout components will be inside this folder:
+- Navbar
+- Sidebar
+- Footer
