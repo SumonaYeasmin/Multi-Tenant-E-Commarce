@@ -59,10 +59,38 @@ export function RegisterForm() {
     if (Object.keys(er).length > 0) return;
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-    setLoading(false);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const res = await fetch(`${apiUrl}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          password: form.password,
+        }),
+      });
 
-    router.push(`/verify?type=phone&to=${encodeURIComponent(form.phone)}&next=/account`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errMsg = Array.isArray(data.message)
+          ? data.message.join(', ')
+          : data.message || 'Registration failed. Please try again.';
+        setErrors({ email: errMsg });
+        return;
+      }
+
+      // Registration success -> redirect to verify OTP
+      router.push(`/verify?type=phone&to=${encodeURIComponent(form.phone || form.email)}&next=/`);
+    } catch (err) {
+      setErrors({ email: 'Unable to connect to server. Please check backend connection.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

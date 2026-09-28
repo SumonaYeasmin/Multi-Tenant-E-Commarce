@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/account';
+  const next = searchParams.get('next') ?? '/';
 
   const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('nusrat.jahan@gmail.com');
@@ -156,7 +156,7 @@ function LoginFormContent() {
 
       <p className="mt-4 text-center text-xs text-ink-muted">
         <Link
-          href={next === '/account' ? '/checkout' : next}
+          href={next === '/' ? '/checkout' : next}
           className="hover:text-ink underline"
         >
           Continue as guest

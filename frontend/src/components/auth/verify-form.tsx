@@ -12,7 +12,7 @@ function VerifyFormContent() {
 
   const type = searchParams.get('type') ?? 'otp';
   const to = searchParams.get('to') ?? '';
-  const next = searchParams.get('next') ?? '/account';
+  const next = searchParams.get('next') ?? '/';
 
   const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [error, setError] = useState('');
