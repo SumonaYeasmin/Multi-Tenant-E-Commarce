@@ -84,8 +84,8 @@ export function RegisterForm() {
         return;
       }
 
-      // Registration success -> redirect to verify OTP
-      router.push(`/verify?type=phone&to=${encodeURIComponent(form.phone || form.email)}&next=/`);
+      // Registration success -> redirect to verify Email OTP
+      router.push(`/verify?type=otp&to=${encodeURIComponent(form.email)}&next=/`);
     } catch (err) {
       setErrors({ email: 'Unable to connect to server. Please check backend connection.' });
     } finally {

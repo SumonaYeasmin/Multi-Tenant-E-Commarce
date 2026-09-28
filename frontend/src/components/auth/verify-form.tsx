@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { Button } from '@/components/ui/button';
+import { verifyFirebasePhoneOtp, sendFirebasePhoneOtp } from '@/lib/firebase-phone';
 
 function VerifyFormContent() {
   const router = useRouter();
@@ -16,6 +17,7 @@ function VerifyFormContent() {
 
   const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [error, setError] = useState('');
+  const [resendMsg, setResendMsg] = useState('');
   const [seconds, setSeconds] = useState(60);
   const [loading, setLoading] = useState(false);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
@@ -50,26 +52,112 @@ function VerifyFormContent() {
     e.preventDefault();
     const code = digits.join('');
     if (code.length < 6) {
-      setError('Enter all 6 digits');
+      setError('Please enter the complete 6-digit verification code');
       return;
     }
-    if (code === '000000') {
-      setError('That code is incorrect. 2 attempts left.');
-      return;
-    }
+
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setLoading(false);
 
-    router.push(next);
+    try {
+      if (type === 'phone') {
+        // Verify Firebase Phone OTP
+        const { userCredential, token } = await verifyFirebasePhoneOtp(code);
+        
+        // Save token and user state in localStorage
+        localStorage.setItem('accessToken', token);
+        localStorage.setItem(
+          'user',
+          JSON.stringify({
+            id: userCredential.user.uid,
+            phone: userCredential.user.phoneNumber,
+            role: 'CUSTOMER',
+          })
+        );
+
+        router.push(next);
+        return;
+      }
+
+      // Verify Backend Email OTP
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const res = await fetch(`${apiUrl}/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: to,
+          code,
+          type: 'ACCOUNT_VERIFY',
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Invalid or expired verification code.');
+        return;
+      }
+
+      if (data.data?.accessToken) {
+        localStorage.setItem('accessToken', data.data.accessToken);
+        if (data.data.refreshToken) {
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+        }
+        if (data.data.user) {
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
+      }
+
+      router.push(next);
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('auth/invalid-verification-code')) {
+        setError('Invalid verification code. Please check and try again.');
+      } else if (msg.includes('auth/code-expired')) {
+        setError('Verification code has expired. Please click "Resend code".');
+      } else {
+        setError(msg || 'Verification failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      setError('');
+      setResendMsg('');
+      if (type === 'phone') {
+        await sendFirebasePhoneOtp(to, 'recaptcha-container-verify');
+        setResendMsg('A new verification code has been sent to your phone.');
+        setSeconds(60);
+      } else {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+        const res = await fetch(`${apiUrl}/auth/resend-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: to, type: 'ACCOUNT_VERIFY' }),
+        });
+        if (res.ok) {
+          setResendMsg('A new verification code has been sent to your email.');
+          setSeconds(60);
+        } else {
+          const d = await res.json();
+          setError(d.message || 'Unable to resend verification code.');
+        }
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Failed to resend code. Please try again.');
+    }
   };
 
   const titles: Record<string, [string, string]> = {
-    otp: ['Enter your code', `We sent a 6-digit code to ${to || 'your phone/email'}.`],
+    otp: ['Enter your code', `We sent a 6-digit code to ${to || 'your email'}.`],
     phone: [
       'Verify your phone',
-      `Enter the code we sent to ${to || 'your phone'} to finish creating your account. We also sent a verification link to your email.`,
+      `Enter the 6-digit code we sent to ${to || 'your phone'}.`,
     ],
     mfa: ['Two-step verification', 'Open your authenticator app and enter the 6-digit code for Tanti.'],
   };
@@ -108,7 +196,7 @@ function VerifyFormContent() {
         </div>
 
         {error && <p className="mt-2 text-xs text-danger" role="alert">{error}</p>}
-        <p className="mt-3 text-xs text-ink-muted">Demo: any 6 digits except 000000.</p>
+        {resendMsg && <p className="mt-2 text-xs text-green-600" role="status">{resendMsg}</p>}
 
         <Button type="submit" size="lg" fullWidth className="mt-6" loading={loading}>
           Verify
@@ -122,7 +210,7 @@ function VerifyFormContent() {
           ) : (
             <button
               type="button"
-              onClick={() => setSeconds(45)}
+              onClick={handleResend}
               className="font-medium text-ink underline hover:opacity-80"
             >
               Resend code
@@ -139,6 +227,9 @@ function VerifyFormContent() {
           Use a backup code instead
         </button>
       )}
+
+      {/* Recaptcha container for resend */}
+      <div id="recaptcha-container-verify" />
     </AuthLayout>
   );
 }
