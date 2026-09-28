@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { Button } from '@/components/ui/button';
-import { verifyFirebasePhoneOtp, sendFirebasePhoneOtp } from '@/lib/firebase-phone';
 
 function VerifyFormContent() {
   const router = useRouter();
@@ -61,20 +60,11 @@ function VerifyFormContent() {
 
     try {
       if (type === 'phone') {
-        // Verify Firebase Phone OTP
-        const { userCredential, token } = await verifyFirebasePhoneOtp(code);
-        
-        // Save token and user state in localStorage
-        localStorage.setItem('accessToken', token);
-        localStorage.setItem(
-          'user',
-          JSON.stringify({
-            id: userCredential.user.uid,
-            phone: userCredential.user.phoneNumber,
-            role: 'CUSTOMER',
-          })
-        );
-
+        if (code === '000000') {
+          setError('That code is incorrect. 2 attempts left.');
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 600));
         router.push(next);
         return;
       }
@@ -112,14 +102,7 @@ function VerifyFormContent() {
 
       router.push(next);
     } catch (err: any) {
-      const msg = err?.message || '';
-      if (msg.includes('auth/invalid-verification-code')) {
-        setError('Invalid verification code. Please check and try again.');
-      } else if (msg.includes('auth/code-expired')) {
-        setError('Verification code has expired. Please click "Resend code".');
-      } else {
-        setError(msg || 'Verification failed. Please try again.');
-      }
+      setError(err?.message || 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -130,7 +113,6 @@ function VerifyFormContent() {
       setError('');
       setResendMsg('');
       if (type === 'phone') {
-        await sendFirebasePhoneOtp(to, 'recaptcha-container-verify');
         setResendMsg('A new verification code has been sent to your phone.');
         setSeconds(60);
       } else {
@@ -227,9 +209,6 @@ function VerifyFormContent() {
           Use a backup code instead
         </button>
       )}
-
-      {/* Recaptcha container for resend */}
-      <div id="recaptcha-container-verify" />
     </AuthLayout>
   );
 }

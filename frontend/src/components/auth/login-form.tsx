@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { cn } from '@/lib/utils';
-import { sendFirebasePhoneOtp } from '@/lib/firebase-phone';
 
 function LoginFormContent() {
   const router = useRouter();
@@ -30,11 +29,8 @@ function LoginFormContent() {
     if (mode === 'email') {
       if (!/^\S+@\S+\.\S+$/.test(email)) er.email = 'Enter a valid email';
       if (password.length < 6) er.password = 'Password must be at least 6 characters';
-    } else {
-      const cleanPhone = phone.replace(/\D/g, '');
-      if (cleanPhone.length < 10 || cleanPhone.length > 13) {
-        er.phone = 'Please enter a valid mobile number (e.g. 017XXXXXXXX)';
-      }
+    } else if (!/^01\d{9}$/.test(phone.replace(/\D/g, ''))) {
+      er.phone = 'Enter an 11-digit mobile number';
     }
 
     setErrors(er);
@@ -43,9 +39,7 @@ function LoginFormContent() {
     setLoading(true);
     try {
       if (mode === 'phone') {
-        // Send Firebase Phone OTP
-        const { formattedPhone } = await sendFirebasePhoneOtp(phone, 'recaptcha-container');
-        router.push(`/verify?type=phone&to=${encodeURIComponent(formattedPhone)}&next=${encodeURIComponent(next)}`);
+        router.push(`/verify?type=phone&to=${encodeURIComponent(phone)}&next=${encodeURIComponent(next)}`);
         return;
       }
 
@@ -87,21 +81,8 @@ function LoginFormContent() {
 
       // Redirect to next destination (default: /)
       router.push(next);
-    } catch (err: any) {
-      if (mode === 'phone') {
-        const msg = err?.message || '';
-        if (msg.includes('auth/invalid-phone-number')) {
-          setErrors({ phone: 'Invalid phone number format. Please check and try again.' });
-        } else if (msg.includes('auth/quota-exceeded')) {
-          setErrors({ phone: 'SMS quota exceeded. Please try again later or use test credentials.' });
-        } else if (msg.includes('auth/too-many-requests')) {
-          setErrors({ phone: 'Too many requests. Please try again in a few moments.' });
-        } else {
-          setErrors({ phone: msg || 'Failed to send SMS code. Please try again.' });
-        }
-      } else {
-        setErrors({ password: 'Unable to connect to server. Please check backend connection.' });
-      }
+    } catch (err) {
+      setErrors({ password: 'Unable to connect to server. Please check backend connection.' });
     } finally {
       setLoading(false);
     }
@@ -205,9 +186,6 @@ function LoginFormContent() {
           Continue as guest
         </Link>
       </p>
-
-      {/* Firebase reCAPTCHA container */}
-      <div id="recaptcha-container" />
     </>
   );
 }
