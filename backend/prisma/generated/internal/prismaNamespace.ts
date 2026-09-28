@@ -607,6 +607,8 @@ export type OTPScalarFieldEnum = (typeof OTPScalarFieldEnum)[keyof typeof OTPSca
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  name: 'name',
+  phone: 'phone',
   email: 'email',
   password: 'password',
   role: 'role',

@@ -16,8 +16,7 @@ import { OtpService } from './otp.service';
 import {
     ConflictException,
     InvalidCredentialsException,
-    NotFoundException,
-    OtpInvalidException,
+
     UnauthorizedException,
 } from '../../../common/exceptions/business.exception';
 
@@ -37,10 +36,6 @@ export class AuthService {
     ) { }
 
     async register(dto: RegisterDto) {
-        if (dto.password !== dto.confirmPassword) {
-            throw new ConflictException('Passwords do not match');
-        }
-
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
@@ -53,6 +48,8 @@ export class AuthService {
 
         const user = await this.prisma.user.create({
             data: {
+                name: dto.name,
+                phone: dto.phone,
                 email: dto.email,
                 password: hashedPassword,
                 role: UserRole.USER,
