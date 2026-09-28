@@ -37,31 +37,55 @@ function LoginFormContent() {
     if (Object.keys(er).length) return;
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setLoading(false);
+    try {
+      if (mode === 'phone') {
+        router.push(`/verify?type=phone&to=${encodeURIComponent(phone)}&next=${encodeURIComponent(next)}`);
+        return;
+      }
 
-    if (mode === 'phone') {
-      router.push(`/verify?type=otp&to=${encodeURIComponent(phone)}&next=${encodeURIComponent(next)}`);
-      return;
-    }
-
-    if (password === 'wrongpass') {
-      setAttempts((a) => a + 1);
-      setErrors({
-        password:
-          attempts >= 3
-            ? 'Too many attempts. Try again in 15 minutes or reset your password.'
-            : 'Incorrect email or password',
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const res = await fetch(`${apiUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
-      return;
-    }
 
-    if (email.includes('mfa')) {
-      router.push(`/verify?type=mfa&next=${encodeURIComponent(next)}`);
-      return;
-    }
+      const data = await res.json();
 
-    router.push(next);
+      if (!res.ok) {
+        // If account is not verified yet, backend sent OTP -> redirect to verify
+        if (typeof data.message === 'string' && data.message.toLowerCase().includes('not verified')) {
+          router.push(`/verify?type=otp&to=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}`);
+          return;
+        }
+
+        const errMsg = Array.isArray(data.message)
+          ? data.message.join(', ')
+          : data.message || 'Invalid email or password';
+        setErrors({ password: errMsg });
+        return;
+      }
+
+      // Save tokens and user info
+      if (data.data?.accessToken) {
+        localStorage.setItem('accessToken', data.data.accessToken);
+        if (data.data.refreshToken) {
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+        }
+        if (data.data.user) {
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
+      }
+
+      // Redirect to next destination (default: /)
+      router.push(next);
+    } catch (err) {
+      setErrors({ password: 'Unable to connect to server. Please check backend connection.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
