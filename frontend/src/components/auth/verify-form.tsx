@@ -69,7 +69,8 @@ function VerifyFormContent() {
         return;
       }
 
-      // Verify Backend Email OTP
+      // Verify Backend Email OTP (Account verify or Password reset)
+      const otpType = type === 'reset' ? 'PASSWORD_RESET' : 'ACCOUNT_VERIFY';
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
       const res = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: 'POST',
@@ -79,7 +80,7 @@ function VerifyFormContent() {
         body: JSON.stringify({
           email: to,
           code,
-          type: 'ACCOUNT_VERIFY',
+          type: otpType,
         }),
       });
 
@@ -90,6 +91,13 @@ function VerifyFormContent() {
         return;
       }
 
+      // If password reset -> redirect to /reset-password with resetToken
+      if (type === 'reset' && data.data?.resetToken) {
+        router.push(`/reset-password?token=${encodeURIComponent(data.data.resetToken)}`);
+        return;
+      }
+
+      // If account verification -> save tokens and user info
       if (data.data?.accessToken) {
         localStorage.setItem('accessToken', data.data.accessToken);
         if (data.data.refreshToken) {
@@ -116,11 +124,12 @@ function VerifyFormContent() {
         setResendMsg('A new verification code has been sent to your phone.');
         setSeconds(60);
       } else {
+        const otpType = type === 'reset' ? 'PASSWORD_RESET' : 'ACCOUNT_VERIFY';
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
         const res = await fetch(`${apiUrl}/auth/resend-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: to, type: 'ACCOUNT_VERIFY' }),
+          body: JSON.stringify({ email: to, type: otpType }),
         });
         if (res.ok) {
           setResendMsg('A new verification code has been sent to your email.');
@@ -137,6 +146,7 @@ function VerifyFormContent() {
 
   const titles: Record<string, [string, string]> = {
     otp: ['Enter your code', `We sent a 6-digit code to ${to || 'your email'}.`],
+    reset: ['Enter reset code', `We sent a 6-digit password reset code to ${to || 'your email'}.`],
     phone: [
       'Verify your phone',
       `Enter the 6-digit code we sent to ${to || 'your phone'}.`,

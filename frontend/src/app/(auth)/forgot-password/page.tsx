@@ -5,14 +5,14 @@ import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 
 export const metadata: Metadata = {
   title: 'Reset your password | Tanti',
-  description: 'Enter your email to receive a password reset link.',
+  description: 'Enter your email to receive a password reset code.',
 };
 
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout
       title="Reset your password"
-      subtitle="Enter the email on your account and we’ll send you a reset link."
+      subtitle="Enter your email and we’ll send you a 6-digit verification code."
       footer={
         <Link href="/login" className="underline hover:text-ink">
           Back to sign in
