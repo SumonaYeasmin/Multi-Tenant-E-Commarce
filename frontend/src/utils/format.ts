@@ -14,3 +14,9 @@ export function formatCompactBDT(amount: number) {
 export function formatNumber(n: number) {
   return n.toLocaleString('en-IN');
 }
+
+export function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
