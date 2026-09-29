@@ -14,7 +14,7 @@ function LoginFormContent() {
   const next = searchParams.get('next') ?? '/';
 
   const [mode, setMode] = useState<'email' | 'phone'>('email');
-  const [email, setEmail] = useState('nusrat.jahan@gmail.com');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
@@ -117,6 +117,7 @@ function LoginFormContent() {
               label="Email"
               type="email"
               autoComplete="email"
+              placeholder="your.email@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               error={errors.email}
@@ -126,10 +127,10 @@ function LoginFormContent() {
                 label="Password"
                 type="password"
                 autoComplete="current-password"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={errors.password}
-                hint="Any 6+ characters works in this demo"
               />
               <Link
                 href="/forgot-password"

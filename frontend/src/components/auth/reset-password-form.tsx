@@ -16,8 +16,12 @@ function ResetPasswordFormContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pw.a.length < 8) {
-      setError('Use at least 8 characters');
+    if (!token) {
+      setError('Invalid or missing reset token. Please request a new reset code.');
+      return;
+    }
+    if (pw.a.length < 6) {
+      setError('Password must be at least 6 characters');
       return;
     }
     if (pw.a !== pw.b) {
@@ -26,10 +30,48 @@ function ResetPasswordFormContent() {
     }
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setLoading(false);
 
-    router.push('/login');
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const res = await fetch(`${apiUrl}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          resetToken: token,
+          newPassword: pw.a,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errMsg = Array.isArray(data.message)
+          ? data.message.join(', ')
+          : data.message || 'Failed to reset password. Please request a new code.';
+        setError(errMsg);
+        return;
+      }
+
+      // Save tokens and user info for instant auto-login
+      if (data.data?.accessToken) {
+        localStorage.setItem('accessToken', data.data.accessToken);
+        if (data.data.refreshToken) {
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+        }
+        if (data.data.user) {
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
+      }
+
+      const next = searchParams.get('next') ?? '/';
+      router.push(next);
+    } catch (err) {
+      setError('Unable to connect to server. Please check backend connection.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,7 +82,7 @@ function ResetPasswordFormContent() {
         value={pw.a}
         onChange={(e) => setPw({ ...pw, a: e.target.value })}
         autoComplete="new-password"
-        placeholder="At least 8 characters"
+        placeholder="At least 6 characters"
       />
       <Input
         label="Confirm password"

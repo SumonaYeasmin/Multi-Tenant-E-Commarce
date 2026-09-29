@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 function getPasswordStrength(pw: string): number {
   let s = 0;
-  if (pw.length >= 8) s++;
+  if (pw.length >= 6) s++;
   if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
   if (/\d/.test(pw)) s++;
   if (/[^A-Za-z0-9]/.test(pw)) s++;
@@ -49,7 +49,7 @@ export function RegisterForm() {
       er.phone = 'Enter an 11-digit mobile number';
     }
     if (pwStrength < 2) {
-      er.password = 'Use at least 8 characters with a mix of letters and numbers';
+      er.password = 'Use at least 6 characters with a mix of letters and numbers';
     }
     if (!terms) {
       er.terms = 'You must accept the terms';

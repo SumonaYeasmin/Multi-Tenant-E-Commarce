@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { RedisService } from '../../../shared/redis/redis.service';
 import { OtpService } from './otp.service';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { OtpType } from '../../../../prisma/generated/client';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
+import { generateTokens } from '../utils/token.util';
 import * as bcrypt from 'bcrypt';
 import {
     NotFoundException,
@@ -20,6 +23,8 @@ export class PasswordService {
         private readonly prisma: PrismaService,
         private readonly otpService: OtpService,
         private readonly jwtService: JwtService,
+        private readonly configService: ConfigService,
+        private readonly redisService: RedisService,
     ) { }
 
     async forgotPassword(dto: ForgotPasswordDto) {
@@ -44,12 +49,46 @@ export class PasswordService {
             }
 
             const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
-            await this.prisma.user.update({
+            const updatedUser = await this.prisma.user.update({
                 where: { id: user.id },
-                data: { password: hashedPassword },
+                data: {
+                    password: hashedPassword,
+                    status: 'ACTIVE',
+                    lastLoginAt: new Date(),
+                },
             });
 
-            return ResponseHelper.success(null, 'Password reset successful');
+            // Generate tokens for seamless auto-login
+            const payload = {
+                sub: updatedUser.id,
+                email: updatedUser.email,
+                role: updatedUser.role,
+            };
+            const { accessToken, refreshToken } = generateTokens(
+                this.jwtService,
+                this.configService,
+                payload,
+            );
+
+            // Store refresh token in Redis (30 days)
+            const refreshExpiresInStr = this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN') as string;
+            const ttlSeconds = refreshExpiresInStr && refreshExpiresInStr.includes('d')
+                ? parseInt(refreshExpiresInStr) * 24 * 60 * 60
+                : 30 * 24 * 60 * 60;
+            await this.redisService.set(`refresh_token:${updatedUser.id}`, refreshToken, ttlSeconds);
+
+            return ResponseHelper.success(
+                {
+                    accessToken,
+                    refreshToken,
+                    user: {
+                        id: updatedUser.id,
+                        email: updatedUser.email,
+                        role: updatedUser.role,
+                    },
+                },
+                'Password reset successful. You are now logged in.',
+            );
         } catch (error) {
             if (error instanceof NotFoundException) throw error;
             throw new UnauthorizedException('Invalid or expired reset token');
