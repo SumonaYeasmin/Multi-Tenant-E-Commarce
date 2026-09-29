@@ -1,6 +1,6 @@
 import React from 'react';
 import { getUserInfo } from '@/services/auth/getUserInfo';
-import { getNavItemsByRole, type NavItem } from '@/lib/navitems.config';
+import { getNavItemsByRole, type NavItem } from '@/config/menu-items';
 import { DashboardNavbarContent } from './DashboardNavbarContent';
 import type { UserInfo } from '@/types/user';
 

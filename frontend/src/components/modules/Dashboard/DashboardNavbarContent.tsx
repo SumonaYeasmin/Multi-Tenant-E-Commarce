@@ -6,7 +6,7 @@ import { Search } from 'lucide-react';
 import { DashboardMobileSidebar } from './DashboardMobileSidebar';
 import { NotificationBell } from './NotificationBell';
 import { UserDropdown } from './UserDropdown';
-import type { NavItem } from '@/lib/navitems.config';
+import type { NavItem } from '@/config/menu-items';
 import type { UserInfo } from '@/types/user';
 
 interface DashboardNavbarContentProps {

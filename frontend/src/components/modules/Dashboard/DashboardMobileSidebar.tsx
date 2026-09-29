@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { DashboardSidebarContent } from './DashboardSidebarContent';
 import { cn } from '@/lib/utils';
-import type { NavItem } from '@/lib/navitems.config';
+import type { NavItem } from '@/config/menu-items';
 import type { UserInfo } from '@/types/user';
 
 interface DashboardMobileSidebarProps {

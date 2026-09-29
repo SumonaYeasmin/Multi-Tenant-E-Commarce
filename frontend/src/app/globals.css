@@ -86,6 +86,12 @@
   --clay-soft: 243 230 223;
   --danger: 180 35 24;
   --danger-soft: 251 233 231;
+  --success: 47 107 79;
+  --success-soft: 227 239 232;
+  --warning: 138 90 18;
+  --warning-soft: 248 237 214;
+  --info: 43 92 138;
+  --info-soft: 228 237 246;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

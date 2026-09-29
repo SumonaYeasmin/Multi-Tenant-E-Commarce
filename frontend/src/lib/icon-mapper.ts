@@ -28,6 +28,10 @@ import {
   ScrollText,
   Gem,
   CircleHelp,
+  User,
+  Package,
+  Heart,
+  MapPin,
 } from 'lucide-react';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -58,6 +62,10 @@ const iconMap: Record<string, LucideIcon> = {
   Settings,
   ScrollText,
   Gem,
+  User,
+  Package,
+  Heart,
+  MapPin,
 };
 
 export function getIconComponent(iconName?: string | LucideIcon): LucideIcon {

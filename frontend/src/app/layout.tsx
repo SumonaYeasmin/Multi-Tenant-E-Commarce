@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "Merchant administration for Tanti",
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,6 +35,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-canvas text-ink font-sans antialiased">
         {children}
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

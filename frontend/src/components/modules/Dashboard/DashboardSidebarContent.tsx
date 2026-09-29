@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getIconComponent } from '@/lib/icon-mapper';
-import type { NavItem } from '@/lib/navitems.config';
+import type { NavItem } from '@/config/menu-items';
 import type { UserInfo } from '@/types/user';
 
 interface DashboardSidebarContentProps {
