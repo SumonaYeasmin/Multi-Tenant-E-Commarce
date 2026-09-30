@@ -1,0 +1,26 @@
+
+model Category {
+    id          String    @id @default(uuid())
+    tenantId    String    
+    name        String
+    slug        String    
+    description String?
+    image       String?
+    
+    // ডিসপ্লে ও স্ট্যাটাস
+    isActive    Boolean   @default(true)
+    showInNav   Boolean   @default(true)
+    order       Int       @default(0)
+
+    // সাব-ক্যাটাগরি রিলেশন (Self-Relation)
+    parentId    String?
+    parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+    children    Category[] @relation("CategoryHierarchy")
+
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    // একই টেন্যান্টের আন্ডারে স্লাগ ইউনিক হবে
+    @@unique([tenantId, slug])
+    @@map("categories")
+}

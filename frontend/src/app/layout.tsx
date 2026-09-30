@@ -1,21 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Next.js Enterprise Template",
-  description: "Enterprise-ready Next.js template with best practices",
+  title: "Tanti Admin · Multi-Tenant Fashion Platform",
+  description: "Merchant administration for Tanti",
 };
+
+import { Toaster } from "sonner";
+import { TenantProvider } from "@/contexts/TenantContext";
 
 export default function RootLayout({
   children,
@@ -25,9 +32,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} font-sans h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-canvas text-ink font-sans text-base antialiased">
+        <TenantProvider>
+          {children}
+          <Toaster position="bottom-center" />
+        </TenantProvider>
+      </body>
     </html>
   );
 }

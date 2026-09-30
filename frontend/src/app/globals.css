@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,9 +8,32 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-sans), 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+  --font-display: var(--font-display), 'Fraunces', Georgia, serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+
+  --color-canvas: rgb(var(--canvas));
+  --color-surface: rgb(var(--surface));
+  --color-subtle: rgb(var(--subtle));
+  --color-ink: rgb(var(--ink));
+  --color-ink-soft: rgb(var(--ink-soft));
+  --color-ink-muted: rgb(var(--ink-muted));
+  --color-line: rgb(var(--line));
+  --color-line-strong: rgb(var(--line-strong));
+  --color-clay: rgb(var(--clay));
+  --color-clay-dark: rgb(var(--clay-dark));
+  --color-clay-soft: rgb(var(--clay-soft));
+  --color-danger: rgb(var(--danger));
+  --color-danger-soft: rgb(var(--danger-soft));
+  --color-success: rgb(var(--success));
+  --color-success-soft: rgb(var(--success-soft));
+  --color-warning: rgb(var(--warning));
+  --color-warning-soft: rgb(var(--warning-soft));
+  --color-info: rgb(var(--info));
+  --color-info-soft: rgb(var(--info-soft));
+  --shadow-pop: 0 12px 32px -8px rgb(28 26 23 / 0.18), 0 2px 6px rgb(28 26 23 / 0.06);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,6 +73,26 @@
 }
 
 :root {
+  --canvas: 247 244 239;
+  --surface: 255 255 255;
+  --subtle: 240 236 229;
+  --ink: 28 26 23;
+  --ink-soft: 74 69 62;
+  --ink-muted: 110 103 94;
+  --line: 231 225 216;
+  --line-strong: 208 200 188;
+  --clay: 154 63 36;
+  --clay-dark: 124 49 27;
+  --clay-soft: 243 230 223;
+  --danger: 180 35 24;
+  --danger-soft: 251 233 231;
+  --success: 47 107 79;
+  --success-soft: 227 239 232;
+  --warning: 138 90 18;
+  --warning-soft: 248 237 214;
+  --info: 43 92 138;
+  --info-soft: 228 237 246;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -121,9 +165,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-canvas text-ink font-sans antialiased;
   }
+
   html {
     @apply font-sans;
   }
