@@ -74,7 +74,7 @@ export function ReviewsManager({ initialReviews }: ReviewsManagerProps) {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Reviews"
         description={`Average ${avgRating.toFixed(1)} ★ across published reviews. New reviews are held for moderation; spam is filtered automatically.`}

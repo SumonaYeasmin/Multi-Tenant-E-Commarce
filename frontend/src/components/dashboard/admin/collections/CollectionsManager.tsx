@@ -27,7 +27,7 @@ export function CollectionsManager({
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Collections"
         description="Group products for campaigns and navigation — pick them by hand or let rules keep them up to date."

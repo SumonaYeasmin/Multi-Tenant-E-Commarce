@@ -143,7 +143,7 @@ export function ProductEditor({ id }: { id?: string }) {
   const totalStock = useMemo(() => p.variants.reduce((s, v) => s + available(v), 0), [p.variants]);
 
   return (
-    <div className="mx-auto max-w-6xl pb-24">
+    <div className="w-full space-y-6 pb-24">
       <PageHeader
         back={{ href: '/admin/products', label: 'Products' }}
         title={existing ? p.title : 'Add product'}
@@ -669,7 +669,7 @@ export function ProductEditor({ id }: { id?: string }) {
 
       {(dirty || !existing) && !readOnly && (
         <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur-md lg:left-60">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex w-full items-center justify-between gap-3 px-6 py-3 lg:px-8">
             <p className="text-sm text-ink-muted">{existing ? 'Unsaved changes' : 'New product'}</p>
             <div className="flex gap-2">
               <GuardedButton
