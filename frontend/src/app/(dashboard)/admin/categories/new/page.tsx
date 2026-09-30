@@ -149,7 +149,7 @@ export default function AdminNewCategoryPage() {
 
   return (
     <ModuleGate module="products" action="create">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           back={{ href: '/admin/categories', label: 'Categories' }}
           title="Add category"
@@ -383,7 +383,7 @@ export default function AdminNewCategoryPage() {
             <Panel title="Organization">
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[13px] font-medium text-ink">
+                  <label className="mb-1.5 block text-sm font-medium text-ink">
                     Parent category
                   </label>
                   <select
@@ -408,7 +408,7 @@ export default function AdminNewCategoryPage() {
             <Panel title="Storefront visibility">
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[13px] font-medium text-ink">
+                  <label className="mb-1.5 block text-sm font-medium text-ink">
                     Publishing status
                   </label>
                   <select
@@ -475,7 +475,7 @@ export default function AdminNewCategoryPage() {
                         ? 'subcategory'
                         : 'subcategories'}
                     </span>
-                    <span className="font-mono text-[11px]">
+                    <span className="font-mono text-xs">
                       /{slug || 'slug'}
                     </span>
                   </div>

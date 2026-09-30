@@ -260,7 +260,7 @@ export function ProductReviews({ product }: { product: Product }) {
       >
         <div className="space-y-4">
           <fieldset>
-            <legend className="mb-1.5 text-[13px] font-medium text-ink">
+            <legend className="mb-1.5 text-sm font-medium text-ink">
               Your rating
             </legend>
             <div className="flex gap-1">

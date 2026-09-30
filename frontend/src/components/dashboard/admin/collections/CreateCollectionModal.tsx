@@ -120,7 +120,7 @@ export function CreateCollectionModal({
 
         {type === 'rule' && (
           <div className="rounded-lg border border-line bg-canvas/20 p-4">
-            <p className="text-[13px] font-medium text-ink">Conditions</p>
+            <p className="text-sm font-medium text-ink">Conditions</p>
             <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
               <Select
                 aria-label="Field"
@@ -142,7 +142,7 @@ export function CreateCollectionModal({
               />
             </div>
 
-            <p className="mt-3 text-[13px] text-ink-muted">
+            <p className="mt-3 text-sm text-ink-muted">
               <span className="font-semibold text-ink">{matches.length}</span> products currently match
             </p>
 

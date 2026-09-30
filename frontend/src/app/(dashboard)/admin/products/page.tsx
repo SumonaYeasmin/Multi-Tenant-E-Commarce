@@ -121,7 +121,7 @@ export default function AdminProductsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Products"
         description={`${products.length} products · ${products.reduce((s, p) => s + p.variants.length, 0)} variants`}
@@ -177,14 +177,14 @@ export default function AdminProductsPage() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search title, SKU or brand…"
               aria-label="Search products"
-              className="h-9 w-full rounded-md border border-line bg-canvas pl-8 pr-3 text-[13px] text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
+              className="h-9 w-full rounded-md border border-line bg-canvas pl-8 pr-3 text-sm text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
             />
           </div>
           <select
             aria-label="Category"
             value={cat}
             onChange={(e) => setCat(e.target.value)}
-            className="h-9 rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink focus:outline-none"
+            className="h-9 rounded-md border border-line bg-surface px-2.5 text-sm text-ink focus:outline-none"
           >
             <option value="all">All categories</option>
             {categories.map((c) => (
@@ -197,7 +197,7 @@ export default function AdminProductsPage() {
             aria-label="Stock"
             value={stock}
             onChange={(e) => setStock(e.target.value as typeof stock)}
-            className="h-9 rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink focus:outline-none"
+            className="h-9 rounded-md border border-line bg-surface px-2.5 text-sm text-ink focus:outline-none"
           >
             <option value="all">Any stock level</option>
             <option value="low">Low stock</option>

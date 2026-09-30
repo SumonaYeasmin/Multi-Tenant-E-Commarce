@@ -155,7 +155,7 @@ export function SearchOverlay() {
                                     alt=""
                                     className="aspect-[3/4] w-full rounded object-cover border border-line bg-subtle"
                                   />
-                                  <p className="mt-2 text-[13px] leading-snug group-hover:underline text-ink line-clamp-1">
+                                  <p className="mt-2 text-sm leading-snug group-hover:underline text-ink line-clamp-1">
                                     {p.title}
                                   </p>
                                 </Link>

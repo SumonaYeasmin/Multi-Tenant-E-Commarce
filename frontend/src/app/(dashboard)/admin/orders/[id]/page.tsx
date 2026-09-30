@@ -121,7 +121,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader
         back={{ href: '/admin/orders', label: 'Orders' }}
         title={order.number}
@@ -196,7 +196,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </div>
 
             {/* Financial summary */}
-            <div className="mt-4 border-t border-line pt-4 text-[13px] space-y-1.5">
+            <div className="mt-4 border-t border-line pt-4 text-sm space-y-1.5">
               <div className="flex justify-between text-ink-soft">
                 <span>Subtotal</span>
                 <span className="tabular-nums font-medium text-ink">{formatBDT(order.subtotal)}</span>
@@ -247,7 +247,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Add a staff note…"
-                className="h-9 flex-1 rounded-md border border-line bg-canvas px-3 text-[13px] text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
+                className="h-9 flex-1 rounded-md border border-line bg-canvas px-3 text-sm text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
               />
               <Button
                 size="sm"
@@ -268,7 +268,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 <li key={idx} className="relative">
                   <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-surface bg-ink" />
                   <p className="font-medium text-ink">{e.label}</p>
-                  <p className="text-[11px] text-ink-muted">
+                  <p className="text-xs text-ink-muted">
                     {formatDateTime(e.at)} {e.by && `· by ${e.by}`}
                   </p>
                   {e.note && <p className="mt-1 rounded bg-canvas p-2 text-ink-soft italic">“{e.note}”</p>}
@@ -281,7 +281,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         {/* Right Sidebar: Customer & Shipping Details */}
         <div className="space-y-6">
           <Panel title="Customer">
-            <div className="space-y-3 text-[13px]">
+            <div className="space-y-3 text-sm">
               <div>
                 <p className="font-semibold text-ink">{order.customerName}</p>
                 <p className="text-xs text-ink-muted">{order.email}</p>

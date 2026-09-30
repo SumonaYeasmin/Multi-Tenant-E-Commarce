@@ -88,7 +88,7 @@ export default function AbandonedCheckoutsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader
         back={{ href: '/admin/orders', label: 'Orders' }}
         title="Abandoned checkouts"

@@ -45,7 +45,7 @@ export function DashboardSidebarContent({
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-ink leading-tight">{tenant.name}</p>
-          <p className="truncate text-[11px] text-ink-muted leading-tight">{tenant.domain}</p>
+          <p className="truncate text-xs text-ink-muted leading-tight">{tenant.domain}</p>
         </div>
         <Link
           href="/"
@@ -63,7 +63,7 @@ export function DashboardSidebarContent({
         {categories.map((group) => (
           <div key={group.name || 'main'} className="mb-4">
             {group.name ? (
-              <p className="mb-1 px-2.5 text-[11px] font-medium text-ink-muted">
+              <p className="mb-1 px-2.5 text-xs font-medium text-ink-muted">
                 {group.name}
               </p>
             ) : null}
@@ -85,7 +85,7 @@ export function DashboardSidebarContent({
                       href={item.href}
                       onClick={onItemClick}
                       className={cn(
-                        'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors duration-100',
+                        'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors duration-100',
                         isActive || expanded
                           ? 'bg-surface font-medium text-ink shadow-sm'
                           : 'text-ink-soft hover:bg-subtle hover:text-ink'
@@ -111,7 +111,7 @@ export function DashboardSidebarContent({
                                 href={child.href}
                                 onClick={onItemClick}
                                 className={cn(
-                                  'block rounded-md px-2 py-1 text-[13px] transition-colors',
+                                  'block rounded-md px-2 py-1 text-sm transition-colors',
                                   isChildActive
                                     ? 'font-medium text-ink'
                                     : 'text-ink-muted hover:text-ink'
@@ -143,7 +143,7 @@ export function DashboardSidebarContent({
             <ExternalLink className="h-3.5 w-3.5 text-ink-muted" />
             <span>Live Storefront</span>
           </div>
-          <span className="text-[11px] text-ink-muted">Tanti</span>
+          <span className="text-xs text-ink-muted">Tanti</span>
         </Link>
       </div>
     </div>

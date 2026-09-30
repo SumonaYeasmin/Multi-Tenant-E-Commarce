@@ -25,7 +25,7 @@ export default function AdminIntegrationsPage() {
 
   return (
     <ModuleGate module="integrations">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Integrations"
           description="Payment gateways, couriers, messaging and analytics — plus API keys and webhooks for your own systems."
@@ -59,7 +59,7 @@ export default function AdminIntegrationsPage() {
                           {i.name[0]}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-medium text-ink">
+                          <p className="text-sm font-medium text-ink">
                             {i.name}
                           </p>
                           <p className="truncate text-xs text-ink-muted">
@@ -113,7 +113,7 @@ export default function AdminIntegrationsPage() {
               {apiKeys.map((k) => (
                 <li
                   key={k.id}
-                  className="flex flex-wrap items-center gap-4 px-5 py-3.5 text-[13px] hover:bg-subtle/30"
+                  className="flex flex-wrap items-center gap-4 px-5 py-3.5 text-sm hover:bg-subtle/30"
                 >
                   <Key className="h-4 w-4 text-ink-muted" aria-hidden />
                   <div className="min-w-[200px] flex-1">
@@ -169,7 +169,7 @@ export default function AdminIntegrationsPage() {
                 {webhooks.map((w) => (
                   <li
                     key={w.id}
-                    className="flex flex-wrap items-center gap-4 px-5 py-3.5 text-[13px] hover:bg-subtle/30"
+                    className="flex flex-wrap items-center gap-4 px-5 py-3.5 text-sm hover:bg-subtle/30"
                   >
                     <Webhook className="h-4 w-4 text-ink-muted" aria-hidden />
                     <div className="min-w-[200px] flex-1">
@@ -195,7 +195,7 @@ export default function AdminIntegrationsPage() {
                 {webhookLogs.map((l) => (
                   <li
                     key={l.id}
-                    className="flex flex-wrap items-center gap-4 px-5 py-2.5 text-[13px] hover:bg-subtle/30"
+                    className="flex flex-wrap items-center gap-4 px-5 py-2.5 text-sm hover:bg-subtle/30"
                   >
                     <span className="w-32 text-xs text-ink-muted">
                       {formatDateTime(l.at)}

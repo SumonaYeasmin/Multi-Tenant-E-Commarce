@@ -13,7 +13,7 @@ export function Textarea({ label, hint, error, className, id, rows = 4, ...rest 
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={tid} className="mb-1.5 block text-[13px] font-medium text-ink">
+        <label htmlFor={tid} className="mb-1.5 block text-sm font-medium text-ink">
           {label}
         </label>
       )}

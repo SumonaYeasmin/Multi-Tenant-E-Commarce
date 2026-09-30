@@ -23,7 +23,7 @@ export function Select({ label, error, options, className, id, ...rest }: Select
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={selectId} className="mb-1.5 block text-[13px] font-medium text-ink">
+        <label htmlFor={selectId} className="mb-1.5 block text-sm font-medium text-ink">
           {label}
         </label>
       )}

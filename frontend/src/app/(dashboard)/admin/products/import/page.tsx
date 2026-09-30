@@ -40,13 +40,13 @@ export default function AdminProductImportPage() {
 
   return (
     <ModuleGate module="products" action="create">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           back={{ href: '/admin/products', label: 'Products' }}
           title="Import & export products"
           description="Bulk-create or update products, variants, prices and stock using CSV."
         />
-        <ol className="mb-6 flex flex-wrap items-center gap-3 text-[13px]" aria-label="Import progress">
+        <ol className="mb-6 flex flex-wrap items-center gap-3 text-sm" aria-label="Import progress">
           {steps.map((s, i) => (
             <li key={s} className="flex items-center gap-2">
               <span
@@ -99,7 +99,7 @@ export default function AdminProductImportPage() {
             </Panel>
             <div className="space-y-6">
               <Panel title="Template">
-                <p className="text-[13px] text-ink-muted">
+                <p className="text-sm text-ink-muted">
                   Start from our template with all supported columns: handle, title, variant options, SKU, barcode, price, sale price, cost, stock per location, weight, SEO.
                 </p>
                 <div className="mt-3">
@@ -113,7 +113,7 @@ export default function AdminProductImportPage() {
                 </div>
               </Panel>
               <Panel title="Export">
-                <p className="text-[13px] text-ink-muted">Export all products with variants and stock.</p>
+                <p className="text-sm text-ink-muted">Export all products with variants and stock.</p>
                 <div className="mt-3">
                   <Button
                     variant="secondary"
@@ -135,7 +135,7 @@ export default function AdminProductImportPage() {
             flush
           >
             {errors > 0 && (
-              <div className="flex flex-wrap items-center gap-2 border-b border-line bg-amber-500/10 px-5 py-3 text-[13px] text-amber-700 dark:text-amber-400">
+              <div className="flex flex-wrap items-center gap-2 border-b border-line bg-amber-500/10 px-5 py-3 text-sm text-amber-700 dark:text-amber-400">
                 <AlertTriangle className="h-4 w-4" aria-hidden /> Rows with errors will be skipped. Fix them and re-upload, or continue with the valid rows.
                 <button
                   type="button"
@@ -147,7 +147,7 @@ export default function AdminProductImportPage() {
               </div>
             )}
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-[13px]">
+              <table className="w-full min-w-[640px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-ink-muted">
                     <th className="px-5 py-2 font-medium">Row</th>

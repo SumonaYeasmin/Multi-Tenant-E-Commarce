@@ -54,7 +54,7 @@ export default function AdminThemePage() {
 
   return (
     <ModuleGate module="theme">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Theme"
           description="Customize your storefront. Changes are saved as a draft until you publish."
@@ -106,7 +106,7 @@ export default function AdminThemePage() {
                   <Reorder.Item
                     key={s.id}
                     value={s}
-                    className="flex cursor-grab items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-2 text-[13px] active:cursor-grabbing"
+                    className="flex cursor-grab items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-2 text-sm active:cursor-grabbing"
                   >
                     <GripVertical
                       className="h-4 w-4 text-ink-muted"
@@ -144,7 +144,7 @@ export default function AdminThemePage() {
               </Reorder.Group>
             </Panel>
             <Panel title="Brand">
-              <p className="text-[13px] font-medium text-ink">Accent colour</p>
+              <p className="text-sm font-medium text-ink">Accent colour</p>
               <div className="mt-2 flex gap-2">
                 {accents.map((c) => (
                   <button
@@ -190,7 +190,7 @@ export default function AdminThemePage() {
                 {themeVersions.map((v) => (
                   <li
                     key={v.id}
-                    className="flex items-center gap-2 px-5 py-2.5 text-[13px]"
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm"
                   >
                     <div className="flex-1">
                       <p className="font-medium text-ink">{v.label}</p>
@@ -259,7 +259,7 @@ export default function AdminThemePage() {
             >
               <div className="flex items-center justify-between border-b border-line bg-surface px-4 py-3">
                 <span className={cn('text-lg font-bold text-ink', serif)}>Tanti</span>
-                <span className="flex gap-3 text-[11px] text-ink-soft">
+                <span className="flex gap-3 text-xs text-ink-soft">
                   {device === 'desktop' &&
                     ['Women', 'Men', 'Kids', 'Sale'].map((x) => (
                       <span key={x}>{x}</span>
@@ -283,7 +283,7 @@ export default function AdminThemePage() {
                               The Eid Edit 2026
                             </p>
                             <span
-                              className="mt-2 w-fit rounded px-3 py-1 text-[11px] font-medium text-white shadow-sm"
+                              className="mt-2 w-fit rounded px-3 py-1 text-xs font-medium text-white shadow-sm"
                               style={{ backgroundColor: accent }}
                             >
                               Shop the collection

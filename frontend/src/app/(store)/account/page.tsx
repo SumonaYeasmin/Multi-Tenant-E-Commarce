@@ -199,7 +199,7 @@ export default function AccountDashboardPage() {
                   alt=""
                   className="aspect-[3/4] w-full rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                <p className="mt-2 text-[13px] group-hover:underline">{p.title}</p>
+                <p className="mt-2 text-sm group-hover:underline">{p.title}</p>
               </Link>
             ))}
           </div>

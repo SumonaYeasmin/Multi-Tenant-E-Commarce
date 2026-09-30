@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
   ].filter((t) => t.show);
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <div className="mb-6">
         <h1 className="text-xl font-semibold tracking-tight text-ink">
           Good morning, {me.person.split(' ')[0]}
@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm text-ink-muted">Net sales</p>
                 <p className="mt-1 text-3xl font-semibold tracking-tight text-ink tabular-nums">{formatBDT(total)}</p>
-                <p className="mt-1 flex items-center gap-1 text-[13px]">
+                <p className="mt-1 flex items-center gap-1 text-sm">
                   <span className="inline-flex items-center font-medium text-success">
                     <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                     {change.toFixed(1)}%
@@ -185,7 +185,7 @@ export default function AdminDashboardPage() {
           className="lg:col-span-2"
           title="Recent orders"
           actions={
-            <Link href="/admin/orders" className="text-[13px] font-medium text-ink hover:text-clay transition-colors">
+            <Link href="/admin/orders" className="text-sm font-medium text-ink hover:text-clay transition-colors">
               View all
             </Link>
           }
@@ -198,11 +198,11 @@ export default function AdminDashboardPage() {
                   href={`/admin/orders/${o.id}`}
                   className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-3 hover:bg-canvas transition-colors sm:grid-cols-[110px_1fr_auto_auto_90px]"
                 >
-                  <span className="text-[13px] font-medium text-ink">{o.number}</span>
-                  <span className="text-right text-[13px] tabular-nums text-ink font-medium sm:order-4">
+                  <span className="text-sm font-medium text-ink">{o.number}</span>
+                  <span className="text-right text-sm tabular-nums text-ink font-medium sm:order-4">
                     {formatBDT(o.total)}
                   </span>
-                  <span className="truncate text-[13px] text-ink-soft sm:order-1">
+                  <span className="truncate text-sm text-ink-soft sm:order-1">
                     {o.customerName} <span className="text-ink-muted">· {timeAgo(o.createdAt)}</span>
                   </span>
                   <span className="hidden sm:order-2 sm:block">
@@ -225,7 +225,7 @@ export default function AdminDashboardPage() {
                   <li key={p.id} className="flex items-center gap-3 px-5 py-2.5">
                     <span className="w-4 text-xs text-ink-muted tabular-nums">{i + 1}</span>
                     <img src={p.images[0]} alt="" className="h-9 w-7 rounded object-cover" />
-                    <span className="flex-1 truncate text-[13px] text-ink">{p.title}</span>
+                    <span className="flex-1 truncate text-sm text-ink">{p.title}</span>
                     <span className="text-xs text-ink-muted tabular-nums">{p.sold} sold</span>
                   </li>
                 ))}
@@ -240,7 +240,7 @@ export default function AdminDashboardPage() {
                 </span>
               }
               actions={
-                <Link href="/admin/inventory" className="text-[13px] font-medium text-ink hover:text-clay transition-colors">
+                <Link href="/admin/inventory" className="text-sm font-medium text-ink hover:text-clay transition-colors">
                   Inventory
                 </Link>
               }
@@ -248,7 +248,7 @@ export default function AdminDashboardPage() {
             >
               <ul className="divide-y divide-line">
                 {lowStock.map(({ p, v }) => (
-                  <li key={v.id} className="flex items-center gap-3 px-5 py-2.5 text-[13px]">
+                  <li key={v.id} className="flex items-center gap-3 px-5 py-2.5 text-sm">
                     <span className="flex-1 truncate text-ink">
                       {p.title} <span className="text-ink-muted">· {v.color} / {v.size}</span>
                     </span>

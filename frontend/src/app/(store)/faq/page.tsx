@@ -44,7 +44,7 @@ export default function FaqPage() {
             key={c ?? 'all'}
             onClick={() => setCat(c)}
             className={cn(
-              'rounded-full border px-3.5 py-1.5 text-[13px] cursor-pointer transition-colors',
+              'rounded-full border px-3.5 py-1.5 text-sm cursor-pointer transition-colors',
               cat === c
                 ? 'border-ink bg-ink text-canvas'
                 : 'border-line-strong hover:border-ink'

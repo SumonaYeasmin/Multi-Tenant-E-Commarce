@@ -119,7 +119,7 @@ function OrdersContent() {
   const count = (t: Tab) => orders.filter(tabFilter[t]).length;
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Orders"
         description={`${orders.length} orders · ${count('unfulfilled')} awaiting fulfillment`}
@@ -170,14 +170,14 @@ function OrdersContent() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by order #, customer, phone or email…"
               aria-label="Search orders"
-              className="h-9 w-full rounded-md border border-line bg-canvas pl-8 pr-3 text-[13px] text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
+              className="h-9 w-full rounded-md border border-line bg-canvas pl-8 pr-3 text-sm text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
             />
           </div>
           <select
             aria-label="Payment method filter"
             value={method}
             onChange={(e) => setMethod(e.target.value as typeof method)}
-            className="h-9 rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink focus:outline-none"
+            className="h-9 rounded-md border border-line bg-surface px-2.5 text-sm text-ink focus:outline-none"
           >
             <option value="all">All payment methods</option>
             <option value="bkash">bKash</option>
@@ -190,7 +190,7 @@ function OrdersContent() {
             aria-label="Channel filter"
             value={channel}
             onChange={(e) => setChannel(e.target.value as typeof channel)}
-            className="h-9 rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink focus:outline-none"
+            className="h-9 rounded-md border border-line bg-surface px-2.5 text-sm text-ink focus:outline-none"
           >
             <option value="all">All channels</option>
             <option value="online">Online store</option>

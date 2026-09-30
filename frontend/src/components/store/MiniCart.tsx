@@ -61,7 +61,7 @@ export function MiniCart() {
       ) : (
         <>
           <div className="border-b border-line bg-canvas px-5 py-3">
-            <p className="flex items-center gap-2 text-[13px]">
+            <p className="flex items-center gap-2 text-sm">
               <TruckIcon className="h-4 w-4 text-ink-muted shrink-0" aria-hidden />
               {remaining > 0 ? (
                 <span>

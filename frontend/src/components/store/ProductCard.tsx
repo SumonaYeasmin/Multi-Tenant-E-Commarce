@@ -64,7 +64,7 @@ export function ProductCard({
         {flag && (
           <span
             className={cn(
-              'absolute left-2.5 top-2.5 rounded px-2 py-0.5 text-[11px] font-semibold',
+              'absolute left-2.5 top-2.5 rounded px-2 py-0.5 text-xs font-semibold',
               flag.cls
             )}
           >
@@ -85,7 +85,7 @@ export function ProductCard({
           <div className="absolute inset-x-2.5 bottom-2.5 hidden gap-2 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 md:flex">
             <button
               onClick={() => setQuickViewId(product.id)}
-              className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md bg-surface text-[13px] font-medium text-ink hover:bg-canvas cursor-pointer shadow-xs transition-colors"
+              className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md bg-surface text-sm font-medium text-ink hover:bg-canvas cursor-pointer shadow-xs transition-colors"
             >
               <EyeIcon className="h-4 w-4" aria-hidden /> Quick view
             </button>
@@ -151,13 +151,13 @@ export function ProductCard({
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => setQuickViewId(product.id)}
-                className="h-9 rounded-md border border-line-strong px-3 text-[13px] font-medium text-ink hover:bg-subtle cursor-pointer"
+                className="h-9 rounded-md border border-line-strong px-3 text-sm font-medium text-ink hover:bg-subtle cursor-pointer"
               >
                 Quick view
               </button>
               <button
                 onClick={() => toggleCompare(product.id)}
-                className="h-9 rounded-md px-3 text-[13px] font-medium text-ink-soft hover:bg-subtle cursor-pointer"
+                className="h-9 rounded-md px-3 text-sm font-medium text-ink-soft hover:bg-subtle cursor-pointer"
               >
                 {compared ? 'Comparing' : 'Compare'}
               </button>

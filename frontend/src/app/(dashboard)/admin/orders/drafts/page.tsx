@@ -66,7 +66,7 @@ export default function DraftOrdersPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader
         back={{ href: '/admin/orders', label: 'Orders' }}
         title="Draft & manual orders"
@@ -111,7 +111,7 @@ export default function DraftOrdersPage() {
                 {detailed.map((l, idx) => (
                   <li key={idx} className="flex flex-wrap items-center gap-3 py-3">
                     <img src={l.p.images[0]} alt="" className="h-12 w-9 rounded object-cover" />
-                    <div className="min-w-[140px] flex-1 text-[13px]">
+                    <div className="min-w-[140px] flex-1 text-sm">
                       <p className="font-medium text-ink">{l.p.title}</p>
                       <select
                         aria-label="Variant"
@@ -134,7 +134,7 @@ export default function DraftOrdersPage() {
                       onChange={(e) => setLines((ls) => ls.map((x, i) => (i === idx ? { ...x, qty: Math.max(1, Number(e.target.value)) } : x)))}
                       className="h-8 w-16 rounded border border-line bg-surface px-2 text-sm text-ink focus:outline-none"
                     />
-                    <div className="w-28 text-right text-[13px]">
+                    <div className="w-28 text-right text-sm">
                       <p className="tabular-nums font-medium text-ink">{formatBDT(l.unit * l.qty)}</p>
                       {l.tier < 1 && <p className="text-xs text-success">{Math.round((1 - l.tier) * 100)}% volume price</p>}
                     </div>
@@ -155,7 +155,7 @@ export default function DraftOrdersPage() {
           <Panel title="Recent drafts" flush>
             <ul className="divide-y divide-line">
               {drafts.map((d) => (
-                <li key={d.id} className="flex items-center gap-4 px-5 py-3 text-[13px]">
+                <li key={d.id} className="flex items-center gap-4 px-5 py-3 text-sm">
                   <span className="font-medium text-ink">{d.id}</span>
                   <span className="flex-1 text-ink">{d.customer} · {d.items} items</span>
                   <span className="text-ink-muted">{formatDate(d.created)}</span>
@@ -192,7 +192,7 @@ export default function DraftOrdersPage() {
               <Input label="Discount (৳)" inputMode="numeric" value={discount} onChange={(e) => setDiscount(e.target.value.replace(/\D/g, ''))} />
               <Input label="Shipping (৳)" inputMode="numeric" value={shipping} onChange={(e) => setShipping(e.target.value.replace(/\D/g, ''))} />
             </div>
-            <dl className="mt-4 space-y-1.5 border-t border-line pt-4 text-[13px]">
+            <dl className="mt-4 space-y-1.5 border-t border-line pt-4 text-sm">
               <div className="flex justify-between">
                 <dt className="text-ink-muted">Subtotal</dt>
                 <dd className="font-medium text-ink tabular-nums">{formatBDT(subtotal)}</dd>

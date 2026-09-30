@@ -24,7 +24,7 @@ export default function AdminShippingPage() {
 
   return (
     <ModuleGate module="shipping">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Shipping & delivery"
           description="Zones, rates and couriers. Customers see the right options for their district at checkout."
@@ -66,7 +66,7 @@ export default function AdminShippingPage() {
                         Edit
                       </GuardedButton>
                     </div>
-                    <table className="mt-3 w-full text-[13px]">
+                    <table className="mt-3 w-full text-sm">
                       <tbody className="divide-y divide-line">
                         {z.rates.map((r) => (
                           <tr key={r.name}>
@@ -127,7 +127,7 @@ export default function AdminShippingPage() {
 
           <div className="space-y-6">
             <Panel title="Free delivery">
-              <p className="text-[13px] text-ink-soft">
+              <p className="text-sm text-ink-soft">
                 Inside Dhaka on orders over{' '}
                 <b className="text-ink">{formatBDT(FREE_SHIPPING_THRESHOLD)}</b>. Shown
                 as a progress bar in the cart.
@@ -148,7 +148,7 @@ export default function AdminShippingPage() {
               </div>
             </Panel>
             <Panel title="Delivery performance · 30d">
-              <dl className="grid grid-cols-2 gap-3 text-[13px]">
+              <dl className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <dt className="text-xs text-ink-muted">Delivered</dt>
                   <dd className="font-semibold text-ink">95.4%</dd>

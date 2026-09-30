@@ -17,7 +17,7 @@ export function PageHeader({ title, description, actions, back, meta }: PageHead
       {backHref && (
         <Link
           href={backHref}
-          className="mb-2 inline-flex items-center gap-1 text-[13px] text-ink-muted transition-colors hover:text-ink cursor-pointer"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-ink-muted transition-colors hover:text-ink cursor-pointer"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden /> {back?.label}
         </Link>

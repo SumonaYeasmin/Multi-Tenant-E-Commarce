@@ -110,7 +110,7 @@ export default function AdminInventoryPage() {
 
   return (
     <ModuleGate module="inventory">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Inventory"
           description="Available = on hand − reserved in unpaid/unfulfilled orders. Overselling is blocked at checkout."
@@ -166,7 +166,7 @@ export default function AdminInventoryPage() {
               aria-label="Location"
               value={loc}
               onChange={(e) => setLoc(e.target.value)}
-              className="mb-2 h-9 rounded-md border border-line-strong bg-surface px-2 text-[13px] text-ink"
+              className="mb-2 h-9 rounded-md border border-line-strong bg-surface px-2 text-sm text-ink"
             >
               {locations.map((l) => (
                 <option key={l.id} value={l.id}>
@@ -189,7 +189,7 @@ export default function AdminInventoryPage() {
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search product or SKU…"
                     aria-label="Search inventory"
-                    className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[13px] text-ink focus:border-clay focus:outline-none"
+                    className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm text-ink focus:border-clay focus:outline-none"
                   />
                 </div>
                 <div
@@ -216,7 +216,7 @@ export default function AdminInventoryPage() {
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[680px] text-[13px]">
+                <table className="w-full min-w-[680px] text-sm">
                   <thead>
                     <tr className="border-b border-line text-left text-xs text-ink-muted">
                       <th className="px-4 py-2.5 font-medium">Variant</th>
@@ -310,7 +310,7 @@ export default function AdminInventoryPage() {
 
           {tab === 'ledger' && (
             <div className="overflow-x-auto border-t border-line">
-              <table className="w-full min-w-[720px] text-[13px]">
+              <table className="w-full min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-ink-muted">
                     <th className="px-4 py-2.5 font-medium">Time</th>
@@ -376,7 +376,7 @@ export default function AdminInventoryPage() {
                 {transfers.map((t) => (
                   <li
                     key={t.id}
-                    className="flex flex-wrap items-center gap-4 px-4 py-3 text-[13px] hover:bg-subtle/40"
+                    className="flex flex-wrap items-center gap-4 px-4 py-3 text-sm hover:bg-subtle/40"
                   >
                     <span className="w-20 font-medium text-ink">{t.id}</span>
                     <span className="flex-1 text-ink">
@@ -446,7 +446,7 @@ export default function AdminInventoryPage() {
                   autoFocus
                 />
                 <div>
-                  <p className="mb-1.5 text-[13px] font-medium text-ink">New on hand</p>
+                  <p className="mb-1.5 text-sm font-medium text-ink">New on hand</p>
                   <p className="flex h-10 items-center text-sm tabular-nums text-ink">
                     {adjust.current} →{' '}
                     <b className="ml-1 text-ink">

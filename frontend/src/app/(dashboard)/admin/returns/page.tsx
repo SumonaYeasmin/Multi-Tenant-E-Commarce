@@ -77,7 +77,7 @@ export default function ReturnsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader title="Returns & refunds" description="Review requests, schedule pickups, inspect items and issue refunds or exchanges." />
       <div className="mb-6 grid gap-4 sm:grid-cols-4">
         {stats.map(([l, v]) => (
@@ -117,7 +117,7 @@ export default function ReturnsPage() {
         subtitle={active && `Requested by ${active.customerName} on ${formatDate(active.createdAt)}`}
       >
         {active && (
-          <div className="space-y-5 p-5 text-[13px]">
+          <div className="space-y-5 p-5 text-sm">
             <div>
               <p className="text-xs font-medium text-ink-muted">Requested resolution</p>
               <p className="mt-1 text-base font-semibold capitalize text-ink">
@@ -238,7 +238,7 @@ export default function ReturnsPage() {
                   <li key={idx} className="relative">
                     <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-surface bg-ink" />
                     <p className="font-medium text-ink">{e.label}</p>
-                    <p className="text-[11px] text-ink-muted">
+                    <p className="text-xs text-ink-muted">
                       {formatDateTime(e.at)} {e.by && `· ${e.by}`}
                     </p>
                     {e.note && <p className="mt-0.5 text-ink-soft italic">“{e.note}”</p>}

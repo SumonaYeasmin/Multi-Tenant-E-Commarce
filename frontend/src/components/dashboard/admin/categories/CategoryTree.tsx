@@ -46,7 +46,7 @@ export function CategoryTree({
             <li key={c.key} role="treeitem" aria-expanded={expanded}>
               <div
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 text-[13px] transition-colors rounded-md mx-1.5',
+                  'flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md mx-1.5',
                   isCategorySelected
                     ? 'bg-canvas font-semibold text-ink shadow-xs'
                     : activeKey === c.key
@@ -98,7 +98,7 @@ export function CategoryTree({
                             onSelectSubcategory?.(c.key, sub);
                           }}
                           className={cn(
-                            'flex w-full items-center gap-2 py-1.5 pl-3 pr-3 text-[13px] rounded-md transition-colors cursor-pointer text-left',
+                            'flex w-full items-center gap-2 py-1.5 pl-3 pr-3 text-sm rounded-md transition-colors cursor-pointer text-left',
                             isSubSelected
                               ? 'bg-canvas font-semibold text-ink shadow-xs border-l-2 border-clay'
                               : 'text-ink-soft hover:text-ink hover:bg-subtle/40'

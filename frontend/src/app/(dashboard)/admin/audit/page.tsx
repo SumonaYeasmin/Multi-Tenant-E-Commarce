@@ -32,7 +32,7 @@ export default function AdminAuditPage() {
 
   return (
     <ModuleGate module="audit">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Audit log"
           description="Every sensitive change — who did it, when, and what changed. Retained for 12 months."
@@ -53,7 +53,7 @@ export default function AdminAuditPage() {
             aria-label="Category"
             value={cat}
             onChange={(e) => setCat(e.target.value)}
-            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-[13px] text-ink"
+            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-sm text-ink"
           >
             {categories.map((c) => (
               <option key={c}>{c}</option>
@@ -63,7 +63,7 @@ export default function AdminAuditPage() {
             aria-label="Actor"
             value={actor}
             onChange={(e) => setActor(e.target.value)}
-            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-[13px] text-ink"
+            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-sm text-ink"
           >
             {actors.map((c) => (
               <option key={c}>{c}</option>
@@ -81,7 +81,7 @@ export default function AdminAuditPage() {
                   disabled={!hasDiff}
                   onClick={() => setOpen(expanded ? null : l.id)}
                   aria-expanded={hasDiff ? expanded : undefined}
-                  className="flex w-full flex-wrap items-center gap-3 px-5 py-3 text-left text-[13px] enabled:hover:bg-canvas transition-colors disabled:cursor-default"
+                  className="flex w-full flex-wrap items-center gap-3 px-5 py-3 text-left text-sm enabled:hover:bg-canvas transition-colors disabled:cursor-default"
                 >
                   <span className="w-32 text-xs text-ink-muted">
                     {formatDateTime(l.at)}
@@ -112,13 +112,13 @@ export default function AdminAuditPage() {
                 {expanded && (
                   <div className="grid gap-3 px-5 pb-4 sm:grid-cols-2">
                     <div className="rounded-md bg-red-500/10 p-3 font-mono text-xs text-ink">
-                      <p className="mb-1 font-sans text-[11px] text-ink-muted">
+                      <p className="mb-1 font-sans text-xs text-ink-muted">
                         Before
                       </p>
                       {l.before || '—'}
                     </div>
                     <div className="rounded-md bg-emerald-500/10 p-3 font-mono text-xs text-ink">
-                      <p className="mb-1 font-sans text-[11px] text-ink-muted">
+                      <p className="mb-1 font-sans text-xs text-ink-muted">
                         After
                       </p>
                       {l.after || '—'}

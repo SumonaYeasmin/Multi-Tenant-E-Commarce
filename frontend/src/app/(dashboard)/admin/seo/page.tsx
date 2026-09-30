@@ -25,7 +25,7 @@ export default function AdminSeoPage() {
 
   return (
     <ModuleGate module="content">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="SEO"
           description="Search and social defaults. Products, collections, pages and posts can override them individually."
@@ -79,7 +79,7 @@ export default function AdminSeoPage() {
           <Panel title="Health check" flush>
             <ul className="divide-y divide-line">
               {checks.map((c) => (
-                <li key={c.label} className="flex gap-3 px-5 py-3 text-[13px]">
+                <li key={c.label} className="flex gap-3 px-5 py-3 text-sm">
                   {c.ok ? (
                     <CheckCircle2
                       className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"

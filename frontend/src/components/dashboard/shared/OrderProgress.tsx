@@ -34,7 +34,7 @@ export function OrderProgress({ order }: { order: Order }) {
                 )}
               />
             </div>
-            <span className={cn('mt-2 text-[11px] leading-tight sm:text-xs', done ? 'font-medium text-ink' : 'text-ink-muted')}>
+            <span className={cn('mt-2 text-xs leading-tight sm:text-xs', done ? 'font-medium text-ink' : 'text-ink-muted')}>
               {s.label}
             </span>
           </li>

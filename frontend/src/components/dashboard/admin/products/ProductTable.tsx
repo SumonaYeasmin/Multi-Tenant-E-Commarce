@@ -95,7 +95,7 @@ export function ProductTable({
 
       {/* Desktop Table (md and up) */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-[13px]">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line bg-canvas/60 text-left text-xs text-ink-muted">
               <th className="w-10 px-4 py-2.5">

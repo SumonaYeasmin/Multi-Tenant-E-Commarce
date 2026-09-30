@@ -34,7 +34,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${fraunces.variable} font-sans h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-canvas text-ink font-sans antialiased">
+      <body className="min-h-full flex flex-col bg-canvas text-ink font-sans text-base antialiased">
         <TenantProvider>
           {children}
           <Toaster position="bottom-center" />

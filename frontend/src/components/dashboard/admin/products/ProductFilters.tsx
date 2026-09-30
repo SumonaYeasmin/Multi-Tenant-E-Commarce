@@ -37,7 +37,7 @@ export function ProductFilters({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search title, SKU or brand…"
           aria-label="Search products"
-          className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[13px] text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
+          className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none"
         />
       </div>
 
@@ -46,7 +46,7 @@ export function ProductFilters({
         aria-label="Category"
         value={selectedCategory}
         onChange={(e) => onCategoryChange(e.target.value)}
-        className="h-9 rounded-md border border-line-strong bg-surface px-2.5 text-[13px] text-ink focus:border-clay focus:outline-none cursor-pointer"
+        className="h-9 rounded-md border border-line-strong bg-surface px-2.5 text-sm text-ink focus:border-clay focus:outline-none cursor-pointer"
       >
         <option value="all">All categories</option>
         {categories.map((c) => (
@@ -61,7 +61,7 @@ export function ProductFilters({
         aria-label="Stock"
         value={selectedStock}
         onChange={(e) => onStockChange(e.target.value as StockFilter)}
-        className="h-9 rounded-md border border-line-strong bg-surface px-2.5 text-[13px] text-ink focus:border-clay focus:outline-none cursor-pointer"
+        className="h-9 rounded-md border border-line-strong bg-surface px-2.5 text-sm text-ink focus:border-clay focus:outline-none cursor-pointer"
       >
         <option value="all">Any stock level</option>
         <option value="low">Low stock</option>

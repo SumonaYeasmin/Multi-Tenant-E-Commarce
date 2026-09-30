@@ -35,7 +35,7 @@ export function ReviewItem({ review, onUpdateStatus, onPostReply }: ReviewItemPr
   return (
     <li className="px-5 py-5 transition-colors hover:bg-canvas/30">
       {/* Header: Rating, Author, Badges, Date */}
-      <div className="flex flex-wrap items-center gap-2 text-[13px]">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
         <Rating value={review.rating} size="sm" />
         <span className="font-medium text-ink">{review.author}</span>
 
@@ -89,7 +89,7 @@ export function ReviewItem({ review, onUpdateStatus, onPostReply }: ReviewItemPr
 
       {/* Public Reply from Brand */}
       {review.reply && (
-        <p className="mt-3 rounded-md bg-canvas border border-line/60 p-3 text-[13px] text-ink">
+        <p className="mt-3 rounded-md bg-canvas border border-line/60 p-3 text-sm text-ink">
           <b className="font-semibold text-ink">Store reply:</b> {review.reply}
         </p>
       )}
@@ -105,7 +105,7 @@ export function ReviewItem({ review, onUpdateStatus, onPostReply }: ReviewItemPr
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Write a public reply…"
-            className="h-9 flex-1 rounded-md border border-line-strong bg-surface px-3 text-[13px] text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/25 transition-[border-color,box-shadow]"
+            className="h-9 flex-1 rounded-md border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/25 transition-[border-color,box-shadow]"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSendReply();

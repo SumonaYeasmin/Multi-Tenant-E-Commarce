@@ -160,7 +160,7 @@ export default function CartPage() {
                     </div>
                   </div>
                   {issue && (
-                    <p className="mt-2 text-[13px] font-medium text-danger">
+                    <p className="mt-2 text-sm font-medium text-danger">
                       {issue === 'out_of_stock'
                         ? 'This size just sold out. Choose another size or save it for later.'
                         : `Only ${maxQty} left — quantity will be reduced at checkout.`}
@@ -211,7 +211,7 @@ export default function CartPage() {
                         <PlusIcon className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                    <div className="ml-auto flex gap-4 text-[13px]">
+                    <div className="ml-auto flex gap-4 text-sm">
                       <button
                         onClick={() => toggleSaveForLater(item.key)}
                         className="text-ink-soft underline-offset-2 hover:text-ink hover:underline cursor-pointer"
@@ -271,7 +271,7 @@ export default function CartPage() {
                       <p className="text-xs text-ink-muted">
                         {variant.color} · {variant.size} · {formatBDT(unitPrice)}
                       </p>
-                      <div className="mt-auto flex gap-3 text-[13px]">
+                      <div className="mt-auto flex gap-3 text-sm">
                         <button
                           onClick={() => toggleSaveForLater(item.key)}
                           className="font-medium underline-offset-2 hover:underline cursor-pointer"
@@ -297,7 +297,7 @@ export default function CartPage() {
           <div className="rounded-lg border border-line bg-surface p-6">
             <h2 className="text-base font-semibold">Order summary</h2>
             <div className="mt-5">
-              <label htmlFor="coupon" className="text-[13px] font-medium">
+              <label htmlFor="coupon" className="text-sm font-medium">
                 Discount code
               </label>
               <div className="mt-1.5 flex gap-2">

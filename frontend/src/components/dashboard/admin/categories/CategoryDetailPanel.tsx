@@ -516,7 +516,7 @@ export function CategoryDetailPanel({
                   <button
                     type="button"
                     onClick={() => setShowImagePicker((prev) => !prev)}
-                    className="absolute inset-x-0 bottom-0 bg-ink/70 hover:bg-ink text-white py-1.5 text-[11px] font-medium text-center cursor-pointer transition-colors backdrop-blur-xs flex items-center justify-center gap-1"
+                    className="absolute inset-x-0 bottom-0 bg-ink/70 hover:bg-ink text-white py-1.5 text-xs font-medium text-center cursor-pointer transition-colors backdrop-blur-xs flex items-center justify-center gap-1"
                   >
                     <ImageIcon className="h-3 w-3" />
                     <span>Change photo</span>
@@ -544,7 +544,7 @@ export function CategoryDetailPanel({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-[13px] font-medium text-ink">
+                    <label className="mb-1.5 block text-sm font-medium text-ink">
                       Parent Category
                     </label>
                     <select
@@ -564,7 +564,7 @@ export function CategoryDetailPanel({
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-[13px] font-medium text-ink">
+                    <label className="mb-1.5 block text-sm font-medium text-ink">
                       Status
                     </label>
                     <select

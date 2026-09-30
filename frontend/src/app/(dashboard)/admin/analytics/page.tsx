@@ -56,7 +56,7 @@ export default function AdminAnalyticsPage() {
 
   return (
     <ModuleGate module="analytics">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Analytics"
           description="All figures in BDT, VAT inclusive."
@@ -100,15 +100,15 @@ export default function AdminAnalyticsPage() {
         <Panel className="mb-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-[13px] text-ink-muted">Net sales · {range}</p>
+              <p className="text-sm text-ink-muted">Net sales · {range}</p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-ink">
                 {formatBDT(kpis.netSales)}
               </p>
-              <p className="text-[13px] text-emerald-600 dark:text-emerald-400">
+              <p className="text-sm text-emerald-600 dark:text-emerald-400">
                 +22.4% vs previous period · Gross {formatBDT(kpis.grossSales)}
               </p>
             </div>
-            <label className="flex items-center gap-2 text-[13px] text-ink cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-ink cursor-pointer">
               <input
                 type="checkbox"
                 checked={compare}
@@ -191,7 +191,7 @@ export default function AdminAnalyticsPage() {
                 const pct = (f.value / funnel[0].value) * 100;
                 return (
                   <li key={f.stage}>
-                    <div className="flex justify-between text-[13px]">
+                    <div className="flex justify-between text-sm">
                       <span className="text-ink font-medium">{f.stage}</span>
                       <span className="tabular-nums text-ink-muted">
                         {formatNumber(f.value)}
@@ -256,7 +256,7 @@ export default function AdminAnalyticsPage() {
                 {data.map((d) => (
                   <li
                     key={d.name}
-                    className="grid grid-cols-[130px_1fr_40px] items-center gap-3 text-[13px]"
+                    className="grid grid-cols-[130px_1fr_40px] items-center gap-3 text-sm"
                   >
                     <span className="text-ink">{d.name}</span>
                     <div className="h-2 rounded-full bg-subtle">
@@ -280,7 +280,7 @@ export default function AdminAnalyticsPage() {
             flush
             className="lg:col-span-2"
           >
-            <table className="w-full text-[13px]">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-xs text-ink-muted">
                   <th className="px-5 py-2 font-medium">Term</th>

@@ -203,7 +203,7 @@ export default function HomePage() {
                       alt=""
                       className="aspect-square w-full rounded object-cover object-top border border-line"
                     />
-                    <p className="mt-2 text-[13px] font-medium text-ink group-hover:underline">
+                    <p className="mt-2 text-sm font-medium text-ink group-hover:underline">
                       {c.name}
                     </p>
                   </Link>

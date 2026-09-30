@@ -184,7 +184,7 @@ export default function CheckoutPage() {
           <Link href="/" className="font-display text-2xl">
             Tanti
           </Link>
-          <span className="flex items-center gap-1.5 text-[13px] text-ink-muted">
+          <span className="flex items-center gap-1.5 text-sm text-ink-muted">
             <LockIcon className="h-3.5 w-3.5" aria-hidden /> Secure checkout
           </span>
         </div>
@@ -268,10 +268,10 @@ export default function CheckoutPage() {
                         </span>
                       )}
                     </p>
-                    <p className="mt-1 text-[13px] text-ink-muted">
+                    <p className="mt-1 text-sm text-ink-muted">
                       {a.name} · {a.phone}
                     </p>
-                    <p className="text-[13px] text-ink-muted">
+                    <p className="text-sm text-ink-muted">
                       {a.line1}, {a.area}, {a.district}
                     </p>
                   </RadioCard>
@@ -360,7 +360,7 @@ export default function CheckoutPage() {
                   >
                     <div className="flex-1">
                       <p className="text-sm font-medium">{m.name}</p>
-                      <p className="text-[13px] text-ink-muted">
+                      <p className="text-sm text-ink-muted">
                         {m.description} · {deliveryEstimate(address.district, m.id)}
                       </p>
                     </div>
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                   <PaymentMark method={p.id} className="h-7 min-w-[2.5rem]" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">{p.name}</p>
-                    <p className="text-[13px] text-ink-muted">{p.description}</p>
+                    <p className="text-sm text-ink-muted">{p.description}</p>
                   </div>
                 </RadioCard>
               ))}
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
                       alt=""
                       className="h-16 w-12 rounded object-cover"
                     />
-                    <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-ink px-1 text-[11px] text-canvas">
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-ink px-1 text-xs text-canvas">
                       {item.qty}
                     </span>
                   </div>

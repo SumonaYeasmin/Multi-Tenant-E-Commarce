@@ -157,7 +157,7 @@ export default function PaymentsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Payments & payouts"
         description="Transactions across all connected gateways. Automatic daily settlement via BEFTN / RTGS."
@@ -205,10 +205,10 @@ export default function PaymentsPage() {
           <div key={s.g} className="rounded-lg border border-line bg-surface p-3.5">
             <div className="flex items-center justify-between">
               <PaymentMark method={s.g} />
-              <span className="text-[11px] text-ink-muted">{s.count} txn</span>
+              <span className="text-xs text-ink-muted">{s.count} txn</span>
             </div>
             <p className="mt-2 text-base font-semibold text-ink tabular-nums">{formatBDT(s.volume)}</p>
-            <p className="text-[11px] text-ink-muted">
+            <p className="text-xs text-ink-muted">
               {s.g === 'cod' ? `৳${(s.pending / 1000).toFixed(0)}k in courier hands` : `${s.successRate}% success rate`}
             </p>
           </div>

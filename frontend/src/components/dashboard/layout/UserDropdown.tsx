@@ -42,8 +42,8 @@ export function UserDropdown({ user }: UserDropdownProps) {
           {initials}
         </span>
         <div className="hidden leading-tight md:block text-left">
-          <p className="whitespace-nowrap text-[13px] font-medium text-ink">{displayName}</p>
-          <p className="whitespace-nowrap text-[11px] text-ink-muted">{roleLabel}</p>
+          <p className="whitespace-nowrap text-sm font-medium text-ink">{displayName}</p>
+          <p className="whitespace-nowrap text-xs text-ink-muted">{roleLabel}</p>
         </div>
       </button>
 
@@ -51,7 +51,7 @@ export function UserDropdown({ user }: UserDropdownProps) {
         <div className="absolute right-0 z-40 mt-2 w-56 rounded-lg border border-line bg-surface shadow-pop py-1 animate-in fade-in-0 slide-in-from-top-1 duration-150">
           <div className="px-3 py-2 border-b border-line">
             <p className="text-xs font-semibold text-ink">{displayName}</p>
-            <p className="text-[11px] text-ink-muted truncate">{user?.email || 'shahana@tanti.com.bd'}</p>
+            <p className="text-xs text-ink-muted truncate">{user?.email || 'shahana@tanti.com.bd'}</p>
           </div>
 
           <div className="py-1">

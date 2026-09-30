@@ -151,7 +151,7 @@ export default function AdminDiscountsPage() {
 
   return (
     <ModuleGate module="discounts">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Discounts"
           description="Coupon codes and automatic promotions."

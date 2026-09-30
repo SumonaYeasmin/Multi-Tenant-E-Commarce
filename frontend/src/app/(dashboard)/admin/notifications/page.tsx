@@ -34,7 +34,7 @@ export default function AdminNotificationsPage() {
 
   return (
     <ModuleGate module="notifications">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Notifications"
           description="Choose which events send an email, SMS or push, and edit the message templates."
@@ -52,7 +52,7 @@ export default function AdminNotificationsPage() {
         {tab === 'templates' ? (
           <Panel flush>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-[13px]">
+              <table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-ink-muted">
                     <th className="px-5 py-2.5 font-medium">Event</th>
@@ -105,7 +105,7 @@ export default function AdminNotificationsPage() {
               {notificationLogs.map((l) => (
                 <li
                   key={l.id}
-                  className="flex flex-wrap items-center gap-4 px-5 py-3 text-[13px] hover:bg-subtle/30"
+                  className="flex flex-wrap items-center gap-4 px-5 py-3 text-sm hover:bg-subtle/30"
                 >
                   <span className="w-32 text-xs text-ink-muted">
                     {formatDateTime(l.at)}

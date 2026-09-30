@@ -81,7 +81,7 @@ export function NotificationBell({}: NotificationBellProps = {}) {
         <div className="absolute right-0 z-40 mt-2 w-80 rounded-lg border border-line bg-surface shadow-pop animate-in fade-in-0 slide-in-from-top-1 duration-150">
           <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
             <p className="text-sm font-semibold text-ink">Notifications</p>
-            <span className="text-[11px] font-medium text-clay hover:underline cursor-pointer">
+            <span className="text-xs font-medium text-clay hover:underline cursor-pointer">
               Mark all as read
             </span>
           </div>
@@ -92,7 +92,7 @@ export function NotificationBell({}: NotificationBellProps = {}) {
                 <Link
                   href={n.href}
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-3 text-[13px] hover:bg-canvas transition-colors"
+                  className="block px-4 py-3 text-sm hover:bg-canvas transition-colors"
                 >
                   <p className="text-ink leading-snug">{n.text}</p>
                   <span className="mt-1 block text-xs text-ink-muted">{n.time}</span>

@@ -357,7 +357,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
             />
           </div>
 
-          <div className="mt-4 min-h-[20px] text-[13px]" aria-live="polite">
+          <div className="mt-4 min-h-[20px] text-sm" aria-live="polite">
             {product.preorder ? (
               <span className="text-info font-medium">
                 Pre-order · ships from 10 October

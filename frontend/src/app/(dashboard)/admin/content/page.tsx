@@ -35,7 +35,7 @@ export default function AdminContentPage() {
 
   return (
     <ModuleGate module="content">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Content"
           description="Pages, journal, navigation, FAQs and URL redirects."
@@ -54,7 +54,7 @@ export default function AdminContentPage() {
           <div className="flex flex-wrap items-center gap-4">
             <div className="min-w-[240px] flex-1">
               <p className="text-sm font-medium text-ink">Announcement bar</p>
-              <p className="text-[13px] text-ink-muted">{announcement}</p>
+              <p className="text-sm text-ink-muted">{announcement}</p>
             </div>
             <Switch
               checked={bar}
@@ -91,7 +91,7 @@ export default function AdminContentPage() {
                   <button
                     type="button"
                     onClick={() => setEditing(p.id)}
-                    className="flex w-full flex-wrap items-center gap-3 px-5 py-3 text-left text-[13px] hover:bg-canvas transition-colors cursor-pointer"
+                    className="flex w-full flex-wrap items-center gap-3 px-5 py-3 text-left text-sm hover:bg-canvas transition-colors cursor-pointer"
                   >
                     <span className="min-w-[160px] flex-1">
                       <span className="block font-medium text-ink">{p.title}</span>
@@ -132,7 +132,7 @@ export default function AdminContentPage() {
               {blogPosts.map((b) => (
                 <li
                   key={b.slug}
-                  className="flex items-center gap-4 px-5 py-3 text-[13px] hover:bg-subtle/30"
+                  className="flex items-center gap-4 px-5 py-3 text-sm hover:bg-subtle/30"
                 >
                   <img
                     src={b.image}
@@ -156,7 +156,7 @@ export default function AdminContentPage() {
           <div className="grid gap-5 md:grid-cols-3">
             {menus.map((m) => (
               <Panel key={m.id} title={m.name} description={m.location}>
-                <ol className="space-y-1.5 text-[13px]">
+                <ol className="space-y-1.5 text-sm">
                   {m.items.map((i) => (
                     <li
                       key={i}
@@ -185,7 +185,7 @@ export default function AdminContentPage() {
           <Panel flush>
             <ul className="divide-y divide-line">
               {faqs.map((f) => (
-                <li key={f.q} className="px-5 py-3 text-[13px] hover:bg-subtle/30">
+                <li key={f.q} className="px-5 py-3 text-sm hover:bg-subtle/30">
                   <p className="font-medium text-ink">
                     {f.q}{' '}
                     <span className="ml-2 text-xs font-normal text-ink-muted">

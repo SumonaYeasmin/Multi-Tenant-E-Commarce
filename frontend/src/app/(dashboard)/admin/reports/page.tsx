@@ -22,7 +22,7 @@ export default function AdminReportsPage() {
 
   return (
     <ModuleGate module="reports">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Reports"
           description="Detailed reports for every part of the business. Export any report as CSV or XLSX."
@@ -37,7 +37,7 @@ export default function AdminReportsPage() {
             onChange={(e) => setQ(e.target.value)}
             placeholder="Find a report…"
             aria-label="Find a report"
-            className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[13px] text-ink focus:border-clay focus:outline-none"
+            className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm text-ink focus:border-clay focus:outline-none"
           />
         </div>
         {groups.length === 0 ? (
@@ -62,7 +62,7 @@ export default function AdminReportsPage() {
                         aria-hidden
                       />
                       <div className="min-w-[200px] flex-1">
-                        <p className="text-[13px] font-medium text-ink">{i.name}</p>
+                        <p className="text-sm font-medium text-ink">{i.name}</p>
                         <p className="text-xs text-ink-muted">{i.description}</p>
                       </div>
                       <GuardedButton

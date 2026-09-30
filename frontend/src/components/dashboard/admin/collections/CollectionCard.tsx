@@ -36,17 +36,17 @@ export function CollectionCard({ collection, productCount }: CollectionCardProps
           </span>
         </div>
 
-        <p className="mt-1 line-clamp-2 text-[13px] text-ink-muted">
+        <p className="mt-1 line-clamp-2 text-sm text-ink-muted">
           {collection.description}
         </p>
 
         {collection.rule && (
-          <p className="mt-2 rounded bg-canvas px-2 py-1 font-mono text-[11px] text-ink-soft">
+          <p className="mt-2 rounded bg-canvas px-2 py-1 font-mono text-xs text-ink-soft">
             {collection.rule}
           </p>
         )}
 
-        <div className="mt-auto flex items-center justify-between pt-4 text-[13px]">
+        <div className="mt-auto flex items-center justify-between pt-4 text-sm">
           <span className="text-ink-muted">{productCount} products</span>
           <Link
             href={`/collections/${collection.slug}`}

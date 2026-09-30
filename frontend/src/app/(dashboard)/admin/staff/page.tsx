@@ -64,7 +64,7 @@ export default function AdminStaffPage() {
 
   return (
     <ModuleGate module="staff">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Staff & roles"
           description={`${members.length} of 10 staff seats used on your plan.`}
@@ -113,7 +113,7 @@ export default function AdminStaffPage() {
                       {s.lastActive && ` · active ${timeAgo(s.lastActive)}`}
                     </p>
                   </div>
-                  <span className="text-[13px] text-ink-soft">{s.role}</span>
+                  <span className="text-sm text-ink-soft">{s.role}</span>
                   {s.twoFactor ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
                       <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> 2FA
@@ -204,7 +204,7 @@ export default function AdminStaffPage() {
                         activeRole === r.name ? 'bg-canvas' : 'hover:bg-canvas'
                       )}
                     >
-                      <p className="text-[13px] font-medium text-ink">
+                      <p className="text-sm font-medium text-ink">
                         {r.name}{' '}
                         <span className="font-normal text-ink-muted">
                           · {r.members}
@@ -236,7 +236,7 @@ export default function AdminStaffPage() {
               }
             >
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-[13px]">
+                <table className="w-full min-w-[720px] text-sm">
                   <thead>
                     <tr className="border-b border-line text-xs text-ink-muted">
                       <th className="px-5 py-2 text-left font-medium">Module</th>

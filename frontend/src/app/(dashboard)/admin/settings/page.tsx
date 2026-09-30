@@ -56,7 +56,7 @@ export default function AdminSettingsPage() {
 
   return (
     <ModuleGate module="settings">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader title="Settings" description="Store-wide configuration." />
         <div className="grid gap-6 md:grid-cols-[200px_1fr]">
           <nav
@@ -70,7 +70,7 @@ export default function AdminSettingsPage() {
                 onClick={() => setSection(s)}
                 aria-current={section === s}
                 className={cn(
-                  'whitespace-nowrap rounded-md px-3 py-2 text-left text-[13px] cursor-pointer transition-colors',
+                  'whitespace-nowrap rounded-md px-3 py-2 text-left text-sm cursor-pointer transition-colors',
                   section === s
                     ? 'bg-surface font-medium text-ink shadow-sm ring-1 ring-line'
                     : 'text-ink-soft hover:text-ink'
@@ -147,7 +147,7 @@ export default function AdminSettingsPage() {
                     >
                       <PaymentMark method={m.id} />
                       <div className="flex-1">
-                        <p className="text-[13px] font-medium text-ink">
+                        <p className="text-sm font-medium text-ink">
                           {m.name}
                         </p>
                         <p className="text-xs text-ink-muted">{m.description}</p>
@@ -257,7 +257,7 @@ export default function AdminSettingsPage() {
                   label="Maintenance mode — show a ‘back soon’ page to visitors"
                 />
                 {flags.maintenance && (
-                  <p className="mt-3 rounded-md bg-amber-500/10 p-3 text-[13px] text-amber-700 dark:text-amber-400">
+                  <p className="mt-3 rounded-md bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
                     Your storefront is hidden. Staff can still preview it while
                     signed in.
                   </p>

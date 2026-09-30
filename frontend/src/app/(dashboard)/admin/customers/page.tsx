@@ -129,7 +129,7 @@ function CustomersContent() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Customers"
         description={`${customers.length} customers · ${
@@ -159,7 +159,7 @@ function CustomersContent() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name, email or phone…"
               aria-label="Search customers"
-              className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[13px] text-ink focus:border-clay focus:outline-none"
+              className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm text-ink focus:border-clay focus:outline-none"
             />
           </div>
           <div
@@ -242,7 +242,7 @@ function CustomersContent() {
         }
       >
         {active && (
-          <div className="space-y-6 px-5 py-5 text-[13px]">
+          <div className="space-y-6 px-5 py-5 text-sm">
             <dl className="grid grid-cols-3 gap-3 rounded-md bg-canvas p-4 border border-line">
               <div>
                 <dt className="text-xs text-ink-muted">Lifetime value</dt>

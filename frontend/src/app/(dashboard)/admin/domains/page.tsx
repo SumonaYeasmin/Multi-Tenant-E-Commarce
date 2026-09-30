@@ -51,7 +51,7 @@ export default function AdminDomainsPage() {
 
   return (
     <ModuleGate module="domains">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Domains"
           description="Connect your own domain. SSL certificates are issued and renewed automatically."
@@ -131,7 +131,7 @@ export default function AdminDomainsPage() {
           </ul>
         </Panel>
         <Panel className="mt-6" title="DNS records for pending domains">
-          <table className="w-full text-[13px]">
+          <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-ink-muted">
                 <th className="py-1.5 font-medium">Type</th>

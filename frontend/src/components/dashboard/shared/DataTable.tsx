@@ -57,7 +57,7 @@ export function DataTable<T>({
         </ul>
       )}
       <div className={cn('overflow-x-auto', mobileCard && 'hidden md:block')}>
-        <table className="w-full text-[13px]">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line bg-canvas/60 text-left text-xs text-ink-muted">
               {selectable && (

@@ -189,7 +189,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
               placeholder="e.g. The shoulders were tight"
             />
             <div>
-              <p className="text-[13px] font-medium">
+              <p className="text-sm font-medium">
                 Photos{' '}
                 {needsPhotos ? (
                   <span className="text-danger">(required)</span>

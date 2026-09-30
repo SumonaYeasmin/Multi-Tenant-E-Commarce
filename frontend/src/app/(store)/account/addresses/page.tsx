@@ -86,7 +86,7 @@ export default function AccountAddressesPage() {
               <p className="text-sm text-ink-muted">
                 {a.line1}, {a.area}, {a.district}
               </p>
-              <div className="mt-auto flex gap-4 pt-4 text-[13px]">
+              <div className="mt-auto flex gap-4 pt-4 text-sm">
                 <button
                   onClick={() => {
                     setErrors({});

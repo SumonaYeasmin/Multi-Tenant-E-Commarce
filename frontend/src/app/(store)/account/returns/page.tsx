@@ -80,7 +80,7 @@ export default function AccountReturnsPage() {
                 </div>
                 {r.status !== 'rejected' && (
                   <ol
-                    className="mt-5 grid grid-cols-5 gap-1 text-[11px] sm:text-xs"
+                    className="mt-5 grid grid-cols-5 gap-1 text-xs sm:text-xs"
                     aria-label="Return progress"
                   >
                     {[

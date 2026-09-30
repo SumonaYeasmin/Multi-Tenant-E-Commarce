@@ -34,7 +34,7 @@ export default function AdminBillingPage() {
 
   return (
     <ModuleGate module="billing">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Plan & billing"
           description="Your subscription is managed by the main platform; this page shows your plan’s limits and access."
@@ -60,7 +60,7 @@ export default function AdminBillingPage() {
                 const pct = Math.min(100, (e.used / e.limit) * 100);
                 return (
                   <li key={e.feature}>
-                    <div className="flex justify-between text-[13px]">
+                    <div className="flex justify-between text-sm">
                       <span className="text-ink font-medium">{e.feature}</span>
                       <span className="tabular-nums text-ink-muted">
                         {formatNumber(e.used)}
@@ -94,7 +94,7 @@ export default function AdminBillingPage() {
                 </Badge>
               </div>
               {planState === 'active' && (
-                <p className="mt-3 text-[13px] text-ink-muted">{stateMeta.note}</p>
+                <p className="mt-3 text-sm text-ink-muted">{stateMeta.note}</p>
               )}
               <Button className="mt-4" fullWidth variant="secondary">
                 Change plan
@@ -105,7 +105,7 @@ export default function AdminBillingPage() {
                 {planFeatures.map((f) => (
                   <li
                     key={f.name}
-                    className="flex items-center gap-2 px-5 py-2.5 text-[13px] hover:bg-subtle/30"
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm hover:bg-subtle/30"
                   >
                     {f.included ? (
                       <Check

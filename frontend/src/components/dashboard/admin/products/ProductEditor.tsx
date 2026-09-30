@@ -281,7 +281,7 @@ export function ProductEditor({ id }: { id?: string }) {
           <Panel title="Options & variants" description={`${p.variants.length} variants · ${totalStock} available`}>
             <div className="space-y-4">
               <div>
-                <p className="text-[13px] font-medium text-ink">Colour</p>
+                <p className="text-sm font-medium text-ink">Colour</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {palette.map((c) => {
                     const on = p.colors.some((x) => x.name === c.name);
@@ -304,7 +304,7 @@ export function ProductEditor({ id }: { id?: string }) {
                 </div>
               </div>
               <div>
-                <p className="text-[13px] font-medium text-ink">Size</p>
+                <p className="text-sm font-medium text-ink">Size</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {allSizes.map((s) => {
                     const on = p.sizes.includes(s);
@@ -343,7 +343,7 @@ export function ProductEditor({ id }: { id?: string }) {
             </div>
             {p.variants.length > 0 && (
               <div className="-mx-5 mt-5 overflow-x-auto border-t border-line">
-                <table className="w-full min-w-[640px] text-[13px]">
+                <table className="w-full min-w-[640px] text-sm">
                   <thead>
                     <tr className="border-b border-line text-left text-xs text-ink-muted">
                       <th className="px-5 py-2 font-medium">Variant</th>
@@ -424,7 +424,7 @@ export function ProductEditor({ id }: { id?: string }) {
                     onChange={(e) =>
                       set({ specs: p.specs.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })
                     }
-                    className="h-9 w-40 rounded-md border border-line bg-surface px-3 text-[13px] text-ink focus:outline-none"
+                    className="h-9 w-40 rounded-md border border-line bg-surface px-3 text-sm text-ink focus:outline-none"
                     placeholder="Attribute name"
                   />
                   <input
@@ -433,7 +433,7 @@ export function ProductEditor({ id }: { id?: string }) {
                     onChange={(e) =>
                       set({ specs: p.specs.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)) })
                     }
-                    className="h-9 flex-1 rounded-md border border-line bg-surface px-3 text-[13px] text-ink focus:outline-none"
+                    className="h-9 flex-1 rounded-md border border-line bg-surface px-3 text-sm text-ink focus:outline-none"
                     placeholder="Attribute value"
                   />
                   <button
@@ -449,7 +449,7 @@ export function ProductEditor({ id }: { id?: string }) {
               <button
                 type="button"
                 onClick={() => set({ specs: [...p.specs, { label: '', value: '' }] })}
-                className="text-[13px] font-medium text-clay hover:underline cursor-pointer"
+                className="text-sm font-medium text-clay hover:underline cursor-pointer"
               >
                 + Add attribute
               </button>
@@ -478,11 +478,11 @@ export function ProductEditor({ id }: { id?: string }) {
 
           <Panel title="Search engine listing">
             <div className="rounded-md bg-canvas p-3">
-              <p className="text-[13px] text-info">
+              <p className="text-sm text-info">
                 tanti.com.bd › products › {p.slug || slugify(p.title) || 'new-product'}
               </p>
               <p className="text-base text-[#1a0dab] font-medium">{p.title || 'Product title'} | Tanti</p>
-              <p className="line-clamp-2 text-[13px] text-ink-soft">
+              <p className="line-clamp-2 text-sm text-ink-soft">
                 {p.shortDescription || 'Add a short description to control how this product appears in search results.'}
               </p>
             </div>
@@ -580,7 +580,7 @@ export function ProductEditor({ id }: { id?: string }) {
                 options={brands.map((b) => b.name)}
               />
               <div>
-                <p className="mb-1.5 text-[13px] font-medium text-ink">Collections</p>
+                <p className="mb-1.5 text-sm font-medium text-ink">Collections</p>
                 <div className="space-y-2">
                   {collections
                     .filter((c) => c.type === 'manual')
@@ -599,7 +599,7 @@ export function ProductEditor({ id }: { id?: string }) {
                 </div>
               </div>
               <div>
-                <label htmlFor="tags" className="mb-1.5 block text-[13px] font-medium text-ink">
+                <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-ink">
                   Tags
                 </label>
                 <input
@@ -614,7 +614,7 @@ export function ProductEditor({ id }: { id?: string }) {
                     }
                   }}
                   placeholder="Type and press Enter"
-                  className="h-9 w-full rounded-md border border-line bg-surface px-3 text-[13px] text-ink focus:outline-none"
+                  className="h-9 w-full rounded-md border border-line bg-surface px-3 text-sm text-ink focus:outline-none"
                 />
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {p.tags.map((t) => (
@@ -640,7 +640,7 @@ export function ProductEditor({ id }: { id?: string }) {
 
           {existing && (
             <Panel title="Performance · 30 days">
-              <dl className="grid grid-cols-2 gap-3 text-[13px]">
+              <dl className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <dt className="text-xs text-ink-muted">Units sold</dt>
                   <dd className="font-semibold text-ink tabular-nums">{p.sold}</dd>
@@ -670,7 +670,7 @@ export function ProductEditor({ id }: { id?: string }) {
       {(dirty || !existing) && !readOnly && (
         <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur-md lg:left-60">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-            <p className="text-[13px] text-ink-muted">{existing ? 'Unsaved changes' : 'New product'}</p>
+            <p className="text-sm text-ink-muted">{existing ? 'Unsaved changes' : 'New product'}</p>
             <div className="flex gap-2">
               <GuardedButton
                 module="products"

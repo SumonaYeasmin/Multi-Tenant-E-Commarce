@@ -30,7 +30,7 @@ export default function AdminMarketingPage() {
 
   return (
     <ModuleGate module="marketing">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Marketing"
           description="Campaigns, automated recovery flows and gift cards. Only customers who opted in are contacted."
@@ -76,7 +76,7 @@ export default function AdminMarketingPage() {
         {tab === 'campaigns' && (
           <Panel flush>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-[13px]">
+              <table className="w-full min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-ink-muted">
                     <th className="px-5 py-2.5 font-medium">Campaign</th>
@@ -145,7 +145,7 @@ export default function AdminMarketingPage() {
                       When: {a.trigger} · {a.channel}
                     </p>
                   </div>
-                  <p className="w-40 text-right text-[13px] text-ink-muted">
+                  <p className="w-40 text-right text-sm text-ink-muted">
                     {a.revenue
                       ? `${a.recovered} orders · ${formatBDT(a.revenue)}`
                       : '—'}
@@ -189,7 +189,7 @@ export default function AdminMarketingPage() {
                 {giftCards.map((g) => (
                   <li
                     key={g.id}
-                    className="flex flex-wrap items-center gap-4 px-5 py-3 text-[13px] hover:bg-subtle/30"
+                    className="flex flex-wrap items-center gap-4 px-5 py-3 text-sm hover:bg-subtle/30"
                   >
                     <span className="font-mono font-medium text-ink">{g.code}</span>
                     <span className="flex-1 text-ink-muted">
@@ -206,7 +206,7 @@ export default function AdminMarketingPage() {
               </ul>
             </Panel>
             <Panel title="Referral & loyalty">
-              <p className="text-[13px] text-ink-muted">
+              <p className="text-sm text-ink-muted">
                 Store credit is issued from returns and goodwill. Referral and points
                 programs can be enabled on the Growth plan.
               </p>

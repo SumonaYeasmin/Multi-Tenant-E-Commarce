@@ -305,7 +305,7 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
               <Link
                 href={`/category/${category.key}`}
                 className={cn(
-                  'shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] cursor-pointer transition-colors',
+                  'shrink-0 rounded-full border px-3.5 py-1.5 text-sm cursor-pointer transition-colors',
                   !sub
                     ? 'border-ink bg-ink text-canvas font-semibold'
                     : 'border-line-strong hover:border-ink text-ink'
@@ -318,7 +318,7 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
                   key={s}
                   href={`/category/${category.key}?sub=${encodeURIComponent(s)}`}
                   className={cn(
-                    'shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] cursor-pointer transition-colors',
+                    'shrink-0 rounded-full border px-3.5 py-1.5 text-sm cursor-pointer transition-colors',
                     sub === s
                       ? 'border-ink bg-ink text-canvas font-semibold'
                       : 'border-line-strong hover:border-ink text-ink'

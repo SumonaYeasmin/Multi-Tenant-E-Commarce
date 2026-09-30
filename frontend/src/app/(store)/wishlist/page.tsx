@@ -67,7 +67,7 @@ export default function WishlistPage() {
                     className="aspect-[3/4] w-full object-cover transition-transform duration-300 hover:scale-105"
                   />
                   {p.salePrice && (
-                    <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded bg-clay px-2 py-0.5 text-[11px] font-semibold text-white">
+                    <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded bg-clay px-2 py-0.5 text-xs font-semibold text-white">
                       <TrendingDownIcon className="h-3 w-3" aria-hidden /> Price dropped
                     </span>
                   )}

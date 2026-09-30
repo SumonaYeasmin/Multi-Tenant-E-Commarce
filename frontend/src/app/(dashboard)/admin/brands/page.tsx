@@ -46,7 +46,7 @@ export default function AdminBrandsPage() {
 
   return (
     <ModuleGate module="products">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Brands"
           description="Each brand gets its own storefront page and filter."
@@ -79,9 +79,9 @@ export default function AdminBrandsPage() {
                   </span>
                   <div className="min-w-[200px] flex-1">
                     <p className="text-sm font-medium text-ink">{b.name}</p>
-                    <p className="text-[13px] text-ink-muted">{b.description}</p>
+                    <p className="text-sm text-ink-muted">{b.description}</p>
                   </div>
-                  <div className="text-right text-[13px]">
+                  <div className="text-right text-sm">
                     <p className="tabular-nums font-medium text-ink">{list.length} products</p>
                     <p className="text-xs text-ink-muted tabular-nums">
                       {formatBDT(revenue)} · 30d
@@ -89,7 +89,7 @@ export default function AdminBrandsPage() {
                   </div>
                   <Link
                     href={`/brands/${b.slug}`}
-                    className="text-[13px] font-medium text-clay hover:underline"
+                    className="text-sm font-medium text-clay hover:underline"
                   >
                     Brand page
                   </Link>

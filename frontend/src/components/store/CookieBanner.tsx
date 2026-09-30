@@ -41,7 +41,7 @@ export function CookieBanner() {
           className="fixed bottom-4 left-4 right-4 z-40 max-w-md rounded-lg border border-line bg-surface p-5 shadow-pop sm:right-auto"
         >
           <p className="text-sm font-semibold text-ink">We use cookies</p>
-          <p className="mt-1 text-[13px] text-ink-muted">
+          <p className="mt-1 text-sm text-ink-muted">
             Essential cookies keep your bag and checkout working. With your permission we also use analytics and marketing cookies.{' '}
             <Link href="/policies/cookies" className="underline hover:text-ink">
               Cookie policy

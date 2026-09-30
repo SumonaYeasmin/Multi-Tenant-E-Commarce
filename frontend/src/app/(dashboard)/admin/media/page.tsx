@@ -27,7 +27,7 @@ export default function AdminMediaPage() {
 
   return (
     <ModuleGate module="media">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full space-y-6">
         <PageHeader
           title="Media library"
           description="Images are optimized to WebP/AVIF and resized for every screen automatically."
@@ -53,7 +53,7 @@ export default function AdminMediaPage() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search files…"
               aria-label="Search media"
-              className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[13px] text-ink focus:border-clay focus:outline-none"
+              className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm text-ink focus:border-clay focus:outline-none"
             />
           </div>
           <div
@@ -112,7 +112,7 @@ export default function AdminMediaPage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1.5 truncate text-[13px] font-medium text-ink group-hover:underline">
+                <p className="mt-1.5 truncate text-sm font-medium text-ink group-hover:underline">
                   {a.name}
                 </p>
                 <p className="text-xs text-ink-muted">
