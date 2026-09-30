@@ -1,0 +1,31 @@
+model ShippingZone {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  districts String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  rates  ShippingRate[]
+
+  @@map("shipping_zones")
+}
+
+model ShippingRate {
+  id            String   @id @default(uuid())
+  zoneId        String
+  name          String
+  price         Decimal  @db.Decimal(12, 2)
+  freeThreshold Decimal? @db.Decimal(12, 2)
+  estimatedDays String?
+  rule          String?
+  courier       String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  zone ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@map("shipping_rates")
+}

@@ -1,0 +1,22 @@
+model Brand {
+  id          String  @id @default(uuid())
+  tenantId    String
+  name        String
+  slug        String
+  description String?
+  logo        String?
+  website     String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, deletedAt])
+  @@map("brands")
+}

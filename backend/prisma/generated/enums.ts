@@ -35,3 +35,40 @@ export const OtpType = {
 } as const
 
 export type OtpType = (typeof OtpType)[keyof typeof OtpType]
+
+
+export const TenantStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type TenantStatus = (typeof TenantStatus)[keyof typeof TenantStatus]
+
+
+export const TenantPlan = {
+  FREE: 'FREE',
+  STARTER: 'STARTER',
+  GROWTH: 'GROWTH',
+  ENTERPRISE: 'ENTERPRISE'
+} as const
+
+export type TenantPlan = (typeof TenantPlan)[keyof typeof TenantPlan]
+
+
+export const TenantMemberRole = {
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  STAFF: 'STAFF'
+} as const
+
+export type TenantMemberRole = (typeof TenantMemberRole)[keyof typeof TenantMemberRole]
+
+
+export const CollectionType = {
+  MANUAL: 'MANUAL',
+  RULE: 'RULE'
+} as const
+
+export type CollectionType = (typeof CollectionType)[keyof typeof CollectionType]

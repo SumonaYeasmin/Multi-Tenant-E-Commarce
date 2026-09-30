@@ -1,0 +1,23 @@
+model Collection {
+  id          String         @id @default(uuid())
+  tenantId    String
+  name        String
+  slug        String
+  description String?
+  image       String?
+  type        CollectionType @default(MANUAL)
+  rule        String?
+  isActive    Boolean        @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products ProductCollection[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, deletedAt])
+  @@map("collections")
+}
