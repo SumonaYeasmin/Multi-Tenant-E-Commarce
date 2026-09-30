@@ -1,0 +1,77 @@
+import type { LucideIcon } from 'lucide-react';
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  RotateCcw,
+  CreditCard,
+  Tag,
+  FolderTree,
+  Layers,
+  Award,
+  Warehouse,
+  Users,
+  Star,
+  Percent,
+  Megaphone,
+  Truck,
+  Palette,
+  FileText,
+  Image as ImageIcon,
+  Search,
+  Globe,
+  BarChart3,
+  FileSpreadsheet,
+  Shield,
+  Bell,
+  Plug,
+  Settings,
+  ScrollText,
+  Gem,
+  CircleHelp,
+  User,
+  Package,
+  Heart,
+  MapPin,
+} from 'lucide-react';
+
+const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  ShoppingCart,
+  RotateCcw,
+  CreditCard,
+  Tag,
+  FolderTree,
+  Layers,
+  Award,
+  Warehouse,
+  Users,
+  Star,
+  Percent,
+  Megaphone,
+  Truck,
+  Palette,
+  FileText,
+  Image: ImageIcon,
+  Search,
+  Globe,
+  BarChart3,
+  FileSpreadsheet,
+  Shield,
+  Bell,
+  Plug,
+  Settings,
+  ScrollText,
+  Gem,
+  User,
+  Package,
+  Heart,
+  MapPin,
+};
+
+export function getIconComponent(iconName?: string | LucideIcon): LucideIcon {
+  if (!iconName) return CircleHelp;
+  if (typeof iconName === 'function' || typeof iconName === 'object') {
+    return iconName as LucideIcon;
+  }
+  return iconMap[iconName] || CircleHelp;
+}

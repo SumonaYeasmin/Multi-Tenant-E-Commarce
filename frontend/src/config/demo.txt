@@ -1,3 +1,0 @@
-All configuration files will be inside this folder
-- menu-items.ts (will have all the menu items for all the roles)
-- permissions.ts (will have all the permissions for all the roles)

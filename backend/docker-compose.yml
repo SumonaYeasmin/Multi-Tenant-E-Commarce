@@ -1,7 +1,7 @@
 services:
-  postgres:
+  db:
     image: postgres:16-alpine
-    container_name: nest-postgres
+    container_name: postgres-db
     restart: unless-stopped
     profiles:
       - dev
@@ -22,7 +22,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: nest-redis
+    container_name: redis-db
     restart: unless-stopped
     profiles:
       - dev
