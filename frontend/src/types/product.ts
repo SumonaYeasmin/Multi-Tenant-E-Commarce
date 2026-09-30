@@ -1,4 +1,4 @@
-export type CategoryKey = 'women' | 'men' | 'kids' | 'accessories' | 'footwear';
+export type CategoryKey = 'women' | 'men' | 'kids' | 'accessories' | 'footwear' | (string & {});
 
 export type ProductStatus = 'published' | 'draft' | 'archived';
 

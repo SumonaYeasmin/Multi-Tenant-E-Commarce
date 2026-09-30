@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import { toast } from 'sonner';
+import { useStore } from '@/contexts/StoreContext';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Button } from '@/components/ui/button';
-import { CategoryTree, type CategoryItemData } from './CategoryTree';
+import { CategoryTree } from './CategoryTree';
 import { CategoryDetailPanel } from './CategoryDetailPanel';
+import type { CategoryItemData } from '@/types/commerce';
 import type { Product } from '@/types/product';
 
 interface CategoryManagerProps {
@@ -15,11 +16,30 @@ interface CategoryManagerProps {
 }
 
 export function CategoryManager({ initialCategories, products }: CategoryManagerProps) {
-  const [categoriesList] = useState<CategoryItemData[]>(initialCategories);
+  const store = useStore();
+  const categoriesList =
+    store?.categories && store.categories.length > 0
+      ? store.categories
+      : initialCategories;
+  const productsList =
+    store?.products && store.products.length > 0 ? store.products : products;
+
   const [openKeys, setOpenKeys] = useState<string[]>(['women', 'men']);
   const [activeKey, setActiveKey] = useState<string>(
-    initialCategories[0]?.key || 'women'
+    categoriesList[0]?.key || 'women'
   );
+  const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
+
+  // If the active category gets deleted or is invalid, select the first available
+  useEffect(() => {
+    if (
+      categoriesList.length > 0 &&
+      !categoriesList.some((c) => c.key === activeKey)
+    ) {
+      setActiveKey(categoriesList[0].key);
+      setActiveSubcategory(null);
+    }
+  }, [categoriesList, activeKey]);
 
   const activeCategory = useMemo(() => {
     return (
@@ -34,8 +54,19 @@ export function CategoryManager({ initialCategories, products }: CategoryManager
     );
   }, [categoriesList, activeKey]);
 
+  // If active subcategory is deleted or no longer belongs to active category
+  useEffect(() => {
+    if (
+      activeSubcategory &&
+      activeCategory &&
+      !activeCategory.subcategories.includes(activeSubcategory)
+    ) {
+      setActiveSubcategory(null);
+    }
+  }, [activeCategory, activeSubcategory]);
+
   const getProductCount = (categoryKey: string, subcategory?: string) => {
-    return products.filter(
+    return productsList.filter(
       (p) =>
         p.category === categoryKey && (!subcategory || p.subcategory === subcategory)
     ).length;
@@ -47,20 +78,32 @@ export function CategoryManager({ initialCategories, products }: CategoryManager
     );
   };
 
-  const handleAddCategory = () => {
-    toast.success('New category created as draft');
+  const handleSelectCategory = (key: string) => {
+    setActiveKey(key);
+    setActiveSubcategory(null);
+    if (!openKeys.includes(key)) {
+      setOpenKeys((prev) => [...prev, key]);
+    }
+  };
+
+  const handleSelectSubcategory = (categoryKey: string, subcategory: string | null) => {
+    setActiveKey(categoryKey);
+    setActiveSubcategory(subcategory);
+    if (!openKeys.includes(categoryKey)) {
+      setOpenKeys((prev) => [...prev, categoryKey]);
+    }
   };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <PageHeader
         title="Categories"
-        description="Hierarchical categories power navigation, filters and breadcrumbs."
+        description="Hierarchical categories power navigation, filters, product tagging and breadcrumbs."
         actions={
           <Button
             variant="primary"
             size="sm"
-            onClick={handleAddCategory}
+            href="/admin/categories/new"
             className="cursor-pointer"
           >
             <Plus className="h-4 w-4" aria-hidden />
@@ -69,24 +112,37 @@ export function CategoryManager({ initialCategories, products }: CategoryManager
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[340px_1fr] items-stretch">
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr] items-start">
         {/* Left column: Tree navigation */}
-        <CategoryTree
-          categories={categoriesList}
-          activeKey={activeKey}
-          onSelectCategory={setActiveKey}
-          openKeys={openKeys}
-          onToggleKey={handleToggleKey}
-          getProductCount={getProductCount}
-          className="h-full min-h-[520px]"
-        />
+        <div className="sticky top-6">
+          <CategoryTree
+            categories={categoriesList}
+            activeKey={activeKey}
+            onSelectCategory={handleSelectCategory}
+            activeSubcategory={activeSubcategory}
+            onSelectSubcategory={handleSelectSubcategory}
+            openKeys={openKeys}
+            onToggleKey={handleToggleKey}
+            getProductCount={getProductCount}
+            className="h-full min-h-[520px]"
+          />
+        </div>
 
-        {/* Right column: Category Editor (SEO card omitted) */}
+        {/* Right column: Category / Subcategory Detail Panel */}
         <div className="w-full space-y-6">
           <CategoryDetailPanel
-            key={activeCategory.key}
+            key={`${activeCategory.key}-${activeSubcategory || 'main'}`}
             category={activeCategory}
-            productCount={getProductCount(activeCategory.key)}
+            activeSubcategory={activeSubcategory}
+            onSelectSubcategory={setActiveSubcategory}
+            onSelectCategory={handleSelectCategory}
+            allCategories={categoriesList}
+            products={productsList}
+            productCount={getProductCount(
+              activeCategory.key,
+              activeSubcategory || undefined
+            )}
+            getProductCount={getProductCount}
           />
         </div>
       </div>

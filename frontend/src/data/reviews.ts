@@ -137,3 +137,5 @@ export const initialReviews: Review[] = [
     status: 'hidden',
   },
 ];
+
+export const reviews = initialReviews;

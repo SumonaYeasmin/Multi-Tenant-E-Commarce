@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { DashboardMobileSidebar } from './DashboardMobileSidebar';
 import { NotificationBell } from './NotificationBell';
 import { UserDropdown } from './UserDropdown';
+import { CommandPalette } from '@/components/dashboard/shared/CommandPalette';
 import type { NavItem } from '@/config/menu-items';
 import type { UserInfo } from '@/types/user';
 
@@ -18,47 +19,61 @@ export function DashboardNavbarContent({
   user,
   navItems,
 }: DashboardNavbarContentProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4">
-      {/* Left: Mobile Sidebar Trigger + Global Search */}
-      <div className="flex items-center gap-3 flex-1 max-w-lg">
-        {/* Mobile menu drawer trigger */}
-        <DashboardMobileSidebar navItems={navItems} user={user} />
+    <>
+      <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-4">
+        {/* Left: Mobile Sidebar Trigger + Global Search */}
+        <div className="flex items-center gap-3 flex-1 max-w-lg">
+          {/* Mobile menu drawer trigger */}
+          <DashboardMobileSidebar navItems={navItems} user={user} />
 
-        {/* Global Search Bar matching exact e-commerce styling */}
-        <div className="relative flex h-9 w-full items-center gap-2 rounded-md border border-line bg-canvas px-3 text-[13px] text-ink-muted hover:border-line-strong transition-colors">
-          <Search className="h-4 w-4 text-ink-muted shrink-0" aria-hidden="true" />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search orders, products, customers…"
-            className="w-full bg-transparent text-[13px] text-ink placeholder:text-ink-muted focus:outline-none"
-          />
-          <kbd className="hidden rounded border border-line bg-surface px-1.5 py-0.5 text-[10px] font-medium text-ink-muted sm:inline select-none">
-            ⌘K
-          </kbd>
+          {/* Global Search Bar button matching exact e-commerce styling */}
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            className="relative flex h-9 w-full items-center gap-2 rounded-md border border-line bg-canvas px-3 text-[13px] text-ink-muted hover:border-line-strong transition-colors cursor-pointer text-left"
+          >
+            <Search className="h-4 w-4 text-ink-muted shrink-0" aria-hidden="true" />
+            <span className="flex-1 truncate">Search orders, products, customers…</span>
+            <kbd className="hidden rounded border border-line bg-surface px-1.5 py-0.5 text-[10px] font-medium text-ink-muted sm:inline select-none">
+              ⌘K
+            </kbd>
+          </button>
         </div>
-      </div>
 
-      {/* Right: Plan badge, Notifications, and User Profile */}
-      <div className="flex items-center gap-2">
-        {/* Subscription Plan Badge */}
-        <Link
-          href="/admin/billing"
-          className="hidden whitespace-nowrap rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink-soft hover:border-ink hover:text-ink transition-colors sm:inline-block"
-        >
-          Growth plan
-        </Link>
+        {/* Right: Plan badge, Notifications, and User Profile */}
+        <div className="flex items-center gap-2">
+          {/* Subscription Plan Badge */}
+          <Link
+            href="/admin/billing"
+            className="hidden whitespace-nowrap rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink-soft hover:border-ink hover:text-ink transition-colors sm:inline-block"
+          >
+            Growth plan
+          </Link>
 
-        {/* Notifications Popover */}
-        <NotificationBell user={user} />
+          {/* Notifications Popover */}
+          <NotificationBell user={user} />
 
-        {/* User Account / Profile Dropdown */}
-        <UserDropdown user={user} />
-      </div>
-    </header>
+          {/* User Account / Profile Dropdown */}
+          <UserDropdown user={user} />
+        </div>
+      </header>
+
+      {/* Global Command Palette */}
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+    </>
   );
 }

@@ -1,17 +1,10 @@
 'use client';
 
 import React from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Folder, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Panel } from '@/components/dashboard/shared/Panel';
-
-export interface CategoryItemData {
-  key: string;
-  name: string;
-  image: string;
-  blurb: string;
-  subcategories: string[];
-}
+import type { CategoryItemData } from '@/types/commerce';
 
 interface CategoryTreeProps {
   categories: CategoryItemData[];
@@ -21,6 +14,8 @@ interface CategoryTreeProps {
   onToggleKey: (key: string) => void;
   getProductCount: (categoryKey: string, subcategory?: string) => number;
   className?: string;
+  activeSubcategory?: string | null;
+  onSelectSubcategory?: (categoryKey: string, subcategory: string | null) => void;
 }
 
 export function CategoryTree({
@@ -31,11 +26,13 @@ export function CategoryTree({
   onToggleKey,
   getProductCount,
   className,
+  activeSubcategory,
+  onSelectSubcategory,
 }: CategoryTreeProps) {
   return (
     <Panel
       title="Category tree"
-      description="Manage hierarchy and view counts"
+      description="Click a category or subcategory to manage"
       flush
       className={cn('h-full min-h-[480px] flex flex-col', className)}
       bodyClassName="flex-1"
@@ -43,14 +40,18 @@ export function CategoryTree({
       <ul className="py-2" role="tree">
         {categories.map((c) => {
           const expanded = openKeys.includes(c.key);
-          const isSelected = activeKey === c.key;
+          const isCategorySelected = activeKey === c.key && !activeSubcategory;
 
           return (
             <li key={c.key} role="treeitem" aria-expanded={expanded}>
               <div
                 className={cn(
-                  'flex items-center gap-2 px-3.5 py-2.5 text-[13px] transition-colors rounded-sm mx-1.5',
-                  isSelected ? 'bg-canvas font-medium text-ink' : 'hover:bg-subtle/70 text-ink'
+                  'flex items-center gap-2 px-3 py-2 text-[13px] transition-colors rounded-md mx-1.5',
+                  isCategorySelected
+                    ? 'bg-canvas font-semibold text-ink shadow-xs'
+                    : activeKey === c.key
+                    ? 'bg-subtle/50 text-ink'
+                    : 'hover:bg-subtle/70 text-ink'
                 )}
               >
                 <button
@@ -68,10 +69,14 @@ export function CategoryTree({
 
                 <button
                   type="button"
-                  onClick={() => onSelectCategory(c.key)}
-                  className="flex-1 text-left font-medium cursor-pointer truncate"
+                  onClick={() => {
+                    onSelectCategory(c.key);
+                    onSelectSubcategory?.(c.key, null);
+                  }}
+                  className="flex-1 flex items-center gap-2 text-left font-medium cursor-pointer truncate"
                 >
-                  {c.name}
+                  <Folder className="h-4 w-4 text-ink-muted shrink-0" />
+                  <span className="truncate">{c.name}</span>
                 </button>
 
                 <span className="text-xs text-ink-muted tabular-nums shrink-0 font-medium">
@@ -80,19 +85,34 @@ export function CategoryTree({
               </div>
 
               {expanded && c.subcategories.length > 0 && (
-                <ul role="group" className="space-y-0.5 my-0.5">
-                  {c.subcategories.map((sub) => (
-                    <li
-                      key={sub}
-                      role="treeitem"
-                      className="flex items-center gap-2 py-1.5 pl-9 pr-4 text-[13px] text-ink-soft hover:text-ink hover:bg-subtle/40 rounded-sm mx-1.5 transition-colors"
-                    >
-                      <span className="flex-1 truncate">{sub}</span>
-                      <span className="text-xs text-ink-muted tabular-nums shrink-0">
-                        {getProductCount(c.key, sub)}
-                      </span>
-                    </li>
-                  ))}
+                <ul role="group" className="space-y-0.5 my-0.5 pl-6">
+                  {c.subcategories.map((sub) => {
+                    const isSubSelected = activeKey === c.key && activeSubcategory === sub;
+
+                    return (
+                      <li key={sub} role="treeitem">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectCategory(c.key);
+                            onSelectSubcategory?.(c.key, sub);
+                          }}
+                          className={cn(
+                            'flex w-full items-center gap-2 py-1.5 pl-3 pr-3 text-[13px] rounded-md transition-colors cursor-pointer text-left',
+                            isSubSelected
+                              ? 'bg-canvas font-semibold text-ink shadow-xs border-l-2 border-clay'
+                              : 'text-ink-soft hover:text-ink hover:bg-subtle/40'
+                          )}
+                        >
+                          <Tag className="h-3.5 w-3.5 text-ink-muted shrink-0" />
+                          <span className="flex-1 truncate">{sub}</span>
+                          <span className="text-xs text-ink-muted tabular-nums shrink-0">
+                            {getProductCount(c.key, sub)}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </li>

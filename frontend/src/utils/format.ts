@@ -1,3 +1,5 @@
+import { format, formatDistanceToNow } from 'date-fns';
+
 export function formatBDT(amount: number) {
   const rounded = Math.round(amount);
   const sign = rounded < 0 ? '−' : '';
@@ -11,12 +13,40 @@ export function formatCompactBDT(amount: number) {
   return formatBDT(amount);
 }
 
+export function formatDate(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return format(d, 'd MMM yyyy');
+  } catch {
+    return iso;
+  }
+}
+
+export function formatDateTime(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return format(d, 'd MMM yyyy, h:mm a');
+  } catch {
+    return iso;
+  }
+}
+
+export function timeAgo(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return formatDistanceToNow(d, { addSuffix: true });
+  } catch {
+    return iso;
+  }
+}
+
 export function formatNumber(n: number) {
   return n.toLocaleString('en-IN');
 }
 
-export function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+export function percent(value: number, digits = 1) {
+  return `${value.toFixed(digits)}%`;
 }

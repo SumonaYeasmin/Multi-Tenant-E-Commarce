@@ -6,19 +6,20 @@ export interface PageHeaderProps {
   title: React.ReactNode;
   description?: React.ReactNode;
   actions?: React.ReactNode;
-  back?: { href: string; label: string };
+  back?: { href?: string; to?: string; label: string };
   meta?: React.ReactNode;
 }
 
 export function PageHeader({ title, description, actions, back, meta }: PageHeaderProps) {
+  const backHref = back?.href || back?.to;
   return (
     <div className="mb-6">
-      {back && (
+      {backHref && (
         <Link
-          href={back.href}
-          className="mb-2 inline-flex items-center gap-1 text-[13px] text-ink-muted transition-colors hover:text-ink"
+          href={backHref}
+          className="mb-2 inline-flex items-center gap-1 text-[13px] text-ink-muted transition-colors hover:text-ink cursor-pointer"
         >
-          <ChevronLeft className="h-4 w-4" aria-hidden /> {back.label}
+          <ChevronLeft className="h-4 w-4" aria-hidden /> {back?.label}
         </Link>
       )}
       <div className="flex flex-wrap items-start justify-between gap-4">
