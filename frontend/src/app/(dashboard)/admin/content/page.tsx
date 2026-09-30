@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Plus, ArrowRight } from 'lucide-react';
-import { cmsPages, menus, redirects } from '@/data/admin';
+import { Plus } from 'lucide-react';
+import { cmsPages, menus } from '@/data/admin';
 import { blogPosts, faqs, announcement } from '@/data/content';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Panel } from '@/components/dashboard/shared/Panel';
@@ -19,7 +19,7 @@ import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatDateTime } from '@/utils/format';
 
-type Tab = 'pages' | 'blog' | 'navigation' | 'faq' | 'redirects';
+type Tab = 'pages' | 'blog' | 'navigation' | 'faq';
 const tone = {
   published: 'success',
   draft: 'neutral',
@@ -38,7 +38,7 @@ export default function AdminContentPage() {
       <div className="w-full space-y-6">
         <PageHeader
           title="Content"
-          description="Pages, journal, navigation, FAQs and URL redirects."
+          description="Pages, journal, navigation, and FAQs."
           actions={
             <GuardedButton
               module="content"
@@ -78,7 +78,6 @@ export default function AdminContentPage() {
               { value: 'blog', label: 'Journal' },
               { value: 'navigation', label: 'Navigation' },
               { value: 'faq', label: 'FAQ' },
-              { value: 'redirects', label: 'Redirects' },
             ]}
           />
         </div>
@@ -199,42 +198,6 @@ export default function AdminContentPage() {
           </Panel>
         )}
 
-        {tab === 'redirects' && (
-          <Panel
-            flush
-            title="URL redirects"
-            description="Keep old links and search rankings working."
-            actions={
-              <GuardedButton
-                module="content"
-                action="create"
-                size="sm"
-                variant="secondary"
-                onClick={() => toast.success('Redirect added')}
-              >
-                Add redirect
-              </GuardedButton>
-            }
-          >
-            <ul className="divide-y divide-line">
-              {redirects.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex flex-wrap items-center gap-3 px-5 py-3 font-mono text-xs hover:bg-subtle/30"
-                >
-                  <span className="text-ink">{r.from}</span>
-                  <ArrowRight
-                    className="h-3.5 w-3.5 text-ink-muted"
-                    aria-hidden
-                  />
-                  <span className="flex-1 text-ink">{r.to}</span>
-                  <Badge>{r.type}</Badge>
-                  <span className="font-sans text-ink-muted">{r.hits} hits</span>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-        )}
 
         <Drawer
           open={!!editing}

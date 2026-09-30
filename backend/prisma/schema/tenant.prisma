@@ -44,7 +44,6 @@ model Tenant {
   customers             CustomerProfile[]
   reviews               Review[]
   discounts             Discount[]
-  inventoryLocations    InventoryLocation[]
   stockMovements        StockMovement[]
   shippingZones         ShippingZone[]
   carts                 Cart[]
@@ -53,11 +52,9 @@ model Tenant {
   blogPosts             BlogPost[]
   menus                 NavigationMenu[]
   faqs                  FaqItem[]
-  redirects             UrlRedirect[]
   mediaAssets           MediaAsset[]
   campaigns             MarketingCampaign[]
   automations           MarketingAutomation[]
-  giftCards             GiftCard[]
   supportTickets        SupportTicket[]
   auditLogs             AuditLog[]
   apiKeys               ApiKey[]
@@ -78,7 +75,7 @@ model TenantMember {
   status       String           @default("active") // 'active' | 'deactivated' | 'invited'
   twoFactor    Boolean          @default(false)
   lastActiveAt DateTime?
-  permissions  Json?
+  permissions  Json? // Granular module permission matrix (RBAC)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

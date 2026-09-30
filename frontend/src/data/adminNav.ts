@@ -96,7 +96,7 @@ export const adminNav: { group: string; items: AdminNavItem[] }[] = [
       { to: '/admin/theme', label: 'Theme', icon: Palette, module: 'theme' },
       { to: '/admin/content', label: 'Pages, blog & menus', icon: FileText, module: 'content' },
       { to: '/admin/media', label: 'Media', icon: ImageIcon, module: 'media' },
-      { to: '/admin/seo', label: 'SEO & redirects', icon: Search, module: 'content' },
+      { to: '/admin/seo', label: 'SEO', icon: Search, module: 'content' },
       { to: '/admin/domains', label: 'Domains', icon: Globe, module: 'domains' }
     ]
   },

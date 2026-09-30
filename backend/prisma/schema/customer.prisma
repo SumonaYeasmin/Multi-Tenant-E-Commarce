@@ -28,7 +28,6 @@ model CustomerProfile {
   wishlist       WishlistItem[]
   carts          Cart[]
   supportTickets SupportTicket[]
-  giftCards      GiftCard[]
 
   @@unique([tenantId, email])
   @@index([tenantId, phone])
