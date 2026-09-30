@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Plus, Gift } from 'lucide-react';
-import { campaigns, automations as seedAuto, giftCards } from '@/data/admin';
+import { Plus } from 'lucide-react';
+import { campaigns, automations as seedAuto } from '@/data/admin';
 import { useAdmin } from '@/contexts/AdminContext';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Panel } from '@/components/dashboard/shared/Panel';
@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/button';
 import { formatBDT, formatDate } from '@/utils/format';
 
-type Tab = 'campaigns' | 'automations' | 'gift_cards';
+type Tab = 'campaigns' | 'automations';
 
 export default function AdminMarketingPage() {
   const { can } = useAdmin();
@@ -33,7 +33,7 @@ export default function AdminMarketingPage() {
       <div className="w-full space-y-6">
         <PageHeader
           title="Marketing"
-          description="Campaigns, automated recovery flows and gift cards. Only customers who opted in are contacted."
+          description="Campaigns and automated recovery flows. Only customers who opted in are contacted."
           actions={
             <GuardedButton
               module="marketing"
@@ -68,7 +68,6 @@ export default function AdminMarketingPage() {
             tabs={[
               { value: 'campaigns', label: 'Campaigns' },
               { value: 'automations', label: 'Automations' },
-              { value: 'gift_cards', label: 'Gift cards & credit' },
             ]}
           />
         </div>
@@ -168,56 +167,6 @@ export default function AdminMarketingPage() {
           </Panel>
         )}
 
-        {tab === 'gift_cards' && (
-          <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-            <Panel
-              title="Gift cards"
-              actions={
-                <GuardedButton
-                  module="marketing"
-                  action="create"
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => toast.success('Gift card issued and emailed')}
-                >
-                  <Gift className="h-4 w-4" aria-hidden /> Issue gift card
-                </GuardedButton>
-              }
-              flush
-            >
-              <ul className="divide-y divide-line">
-                {giftCards.map((g) => (
-                  <li
-                    key={g.id}
-                    className="flex flex-wrap items-center gap-4 px-5 py-3 text-sm hover:bg-subtle/30"
-                  >
-                    <span className="font-mono font-medium text-ink">{g.code}</span>
-                    <span className="flex-1 text-ink-muted">
-                      {g.customer} · issued {formatDate(g.issued)}
-                    </span>
-                    <span className="tabular-nums font-medium text-ink">
-                      {formatBDT(g.balance)} / {formatBDT(g.initial)}
-                    </span>
-                    <Badge tone={g.status === 'active' ? 'success' : 'neutral'}>
-                      {g.status}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-            <Panel title="Referral & loyalty">
-              <p className="text-sm text-ink-muted">
-                Store credit is issued from returns and goodwill. Referral and points
-                programs can be enabled on the Growth plan.
-              </p>
-              <div className="mt-3">
-                <Button size="sm" variant="secondary" href="/admin/billing">
-                  View plans
-                </Button>
-              </div>
-            </Panel>
-          </div>
-        )}
 
         <Modal
           open={open}

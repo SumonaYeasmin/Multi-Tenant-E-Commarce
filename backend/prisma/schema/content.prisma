@@ -66,22 +66,6 @@ model FaqItem {
   @@map("faq_items")
 }
 
-model UrlRedirect {
-  id         String   @id @default(uuid())
-  tenantId   String
-  fromPath   String
-  toPath     String
-  statusCode Int      @default(301)
-  hits       Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId, fromPath])
-  @@map("url_redirects")
-}
-
 model MediaAsset {
   id         String   @id @default(uuid())
   tenantId   String
