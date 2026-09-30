@@ -271,32 +271,32 @@ export const managerNavItems: NavItem[] = [
 export const userNavItems: NavItem[] = [
   {
     title: 'Overview',
-    href: '/user',
+    href: '/account',
     icon: 'LayoutDashboard',
     category: '',
     end: true,
   },
   {
     title: 'My Orders',
-    href: '/user/orders',
+    href: '/account/orders',
     icon: 'Package',
     category: 'Purchases',
   },
   {
     title: 'Wishlist',
-    href: '/user/wishlist',
+    href: '/wishlist',
     icon: 'Heart',
     category: 'Purchases',
   },
   {
     title: 'Addresses',
-    href: '/user/addresses',
+    href: '/account/addresses',
     icon: 'MapPin',
     category: 'Account',
   },
   {
     title: 'Profile Settings',
-    href: '/user/profile',
+    href: '/account/profile',
     icon: 'User',
     category: 'Account',
   },

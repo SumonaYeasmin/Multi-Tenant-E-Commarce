@@ -9,6 +9,8 @@ import { getIconComponent } from '@/lib/icon-mapper';
 import type { NavItem } from '@/config/menu-items';
 import type { UserInfo } from '@/types/user';
 
+import { useTenant } from '@/contexts/TenantContext';
+
 interface DashboardSidebarContentProps {
   navItems: NavItem[];
   user?: UserInfo;
@@ -20,6 +22,7 @@ export function DashboardSidebarContent({
   onItemClick,
 }: DashboardSidebarContentProps) {
   const pathname = usePathname();
+  const { tenant } = useTenant();
 
   // Group items by category preserving config order
   const categories: { name: string; items: NavItem[] }[] = [];
@@ -38,11 +41,11 @@ export function DashboardSidebarContent({
       {/* Brand Header */}
       <div className="flex h-14 items-center gap-2.5 border-b border-line px-4 shrink-0">
         <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ink font-display text-lg font-medium text-canvas shrink-0">
-          T
+          {tenant.name.charAt(0)}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ink leading-tight">Tanti</p>
-          <p className="truncate text-[11px] text-ink-muted leading-tight">tanti.com.bd</p>
+          <p className="truncate text-sm font-semibold text-ink leading-tight">{tenant.name}</p>
+          <p className="truncate text-[11px] text-ink-muted leading-tight">{tenant.domain}</p>
         </div>
         <Link
           href="/"

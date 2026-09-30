@@ -24,11 +24,15 @@ class ApiClient {
       ...options.headers,
     };
 
-    // Client-side auth token injection if available in cookies or storage
+    // Client-side auth and tenant injection if available
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       if (token) {
         (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+      }
+      const tenantSlug = localStorage.getItem('tenant_slug') || window.location.hostname.split('.')[0];
+      if (tenantSlug) {
+        (headers as Record<string, string>)['x-tenant-slug'] = tenantSlug;
       }
     }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { ArrowRightIcon } from 'lucide-react';
 import { PaymentMark } from '@/components/ui/PaymentMark';
+import { useTenant } from '@/contexts/TenantContext';
 
 const columns = [
   {
@@ -28,18 +29,18 @@ const columns = [
     ],
   },
   {
-    title: 'Tanti',
+    title: 'About',
     links: [
       ['/about', 'Our story'],
       ['/journal', 'Journal'],
-      ['/brands/tanti-loom', 'Tanti Loom'],
-      ['/brands/pora', 'Pora leather'],
+      ['/brands/tanti-loom', 'Featured Brands'],
       ['/admin', 'Merchant login'],
     ],
   },
 ];
 
 export function StoreFooter() {
+  const { tenant } = useTenant();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
@@ -59,9 +60,9 @@ export function StoreFooter() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <p className="font-display text-3xl">Tanti</p>
+            <p className="font-display text-3xl">{tenant.name}</p>
             <p className="mt-3 max-w-sm text-sm text-canvas/70">
-              Modern Bangladeshi clothing, made with weavers and makers across the country since 2019.
+              {tenant.tagline}
             </p>
             <form onSubmit={subscribe} className="mt-8 max-w-sm" noValidate>
               <label htmlFor="newsletter" className="text-sm font-medium">
@@ -118,7 +119,7 @@ export function StoreFooter() {
             ))}
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-canvas/60">
-            <span>© 2026 Tanti Lifestyle Ltd. · Dhanmondi 27, Dhaka</span>
+            <span>© 2026 {tenant.name} · {tenant.contact.address}</span>
             <Link href="/policies/privacy" className="hover:text-canvas">
               Privacy
             </Link>

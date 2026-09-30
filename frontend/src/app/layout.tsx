@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "sonner";
+import { TenantProvider } from "@/contexts/TenantContext";
 
 export default function RootLayout({
   children,
@@ -34,8 +35,10 @@ export default function RootLayout({
       className={`${inter.variable} ${fraunces.variable} font-sans h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-canvas text-ink font-sans antialiased">
-        {children}
-        <Toaster position="bottom-center" />
+        <TenantProvider>
+          {children}
+          <Toaster position="bottom-center" />
+        </TenantProvider>
       </body>
     </html>
   );

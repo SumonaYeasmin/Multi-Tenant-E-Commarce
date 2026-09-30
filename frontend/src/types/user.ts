@@ -1,4 +1,6 @@
-export type UserRole = 'OWNER' | 'ADMIN' | 'MANAGER' | 'USER';
+import type { UserRole } from '@/constants/roles';
+
+export type { UserRole };
 
 export interface UserInfo {
   id: string;

@@ -1,4 +1,4 @@
-export type CategoryKey = 'women' | 'men' | 'kids' | 'accessories' | 'footwear' | (string & {});
+export type { CategoryKey, ProductStatus, ColorOption, Variant, Product } from './product';
 
 export interface CategoryItemData {
   key: string;
@@ -10,56 +10,6 @@ export interface CategoryItemData {
   seoTitle?: string;
   seoDescription?: string;
   status?: 'published' | 'draft' | 'hidden';
-}
-
-export type ProductStatus = 'published' | 'draft' | 'archived';
-
-export interface ColorOption {
-  name: string;
-  hex: string;
-}
-
-export interface Variant {
-  id: string;
-  sku: string;
-  color: string;
-  size: string;
-  price: number;
-  salePrice?: number;
-  stock: number;
-  reserved: number;
-  enabled: boolean;
-}
-
-export interface Product {
-  id: string;
-  slug: string;
-  title: string;
-  brand: string;
-  category: CategoryKey;
-  subcategory: string;
-  collections: string[];
-  tags: string[];
-  images: string[];
-  price: number;
-  salePrice?: number;
-  cost: number;
-  rating: number;
-  reviewCount: number;
-  sold: number;
-  createdAt: string;
-  status: ProductStatus;
-  shortDescription: string;
-  description: string;
-  colors: ColorOption[];
-  sizes: string[];
-  variants: Variant[];
-  specs: { label: string; value: string }[];
-  isNew?: boolean;
-  isBestseller?: boolean;
-  preorder?: boolean;
-  weightGrams: number;
-  barcode: string;
 }
 
 export interface CartItem {
@@ -223,25 +173,7 @@ export interface Customer {
   avatar?: string;
 }
 
-export type ReviewStatus = 'published' | 'pending' | 'hidden' | 'rejected';
-
-export interface Review {
-  id: string;
-  productId: string;
-  productTitle: string;
-  author: string;
-  rating: number;
-  title: string;
-  body: string;
-  date: string;
-  verified: boolean;
-  photos: string[];
-  helpful: number;
-  status: ReviewStatus;
-  size?: string;
-  reply?: string;
-  reported?: boolean;
-}
+export type { ReviewStatus, Review } from './review';
 
 export type AdminRole = 'owner' | 'manager' | 'fulfillment';
 export type PlanState = 'active' | 'grace' | 'suspended';

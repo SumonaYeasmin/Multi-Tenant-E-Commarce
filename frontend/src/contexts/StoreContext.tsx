@@ -466,7 +466,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           return prev
             .filter((c) => c.key !== key)
             .map((c) => {
-              let updated = { ...c };
+              const updated = { ...c };
               if (c.parentKey === key) {
                 updated.parentKey = undefined;
               }

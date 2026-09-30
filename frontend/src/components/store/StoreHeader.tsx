@@ -11,9 +11,9 @@ import {
   ShoppingBagIcon,
   UserIcon,
   ChevronRightIcon,
-  XIcon,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { announcement } from '@/data/content';
 import { collections } from '@/data/products';
 import { Drawer } from '@/components/ui/Drawer';
@@ -21,6 +21,7 @@ import { cn } from '@/utils/cn';
 
 export function StoreHeader() {
   const pathname = usePathname();
+  const { tenant } = useTenant();
   const { cart, wishlist, user, setMiniCartOpen, setSearchOpen, categories } =
     useStore();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -51,7 +52,7 @@ export function StoreHeader() {
             href="/"
             className="font-display text-2xl font-medium tracking-tight text-ink"
           >
-            Tanti
+            {tenant.name}
           </Link>
           <nav
             aria-label="Main"
