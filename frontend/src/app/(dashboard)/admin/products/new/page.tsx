@@ -9,7 +9,7 @@ export default function AdminNewProductPage() {
     <ModuleGate module="products" action="create">
       <React.Suspense
         fallback={
-          <div className="mx-auto max-w-6xl py-12 text-center text-sm text-ink-muted">
+          <div className="w-full py-12 text-center text-sm text-ink-muted">
             Loading editor...
           </div>
         }

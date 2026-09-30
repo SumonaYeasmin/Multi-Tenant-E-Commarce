@@ -78,7 +78,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
   if (!order) {
     return (
-      <div className="mx-auto max-w-4xl p-8 text-center">
+      <div className="w-full py-12 text-center">
         <p className="text-sm text-ink-muted">Order not found.</p>
         <Link href="/admin/orders" className="mt-2 inline-block text-sm font-medium text-clay hover:underline">
           Back to orders

@@ -95,7 +95,7 @@ export function CategoryManager({ initialCategories, products }: CategoryManager
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Categories"
         description="Hierarchical categories power navigation, filters, product tagging and breadcrumbs."
