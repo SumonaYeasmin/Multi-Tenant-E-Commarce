@@ -1,0 +1,58 @@
+model CustomerProfile {
+  id               String          @id @default(uuid())
+  tenantId         String
+  userId           String?
+  name             String
+  email            String
+  phone            String?
+  district         String?
+  avatar           String?
+  ordersCount      Int             @default(0)
+  totalSpent       Decimal         @default(0) @db.Decimal(12, 2)
+  storeCredit      Decimal         @default(0) @db.Decimal(12, 2)
+  segment          CustomerSegment @default(NEW)
+  tags             String[]        @default([])
+  marketingConsent Boolean         @default(false)
+  isActive         Boolean         @default(true)
+
+  // Auditing & Soft Delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user           User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  addresses      CustomerAddress[]
+  orders         Order[]
+  reviews        Review[]
+  wishlist       WishlistItem[]
+  carts          Cart[]
+  supportTickets SupportTicket[]
+  giftCards      GiftCard[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, phone])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@index([tenantId, deletedAt])
+  @@map("customer_profiles")
+}
+
+model CustomerAddress {
+  id                String   @id @default(uuid())
+  customerProfileId String
+  label             String   @default("Home")
+  name              String
+  phone             String
+  line1             String
+  area              String
+  district          String
+  isDefaultShipping Boolean  @default(false)
+  isDefaultBilling  Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([customerProfileId])
+  @@map("customer_addresses")
+}

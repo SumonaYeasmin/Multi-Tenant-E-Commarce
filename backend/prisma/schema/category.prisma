@@ -1,26 +1,43 @@
-
 model Category {
-    id          String    @id @default(uuid())
-    tenantId    String    
-    name        String
-    slug        String    
-    description String?
-    image       String?
-    
-    // ডিসপ্লে ও স্ট্যাটাস
-    isActive    Boolean   @default(true)
-    showInNav   Boolean   @default(true)
-    order       Int       @default(0)
+  id          String  @id @default(uuid())
+  tenantId    String
+  name        String
+  slug        String
+  description String?
+  blurb       String?
+  image       String?
 
-    // সাব-ক্যাটাগরি রিলেশন (Self-Relation)
-    parentId    String?
-    parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-    children    Category[] @relation("CategoryHierarchy")
+  // SEO
+  seoTitle       String?
+  seoDescription String?
 
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+  // ডিসপ্লে ও স্ট্যাটাস
+  status    String  @default("published")
+  isActive  Boolean @default(true)
+  showInNav Boolean @default(true)
+  order     Int     @default(0)
 
-    // একই টেন্যান্টের আন্ডারে স্লাগ ইউনিক হবে
-    @@unique([tenantId, slug])
-    @@map("categories")
+  // সাব-ক্যাটাগরি রিলেশন (Self-Relation)
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children Category[] @relation("CategoryHierarchy")
+
+  // কুইক স্ট্রিং সাবক্যাটাগরি লিস্ট (ফ্রন্টএন্ডের সুবিধার জন্য)
+  subcategoriesList String[] @default([])
+
+  // টেন্যান্ট রিলেশন
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // প্রোডাক্ট রিলেশন
+  products    Product[] @relation("CategoryProducts")
+  subProducts Product[] @relation("SubcategoryProducts")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // একই টেন্যান্টের আন্ডারে স্লাগ ইউনিক হবে
+  @@unique([tenantId, slug])
+  @@index([tenantId, deletedAt])
+  @@map("categories")
 }

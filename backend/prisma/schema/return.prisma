@@ -1,0 +1,58 @@
+model ReturnRequest {
+  id             String           @id @default(uuid())
+  tenantId       String
+  orderId        String
+  customerName   String
+  reason         String
+  details        String?          @db.Text
+  photos         String[]         @default([])
+  resolution     ReturnResolution @default(REFUND)
+  status         ReturnStatus     @default(REQUESTED)
+  amount         Decimal          @db.Decimal(12, 2)
+  inspectionNote String?          @db.Text
+
+  // Auditing & Soft Delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  tenant   Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  order    Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  items    ReturnItem[]
+  timeline ReturnTimeline[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@index([orderId])
+  @@map("return_requests")
+}
+
+model ReturnItem {
+  id              String  @id @default(uuid())
+  returnRequestId String
+  title           String
+  image           String?
+  qty             Int
+  price           Decimal @db.Decimal(12, 2)
+  size            String?
+  color           String?
+
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+
+  @@index([returnRequestId])
+  @@map("return_items")
+}
+
+model ReturnTimeline {
+  id              String   @id @default(uuid())
+  returnRequestId String
+  label           String
+  by              String?
+  note            String?
+  createdAt       DateTime @default(now())
+
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+
+  @@index([returnRequestId])
+  @@map("return_timeline")
+}

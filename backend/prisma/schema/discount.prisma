@@ -1,0 +1,28 @@
+model Discount {
+  id          String         @id @default(uuid())
+  tenantId    String
+  code        String
+  title       String
+  type        DiscountType
+  method      DiscountMethod @default(CODE)
+  status      DiscountStatus @default(ACTIVE)
+  value       Decimal        @db.Decimal(12, 2)
+  minSubtotal Decimal?       @db.Decimal(12, 2)
+  usageLimit  Int?
+  usedCount   Int            @default(0)
+  revenue     Decimal        @default(0) @db.Decimal(12, 2)
+  startsAt    DateTime
+  endsAt      DateTime?
+
+  // Auditing & Soft Delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+  @@index([tenantId, deletedAt])
+  @@map("discounts")
+}

@@ -1,16 +1,26 @@
 model User {
-    id       String     @id @default(uuid())
-    name     String?
-    phone    String?    @unique
-    email    String?    @unique
-    password String?
-    role     UserRole
-    status   UserStatus
+  id          String     @id @default(uuid())
+  name        String?
+  phone       String?    @unique
+  email       String?    @unique
+  password    String?
+  role        UserRole
+  status      UserStatus
+  lastLoginAt DateTime?
 
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    lastLoginAt DateTime?
-    otps        OTP[]
+  // Auditing & Soft Delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-    @@map("users")
+  otps OTP[]
+
+  // Multi-tenant memberships
+  tenantMemberships TenantMember[]
+
+  // Customer profiles across tenants
+  customerProfiles CustomerProfile[]
+
+  @@index([deletedAt])
+  @@map("users")
 }
