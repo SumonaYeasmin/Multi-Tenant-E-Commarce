@@ -361,20 +361,8 @@ export type OTPOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
 export type EnumOtpTypeFieldUpdateOperationsInput = {
   set?: $Enums.OtpType
-}
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type OTPCreateNestedManyWithoutUserInput = {

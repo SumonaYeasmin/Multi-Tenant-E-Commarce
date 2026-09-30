@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Category: 'Category',
   OTP: 'OTP',
   User: 'User'
 } as const
@@ -69,6 +70,24 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  image: 'image',
+  isActive: 'isActive',
+  showInNav: 'showInNav',
+  order: 'order',
+  parentId: 'parentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
 
 
 export const OTPScalarFieldEnum = {
