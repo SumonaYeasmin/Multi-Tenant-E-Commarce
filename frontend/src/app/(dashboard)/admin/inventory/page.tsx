@@ -2,10 +2,10 @@
 
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Download, Search, ArrowRightLeft, ClipboardCheck } from 'lucide-react';
+import { Download, Search, ClipboardCheck } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
-import { locations, stockMovements, transfers } from '@/data/admin';
+import { stockMovements } from '@/data/admin';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { GuardedButton } from '@/components/dashboard/shared/GuardedButton';
 import { ModuleGate } from '@/components/dashboard/shared/ModuleGate';
@@ -19,7 +19,7 @@ import { available, LOW_STOCK_THRESHOLD } from '@/utils/pricing';
 import { formatBDT, formatDateTime } from '@/utils/format';
 import { cn } from '@/utils/cn';
 
-type Tab = 'stock' | 'ledger' | 'transfers';
+type Tab = 'stock' | 'ledger';
 const reasons = [
   'Received',
   'Correction',
@@ -34,7 +34,6 @@ export default function AdminInventoryPage() {
   const { actor } = useAdmin();
   const [tab, setTab] = useState<Tab>('stock');
   const [q, setQ] = useState('');
-  const [loc, setLoc] = useState(locations[0]?.id || 'loc-dhk-hub');
   const [filter, setFilter] = useState<'all' | 'low' | 'out'>('all');
   const [adjust, setAdjust] = useState<{
     pid: string;
@@ -89,7 +88,6 @@ export default function AdminInventoryPage() {
           product: p.title,
           change: n,
           reason,
-          location: locations.find((x) => x.id === loc)?.name ?? '',
           by: actor || 'Admin',
           ref: '',
         },
@@ -105,7 +103,7 @@ export default function AdminInventoryPage() {
     ['Stock value (at cost)', formatBDT(stockValue), ''],
     ['Low stock variants', String(lowCount), 'text-amber-600 dark:text-amber-400'],
     ['Out of stock', String(outCount), 'text-red-600 dark:text-red-400'],
-    ['Locations', String(locations.length), ''],
+    ['Total variants', String(products.flatMap((p) => p.variants).length), ''],
   ];
 
   return (
@@ -122,7 +120,7 @@ export default function AdminInventoryPage() {
                 variant="secondary"
                 size="sm"
                 onClick={() =>
-                  toast.success('Physical count CNT-20 started for this location')
+                  toast.success('Physical count started')
                 }
               >
                 <ClipboardCheck className="h-4 w-4" aria-hidden /> Start count
@@ -159,21 +157,8 @@ export default function AdminInventoryPage() {
               tabs={[
                 { value: 'stock', label: 'Stock levels' },
                 { value: 'ledger', label: 'Movement ledger' },
-                { value: 'transfers', label: 'Transfers & receiving' },
               ]}
             />
-            <select
-              aria-label="Location"
-              value={loc}
-              onChange={(e) => setLoc(e.target.value)}
-              className="mb-2 h-9 rounded-md border border-line-strong bg-surface px-2 text-sm text-ink"
-            >
-              {locations.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           {tab === 'stock' && (
@@ -317,7 +302,6 @@ export default function AdminInventoryPage() {
                     <th className="px-3 py-2.5 font-medium">Product / SKU</th>
                     <th className="px-3 py-2.5 text-right font-medium">Change</th>
                     <th className="px-3 py-2.5 font-medium">Reason</th>
-                    <th className="px-3 py-2.5 font-medium">Location</th>
                     <th className="px-4 py-2.5 font-medium">By</th>
                   </tr>
                 </thead>
@@ -351,69 +335,11 @@ export default function AdminInventoryPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-3 py-2.5 text-ink-muted">{m.location}</td>
                       <td className="px-4 py-2.5 text-ink-muted">{m.by}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-
-          {tab === 'transfers' && (
-            <div className="border-t border-line">
-              <div className="flex justify-end px-4 py-3">
-                <GuardedButton
-                  module="inventory"
-                  action="create"
-                  size="sm"
-                  onClick={() => toast.success('Transfer TR-090 created')}
-                >
-                  <ArrowRightLeft className="h-4 w-4" aria-hidden /> New transfer
-                </GuardedButton>
-              </div>
-              <ul className="divide-y divide-line border-t border-line">
-                {transfers.map((t) => (
-                  <li
-                    key={t.id}
-                    className="flex flex-wrap items-center gap-4 px-4 py-3 text-sm hover:bg-subtle/40"
-                  >
-                    <span className="w-20 font-medium text-ink">{t.id}</span>
-                    <span className="flex-1 text-ink">
-                      {t.from} → {t.to}
-                    </span>
-                    <span className="text-ink-muted">{t.items} units</span>
-                    <Badge
-                      tone={
-                        t.status === 'received'
-                          ? 'success'
-                          : t.status === 'in_transit'
-                          ? 'info'
-                          : 'warning'
-                      }
-                    >
-                      {t.status === 'in_transit'
-                        ? 'In transit'
-                        : t.status === 'received'
-                        ? 'Received'
-                        : 'Awaiting'}
-                    </Badge>
-                    {t.status !== 'received' && (
-                      <GuardedButton
-                        module="inventory"
-                        action="update"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() =>
-                          toast.success(`${t.id} received — stock updated`)
-                        }
-                      >
-                        Receive
-                      </GuardedButton>
-                    )}
-                  </li>
-                ))}
-              </ul>
             </div>
           )}
         </div>

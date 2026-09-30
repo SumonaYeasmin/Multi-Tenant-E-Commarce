@@ -1,0 +1,84 @@
+model TenantDomain {
+  id          String    @id @default(uuid())
+  tenantId    String
+  host        String    @unique
+  primary     Boolean   @default(false)
+  status      String    @default("pending") // 'connected' | 'pending'
+  ssl         String    @default("pending") // 'active' | 'pending'
+  sslExpires  DateTime?
+  redirectsTo String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("tenant_domains")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  tenantId   String
+  name       String
+  prefix     String
+  keyHash    String?
+  scopes     String[]  @default([])
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("api_keys")
+}
+
+model WebhookEndpoint {
+  id          String   @id @default(uuid())
+  tenantId    String
+  url         String
+  events      String[] @default([])
+  status      String   @default("healthy") // 'healthy' | 'failing'
+  successRate Decimal? @db.Decimal(5, 2)
+  secret      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("webhook_endpoints")
+}
+
+model NotificationTemplate {
+  id        String   @id @default(uuid())
+  tenantId  String
+  event     String // 'Order confirmation', 'Order shipped', etc.
+  group     String // 'Orders', 'Payments', 'Shipping', 'Returns', 'Account'
+  email     Boolean  @default(true)
+  sms       Boolean  @default(false)
+  push      Boolean  @default(false)
+  subject   String?
+  body      String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, event])
+  @@map("notification_templates")
+}
+
+model NotificationLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  channel   String // 'Email' | 'SMS' | 'Push'
+  to        String
+  event     String
+  status    String // 'delivered' | 'opened' | 'failed'
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("notification_logs")
+}
