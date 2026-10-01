@@ -3877,7 +3877,6 @@ export const CategoryScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
-  blurb: 'blurb',
   image: 'image',
   seoTitle: 'seoTitle',
   seoDescription: 'seoDescription',
@@ -3886,7 +3885,6 @@ export const CategoryScalarFieldEnum = {
   showInNav: 'showInNav',
   order: 'order',
   parentId: 'parentId',
-  subcategoriesList: 'subcategoriesList',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
