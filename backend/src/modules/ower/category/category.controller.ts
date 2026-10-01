@@ -23,8 +23,8 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new category or subcategory' })
   @ApiResponse({ status: 201, description: 'Category created successfully' })
@@ -33,7 +33,7 @@ export class CategoryController {
   @ApiResponse({ status: 409, description: 'Category slug or name already exists' })
   async create(
     @Body() dto: CreateCategoryDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user?: any,
   ) {
     return this.categoryService.create(dto, user?.tenantId);
   }
