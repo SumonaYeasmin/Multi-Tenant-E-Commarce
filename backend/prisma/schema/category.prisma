@@ -4,7 +4,6 @@ model Category {
   name        String
   slug        String
   description String?
-  blurb       String?
   image       String?
 
   // SEO

@@ -72,3 +72,155 @@ export const CollectionType = {
 } as const
 
 export type CollectionType = (typeof CollectionType)[keyof typeof CollectionType]
+
+
+export const ProductStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
+
+
+export const OrderStatus = {
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  CONFIRMED: 'CONFIRMED',
+  PROCESSING: 'PROCESSING',
+  PACKED: 'PACKED',
+  SHIPPED: 'SHIPPED',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  RETURN_REQUESTED: 'RETURN_REQUESTED',
+  RETURNED: 'RETURNED',
+  REFUNDED: 'REFUNDED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED',
+  FAILED: 'FAILED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const FulfillmentStatus = {
+  UNFULFILLED: 'UNFULFILLED',
+  PARTIALLY_FULFILLED: 'PARTIALLY_FULFILLED',
+  FULFILLED: 'FULFILLED'
+} as const
+
+export type FulfillmentStatus = (typeof FulfillmentStatus)[keyof typeof FulfillmentStatus]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  REFUNDED: 'REFUNDED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const PaymentMethod = {
+  BKASH: 'BKASH',
+  NAGAD: 'NAGAD',
+  SSLCOMMERZ: 'SSLCOMMERZ',
+  STRIPE: 'STRIPE',
+  COD: 'COD'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const OrderChannel = {
+  ONLINE: 'ONLINE',
+  MANUAL: 'MANUAL'
+} as const
+
+export type OrderChannel = (typeof OrderChannel)[keyof typeof OrderChannel]
+
+
+export const ReturnStatus = {
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  RECEIVED: 'RECEIVED',
+  REFUNDED: 'REFUNDED',
+  EXCHANGED: 'EXCHANGED'
+} as const
+
+export type ReturnStatus = (typeof ReturnStatus)[keyof typeof ReturnStatus]
+
+
+export const ReturnResolution = {
+  REFUND: 'REFUND',
+  STORE_CREDIT: 'STORE_CREDIT',
+  EXCHANGE: 'EXCHANGE'
+} as const
+
+export type ReturnResolution = (typeof ReturnResolution)[keyof typeof ReturnResolution]
+
+
+export const ReviewStatus = {
+  PUBLISHED: 'PUBLISHED',
+  PENDING: 'PENDING',
+  HIDDEN: 'HIDDEN',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus]
+
+
+export const DiscountType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED_AMOUNT: 'FIXED_AMOUNT',
+  FREE_SHIPPING: 'FREE_SHIPPING'
+} as const
+
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
+
+
+export const DiscountMethod = {
+  CODE: 'CODE',
+  AUTOMATIC: 'AUTOMATIC'
+} as const
+
+export type DiscountMethod = (typeof DiscountMethod)[keyof typeof DiscountMethod]
+
+
+export const DiscountStatus = {
+  ACTIVE: 'ACTIVE',
+  SCHEDULED: 'SCHEDULED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type DiscountStatus = (typeof DiscountStatus)[keyof typeof DiscountStatus]
+
+
+export const CustomerSegment = {
+  VIP: 'VIP',
+  LOYAL: 'LOYAL',
+  NEW: 'NEW',
+  AT_RISK: 'AT_RISK',
+  WHOLESALE: 'WHOLESALE'
+} as const
+
+export type CustomerSegment = (typeof CustomerSegment)[keyof typeof CustomerSegment]
+
+
+export const StockMovementReason = {
+  RECEIVED: 'RECEIVED',
+  ORDER: 'ORDER',
+  DAMAGED: 'DAMAGED',
+  TRANSFER_IN: 'TRANSFER_IN',
+  TRANSFER_OUT: 'TRANSFER_OUT',
+  PHYSICAL_COUNT: 'PHYSICAL_COUNT',
+  RETURN: 'RETURN'
+} as const
+
+export type StockMovementReason = (typeof StockMovementReason)[keyof typeof StockMovementReason]
