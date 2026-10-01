@@ -36,6 +36,7 @@ export type CollectionMinAggregateOutputType = {
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type CollectionMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type CollectionMaxAggregateOutputType = {
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type CollectionCountAggregateOutputType = {
@@ -64,6 +66,7 @@ export type CollectionCountAggregateOutputType = {
   isActive: number
   createdAt: number
   updatedAt: number
+  deletedAt: number
   _all: number
 }
 
@@ -80,6 +83,7 @@ export type CollectionMinAggregateInputType = {
   isActive?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type CollectionMaxAggregateInputType = {
@@ -94,6 +98,7 @@ export type CollectionMaxAggregateInputType = {
   isActive?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type CollectionCountAggregateInputType = {
@@ -108,6 +113,7 @@ export type CollectionCountAggregateInputType = {
   isActive?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -195,6 +201,7 @@ export type CollectionGroupByOutputType = {
   isActive: boolean
   createdAt: Date
   updatedAt: Date
+  deletedAt: Date | null
   _count: CollectionCountAggregateOutputType | null
   _min: CollectionMinAggregateOutputType | null
   _max: CollectionMaxAggregateOutputType | null
@@ -230,7 +237,9 @@ export type CollectionWhereInput = {
   isActive?: Prisma.BoolFilter<"Collection"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Collection"> | Date | string | null
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
+  products?: Prisma.ProductCollectionListRelationFilter
 }
 
 export type CollectionOrderByWithRelationInput = {
@@ -245,7 +254,9 @@ export type CollectionOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
+  products?: Prisma.ProductCollectionOrderByRelationAggregateInput
 }
 
 export type CollectionWhereUniqueInput = Prisma.AtLeast<{
@@ -264,7 +275,9 @@ export type CollectionWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"Collection"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Collection"> | Date | string | null
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
+  products?: Prisma.ProductCollectionListRelationFilter
 }, "id" | "tenantId_slug">
 
 export type CollectionOrderByWithAggregationInput = {
@@ -279,6 +292,7 @@ export type CollectionOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CollectionCountOrderByAggregateInput
   _max?: Prisma.CollectionMaxOrderByAggregateInput
   _min?: Prisma.CollectionMinOrderByAggregateInput
@@ -299,6 +313,7 @@ export type CollectionScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"Collection"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Collection"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Collection"> | Date | string | null
 }
 
 export type CollectionCreateInput = {
@@ -312,7 +327,9 @@ export type CollectionCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   tenant: Prisma.TenantCreateNestedOneWithoutCollectionsInput
+  products?: Prisma.ProductCollectionCreateNestedManyWithoutCollectionInput
 }
 
 export type CollectionUncheckedCreateInput = {
@@ -327,6 +344,8 @@ export type CollectionUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  products?: Prisma.ProductCollectionUncheckedCreateNestedManyWithoutCollectionInput
 }
 
 export type CollectionUpdateInput = {
@@ -340,7 +359,9 @@ export type CollectionUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenant?: Prisma.TenantUpdateOneRequiredWithoutCollectionsNestedInput
+  products?: Prisma.ProductCollectionUpdateManyWithoutCollectionNestedInput
 }
 
 export type CollectionUncheckedUpdateInput = {
@@ -355,6 +376,8 @@ export type CollectionUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  products?: Prisma.ProductCollectionUncheckedUpdateManyWithoutCollectionNestedInput
 }
 
 export type CollectionCreateManyInput = {
@@ -369,6 +392,7 @@ export type CollectionCreateManyInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type CollectionUpdateManyMutationInput = {
@@ -382,6 +406,7 @@ export type CollectionUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CollectionUncheckedUpdateManyInput = {
@@ -396,6 +421,7 @@ export type CollectionUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CollectionTenantIdSlugCompoundUniqueInput = {
@@ -415,6 +441,7 @@ export type CollectionCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type CollectionMaxOrderByAggregateInput = {
@@ -429,6 +456,7 @@ export type CollectionMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type CollectionMinOrderByAggregateInput = {
@@ -443,6 +471,12 @@ export type CollectionMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+}
+
+export type CollectionScalarRelationFilter = {
+  is?: Prisma.CollectionWhereInput
+  isNot?: Prisma.CollectionWhereInput
 }
 
 export type CollectionListRelationFilter = {
@@ -457,6 +491,20 @@ export type CollectionOrderByRelationAggregateInput = {
 
 export type EnumCollectionTypeFieldUpdateOperationsInput = {
   set?: $Enums.CollectionType
+}
+
+export type CollectionCreateNestedOneWithoutProductsInput = {
+  create?: Prisma.XOR<Prisma.CollectionCreateWithoutProductsInput, Prisma.CollectionUncheckedCreateWithoutProductsInput>
+  connectOrCreate?: Prisma.CollectionCreateOrConnectWithoutProductsInput
+  connect?: Prisma.CollectionWhereUniqueInput
+}
+
+export type CollectionUpdateOneRequiredWithoutProductsNestedInput = {
+  create?: Prisma.XOR<Prisma.CollectionCreateWithoutProductsInput, Prisma.CollectionUncheckedCreateWithoutProductsInput>
+  connectOrCreate?: Prisma.CollectionCreateOrConnectWithoutProductsInput
+  upsert?: Prisma.CollectionUpsertWithoutProductsInput
+  connect?: Prisma.CollectionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CollectionUpdateToOneWithWhereWithoutProductsInput, Prisma.CollectionUpdateWithoutProductsInput>, Prisma.CollectionUncheckedUpdateWithoutProductsInput>
 }
 
 export type CollectionCreateNestedManyWithoutTenantInput = {
@@ -501,6 +549,82 @@ export type CollectionUncheckedUpdateManyWithoutTenantNestedInput = {
   deleteMany?: Prisma.CollectionScalarWhereInput | Prisma.CollectionScalarWhereInput[]
 }
 
+export type CollectionCreateWithoutProductsInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  type?: $Enums.CollectionType
+  rule?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  tenant: Prisma.TenantCreateNestedOneWithoutCollectionsInput
+}
+
+export type CollectionUncheckedCreateWithoutProductsInput = {
+  id?: string
+  tenantId: string
+  name: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  type?: $Enums.CollectionType
+  rule?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+}
+
+export type CollectionCreateOrConnectWithoutProductsInput = {
+  where: Prisma.CollectionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CollectionCreateWithoutProductsInput, Prisma.CollectionUncheckedCreateWithoutProductsInput>
+}
+
+export type CollectionUpsertWithoutProductsInput = {
+  update: Prisma.XOR<Prisma.CollectionUpdateWithoutProductsInput, Prisma.CollectionUncheckedUpdateWithoutProductsInput>
+  create: Prisma.XOR<Prisma.CollectionCreateWithoutProductsInput, Prisma.CollectionUncheckedCreateWithoutProductsInput>
+  where?: Prisma.CollectionWhereInput
+}
+
+export type CollectionUpdateToOneWithWhereWithoutProductsInput = {
+  where?: Prisma.CollectionWhereInput
+  data: Prisma.XOR<Prisma.CollectionUpdateWithoutProductsInput, Prisma.CollectionUncheckedUpdateWithoutProductsInput>
+}
+
+export type CollectionUpdateWithoutProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumCollectionTypeFieldUpdateOperationsInput | $Enums.CollectionType
+  rule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutCollectionsNestedInput
+}
+
+export type CollectionUncheckedUpdateWithoutProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumCollectionTypeFieldUpdateOperationsInput | $Enums.CollectionType
+  rule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 export type CollectionCreateWithoutTenantInput = {
   id?: string
   name: string
@@ -512,6 +636,8 @@ export type CollectionCreateWithoutTenantInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  products?: Prisma.ProductCollectionCreateNestedManyWithoutCollectionInput
 }
 
 export type CollectionUncheckedCreateWithoutTenantInput = {
@@ -525,6 +651,8 @@ export type CollectionUncheckedCreateWithoutTenantInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  products?: Prisma.ProductCollectionUncheckedCreateNestedManyWithoutCollectionInput
 }
 
 export type CollectionCreateOrConnectWithoutTenantInput = {
@@ -568,6 +696,7 @@ export type CollectionScalarWhereInput = {
   isActive?: Prisma.BoolFilter<"Collection"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Collection"> | Date | string | null
 }
 
 export type CollectionCreateManyTenantInput = {
@@ -581,6 +710,7 @@ export type CollectionCreateManyTenantInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type CollectionUpdateWithoutTenantInput = {
@@ -594,6 +724,8 @@ export type CollectionUpdateWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  products?: Prisma.ProductCollectionUpdateManyWithoutCollectionNestedInput
 }
 
 export type CollectionUncheckedUpdateWithoutTenantInput = {
@@ -607,6 +739,8 @@ export type CollectionUncheckedUpdateWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  products?: Prisma.ProductCollectionUncheckedUpdateManyWithoutCollectionNestedInput
 }
 
 export type CollectionUncheckedUpdateManyWithoutTenantInput = {
@@ -620,8 +754,38 @@ export type CollectionUncheckedUpdateManyWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+
+/**
+ * Count Type CollectionCountOutputType
+ */
+
+export type CollectionCountOutputType = {
+  products: number
+}
+
+export type CollectionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  products?: boolean | CollectionCountOutputTypeCountProductsArgs
+}
+
+/**
+ * CollectionCountOutputType without action
+ */
+export type CollectionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CollectionCountOutputType
+   */
+  select?: Prisma.CollectionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CollectionCountOutputType without action
+ */
+export type CollectionCountOutputTypeCountProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductCollectionWhereInput
+}
 
 
 export type CollectionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -636,7 +800,10 @@ export type CollectionSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
+  products?: boolean | Prisma.Collection$productsArgs<ExtArgs>
+  _count?: boolean | Prisma.CollectionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["collection"]>
 
 export type CollectionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -651,6 +818,7 @@ export type CollectionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["collection"]>
 
@@ -666,6 +834,7 @@ export type CollectionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["collection"]>
 
@@ -681,11 +850,14 @@ export type CollectionSelectScalar = {
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }
 
-export type CollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "slug" | "description" | "image" | "type" | "rule" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+export type CollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "slug" | "description" | "image" | "type" | "rule" | "isActive" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["collection"]>
 export type CollectionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
+  products?: boolean | Prisma.Collection$productsArgs<ExtArgs>
+  _count?: boolean | Prisma.CollectionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CollectionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -698,6 +870,7 @@ export type $CollectionPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "Collection"
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
+    products: Prisma.$ProductCollectionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -711,6 +884,7 @@ export type $CollectionPayload<ExtArgs extends runtime.Types.Extensions.Internal
     isActive: boolean
     createdAt: Date
     updatedAt: Date
+    deletedAt: Date | null
   }, ExtArgs["result"]["collection"]>
   composites: {}
 }
@@ -1106,6 +1280,7 @@ readonly fields: CollectionFieldRefs;
 export interface Prisma__CollectionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  products<T extends Prisma.Collection$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Collection$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1146,6 +1321,7 @@ export interface CollectionFieldRefs {
   readonly isActive: Prisma.FieldRef<"Collection", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Collection", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Collection", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Collection", 'DateTime'>
 }
     
 
@@ -1539,6 +1715,30 @@ export type CollectionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many Collections to delete.
    */
   limit?: number
+}
+
+/**
+ * Collection.products
+ */
+export type Collection$productsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductCollection
+   */
+  select?: Prisma.ProductCollectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductCollection
+   */
+  omit?: Prisma.ProductCollectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductCollectionInclude<ExtArgs> | null
+  where?: Prisma.ProductCollectionWhereInput
+  orderBy?: Prisma.ProductCollectionOrderByWithRelationInput | Prisma.ProductCollectionOrderByWithRelationInput[]
+  cursor?: Prisma.ProductCollectionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductCollectionScalarFieldEnum | Prisma.ProductCollectionScalarFieldEnum[]
 }
 
 /**

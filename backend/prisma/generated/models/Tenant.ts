@@ -28,39 +28,71 @@ export type TenantMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  tagline: string | null
+  domain: string | null
   customDomain: string | null
   logo: string | null
-  currency: string | null
+  favicon: string | null
   status: $Enums.TenantStatus | null
   plan: $Enums.TenantPlan | null
+  planState: string | null
+  currency: string | null
+  currencySymbol: string | null
+  currencyPosition: string | null
+  announcement: string | null
+  announcementEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type TenantMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  tagline: string | null
+  domain: string | null
   customDomain: string | null
   logo: string | null
-  currency: string | null
+  favicon: string | null
   status: $Enums.TenantStatus | null
   plan: $Enums.TenantPlan | null
+  planState: string | null
+  currency: string | null
+  currencySymbol: string | null
+  currencyPosition: string | null
+  announcement: string | null
+  announcementEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type TenantCountAggregateOutputType = {
   id: number
   name: number
   slug: number
+  tagline: number
+  domain: number
   customDomain: number
   logo: number
-  currency: number
+  favicon: number
   status: number
   plan: number
+  planState: number
+  currency: number
+  currencySymbol: number
+  currencyPosition: number
+  theme: number
+  modules: number
+  contact: number
+  socials: number
+  settings: number
+  announcement: number
+  announcementEnabled: number
   createdAt: number
   updatedAt: number
+  deletedAt: number
   _all: number
 }
 
@@ -69,39 +101,71 @@ export type TenantMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  tagline?: true
+  domain?: true
   customDomain?: true
   logo?: true
-  currency?: true
+  favicon?: true
   status?: true
   plan?: true
+  planState?: true
+  currency?: true
+  currencySymbol?: true
+  currencyPosition?: true
+  announcement?: true
+  announcementEnabled?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type TenantMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  tagline?: true
+  domain?: true
   customDomain?: true
   logo?: true
-  currency?: true
+  favicon?: true
   status?: true
   plan?: true
+  planState?: true
+  currency?: true
+  currencySymbol?: true
+  currencyPosition?: true
+  announcement?: true
+  announcementEnabled?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type TenantCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  tagline?: true
+  domain?: true
   customDomain?: true
   logo?: true
-  currency?: true
+  favicon?: true
   status?: true
   plan?: true
+  planState?: true
+  currency?: true
+  currencySymbol?: true
+  currencyPosition?: true
+  theme?: true
+  modules?: true
+  contact?: true
+  socials?: true
+  settings?: true
+  announcement?: true
+  announcementEnabled?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -181,13 +245,27 @@ export type TenantGroupByOutputType = {
   id: string
   name: string
   slug: string
+  tagline: string | null
+  domain: string | null
   customDomain: string | null
   logo: string | null
-  currency: string
+  favicon: string | null
   status: $Enums.TenantStatus
   plan: $Enums.TenantPlan
+  planState: string
+  currency: string
+  currencySymbol: string
+  currencyPosition: string
+  theme: runtime.JsonValue | null
+  modules: runtime.JsonValue | null
+  contact: runtime.JsonValue | null
+  socials: runtime.JsonValue | null
+  settings: runtime.JsonValue | null
+  announcement: string | null
+  announcementEnabled: boolean
   createdAt: Date
   updatedAt: Date
+  deletedAt: Date | null
   _count: TenantCountAggregateOutputType | null
   _min: TenantMinAggregateOutputType | null
   _max: TenantMaxAggregateOutputType | null
@@ -215,34 +293,110 @@ export type TenantWhereInput = {
   id?: Prisma.StringFilter<"Tenant"> | string
   name?: Prisma.StringFilter<"Tenant"> | string
   slug?: Prisma.StringFilter<"Tenant"> | string
+  tagline?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  domain?: Prisma.StringNullableFilter<"Tenant"> | string | null
   customDomain?: Prisma.StringNullableFilter<"Tenant"> | string | null
   logo?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  currency?: Prisma.StringFilter<"Tenant"> | string
+  favicon?: Prisma.StringNullableFilter<"Tenant"> | string | null
   status?: Prisma.EnumTenantStatusFilter<"Tenant"> | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFilter<"Tenant"> | $Enums.TenantPlan
+  planState?: Prisma.StringFilter<"Tenant"> | string
+  currency?: Prisma.StringFilter<"Tenant"> | string
+  currencySymbol?: Prisma.StringFilter<"Tenant"> | string
+  currencyPosition?: Prisma.StringFilter<"Tenant"> | string
+  theme?: Prisma.JsonNullableFilter<"Tenant">
+  modules?: Prisma.JsonNullableFilter<"Tenant">
+  contact?: Prisma.JsonNullableFilter<"Tenant">
+  socials?: Prisma.JsonNullableFilter<"Tenant">
+  settings?: Prisma.JsonNullableFilter<"Tenant">
+  announcement?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  announcementEnabled?: Prisma.BoolFilter<"Tenant"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
   members?: Prisma.TenantMemberListRelationFilter
+  domains?: Prisma.TenantDomainListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
   brands?: Prisma.BrandListRelationFilter
   collections?: Prisma.CollectionListRelationFilter
+  products?: Prisma.ProductListRelationFilter
+  orders?: Prisma.OrderListRelationFilter
+  returns?: Prisma.ReturnRequestListRelationFilter
+  customers?: Prisma.CustomerProfileListRelationFilter
+  reviews?: Prisma.ReviewListRelationFilter
+  discounts?: Prisma.DiscountListRelationFilter
+  stockMovements?: Prisma.StockMovementListRelationFilter
+  shippingZones?: Prisma.ShippingZoneListRelationFilter
+  carts?: Prisma.CartListRelationFilter
+  wishlists?: Prisma.WishlistItemListRelationFilter
+  cmsPages?: Prisma.CmsPageListRelationFilter
+  blogPosts?: Prisma.BlogPostListRelationFilter
+  menus?: Prisma.NavigationMenuListRelationFilter
+  faqs?: Prisma.FaqItemListRelationFilter
+  mediaAssets?: Prisma.MediaAssetListRelationFilter
+  campaigns?: Prisma.MarketingCampaignListRelationFilter
+  automations?: Prisma.MarketingAutomationListRelationFilter
+  supportTickets?: Prisma.SupportTicketListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
+  webhooks?: Prisma.WebhookEndpointListRelationFilter
+  notificationTemplates?: Prisma.NotificationTemplateListRelationFilter
+  notificationLogs?: Prisma.NotificationLogListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  tagline?: Prisma.SortOrderInput | Prisma.SortOrder
+  domain?: Prisma.SortOrderInput | Prisma.SortOrder
   customDomain?: Prisma.SortOrderInput | Prisma.SortOrder
   logo?: Prisma.SortOrderInput | Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  favicon?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  planState?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  currencySymbol?: Prisma.SortOrder
+  currencyPosition?: Prisma.SortOrder
+  theme?: Prisma.SortOrderInput | Prisma.SortOrder
+  modules?: Prisma.SortOrderInput | Prisma.SortOrder
+  contact?: Prisma.SortOrderInput | Prisma.SortOrder
+  socials?: Prisma.SortOrderInput | Prisma.SortOrder
+  settings?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcement?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   members?: Prisma.TenantMemberOrderByRelationAggregateInput
+  domains?: Prisma.TenantDomainOrderByRelationAggregateInput
   categories?: Prisma.CategoryOrderByRelationAggregateInput
   brands?: Prisma.BrandOrderByRelationAggregateInput
   collections?: Prisma.CollectionOrderByRelationAggregateInput
+  products?: Prisma.ProductOrderByRelationAggregateInput
+  orders?: Prisma.OrderOrderByRelationAggregateInput
+  returns?: Prisma.ReturnRequestOrderByRelationAggregateInput
+  customers?: Prisma.CustomerProfileOrderByRelationAggregateInput
+  reviews?: Prisma.ReviewOrderByRelationAggregateInput
+  discounts?: Prisma.DiscountOrderByRelationAggregateInput
+  stockMovements?: Prisma.StockMovementOrderByRelationAggregateInput
+  shippingZones?: Prisma.ShippingZoneOrderByRelationAggregateInput
+  carts?: Prisma.CartOrderByRelationAggregateInput
+  wishlists?: Prisma.WishlistItemOrderByRelationAggregateInput
+  cmsPages?: Prisma.CmsPageOrderByRelationAggregateInput
+  blogPosts?: Prisma.BlogPostOrderByRelationAggregateInput
+  menus?: Prisma.NavigationMenuOrderByRelationAggregateInput
+  faqs?: Prisma.FaqItemOrderByRelationAggregateInput
+  mediaAssets?: Prisma.MediaAssetOrderByRelationAggregateInput
+  campaigns?: Prisma.MarketingCampaignOrderByRelationAggregateInput
+  automations?: Prisma.MarketingAutomationOrderByRelationAggregateInput
+  supportTickets?: Prisma.SupportTicketOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
+  apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
+  webhooks?: Prisma.WebhookEndpointOrderByRelationAggregateInput
+  notificationTemplates?: Prisma.NotificationTemplateOrderByRelationAggregateInput
+  notificationLogs?: Prisma.NotificationLogOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -253,29 +407,81 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.TenantWhereInput[]
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   name?: Prisma.StringFilter<"Tenant"> | string
+  tagline?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  domain?: Prisma.StringNullableFilter<"Tenant"> | string | null
   logo?: Prisma.StringNullableFilter<"Tenant"> | string | null
-  currency?: Prisma.StringFilter<"Tenant"> | string
+  favicon?: Prisma.StringNullableFilter<"Tenant"> | string | null
   status?: Prisma.EnumTenantStatusFilter<"Tenant"> | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFilter<"Tenant"> | $Enums.TenantPlan
+  planState?: Prisma.StringFilter<"Tenant"> | string
+  currency?: Prisma.StringFilter<"Tenant"> | string
+  currencySymbol?: Prisma.StringFilter<"Tenant"> | string
+  currencyPosition?: Prisma.StringFilter<"Tenant"> | string
+  theme?: Prisma.JsonNullableFilter<"Tenant">
+  modules?: Prisma.JsonNullableFilter<"Tenant">
+  contact?: Prisma.JsonNullableFilter<"Tenant">
+  socials?: Prisma.JsonNullableFilter<"Tenant">
+  settings?: Prisma.JsonNullableFilter<"Tenant">
+  announcement?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  announcementEnabled?: Prisma.BoolFilter<"Tenant"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
   members?: Prisma.TenantMemberListRelationFilter
+  domains?: Prisma.TenantDomainListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
   brands?: Prisma.BrandListRelationFilter
   collections?: Prisma.CollectionListRelationFilter
+  products?: Prisma.ProductListRelationFilter
+  orders?: Prisma.OrderListRelationFilter
+  returns?: Prisma.ReturnRequestListRelationFilter
+  customers?: Prisma.CustomerProfileListRelationFilter
+  reviews?: Prisma.ReviewListRelationFilter
+  discounts?: Prisma.DiscountListRelationFilter
+  stockMovements?: Prisma.StockMovementListRelationFilter
+  shippingZones?: Prisma.ShippingZoneListRelationFilter
+  carts?: Prisma.CartListRelationFilter
+  wishlists?: Prisma.WishlistItemListRelationFilter
+  cmsPages?: Prisma.CmsPageListRelationFilter
+  blogPosts?: Prisma.BlogPostListRelationFilter
+  menus?: Prisma.NavigationMenuListRelationFilter
+  faqs?: Prisma.FaqItemListRelationFilter
+  mediaAssets?: Prisma.MediaAssetListRelationFilter
+  campaigns?: Prisma.MarketingCampaignListRelationFilter
+  automations?: Prisma.MarketingAutomationListRelationFilter
+  supportTickets?: Prisma.SupportTicketListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
+  webhooks?: Prisma.WebhookEndpointListRelationFilter
+  notificationTemplates?: Prisma.NotificationTemplateListRelationFilter
+  notificationLogs?: Prisma.NotificationLogListRelationFilter
 }, "id" | "slug" | "customDomain">
 
 export type TenantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  tagline?: Prisma.SortOrderInput | Prisma.SortOrder
+  domain?: Prisma.SortOrderInput | Prisma.SortOrder
   customDomain?: Prisma.SortOrderInput | Prisma.SortOrder
   logo?: Prisma.SortOrderInput | Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  favicon?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  planState?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  currencySymbol?: Prisma.SortOrder
+  currencyPosition?: Prisma.SortOrder
+  theme?: Prisma.SortOrderInput | Prisma.SortOrder
+  modules?: Prisma.SortOrderInput | Prisma.SortOrder
+  contact?: Prisma.SortOrderInput | Prisma.SortOrder
+  socials?: Prisma.SortOrderInput | Prisma.SortOrder
+  settings?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcement?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
   _max?: Prisma.TenantMaxOrderByAggregateInput
   _min?: Prisma.TenantMinOrderByAggregateInput
@@ -288,120 +494,328 @@ export type TenantScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   name?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  tagline?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  domain?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   customDomain?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   logo?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
-  currency?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  favicon?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   status?: Prisma.EnumTenantStatusWithAggregatesFilter<"Tenant"> | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanWithAggregatesFilter<"Tenant"> | $Enums.TenantPlan
+  planState?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  currency?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  currencySymbol?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  currencyPosition?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  theme?: Prisma.JsonNullableWithAggregatesFilter<"Tenant">
+  modules?: Prisma.JsonNullableWithAggregatesFilter<"Tenant">
+  contact?: Prisma.JsonNullableWithAggregatesFilter<"Tenant">
+  socials?: Prisma.JsonNullableWithAggregatesFilter<"Tenant">
+  settings?: Prisma.JsonNullableWithAggregatesFilter<"Tenant">
+  announcement?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  announcementEnabled?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
 }
 
 export type TenantCreateInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type TenantUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TenantUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TenantScalarRelationFilter = {
@@ -413,39 +827,71 @@ export type TenantCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  tagline?: Prisma.SortOrder
+  domain?: Prisma.SortOrder
   customDomain?: Prisma.SortOrder
   logo?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  favicon?: Prisma.SortOrder
   status?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  planState?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  currencySymbol?: Prisma.SortOrder
+  currencyPosition?: Prisma.SortOrder
+  theme?: Prisma.SortOrder
+  modules?: Prisma.SortOrder
+  contact?: Prisma.SortOrder
+  socials?: Prisma.SortOrder
+  settings?: Prisma.SortOrder
+  announcement?: Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type TenantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  tagline?: Prisma.SortOrder
+  domain?: Prisma.SortOrder
   customDomain?: Prisma.SortOrder
   logo?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  favicon?: Prisma.SortOrder
   status?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  planState?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  currencySymbol?: Prisma.SortOrder
+  currencyPosition?: Prisma.SortOrder
+  announcement?: Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type TenantMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  tagline?: Prisma.SortOrder
+  domain?: Prisma.SortOrder
   customDomain?: Prisma.SortOrder
   logo?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  favicon?: Prisma.SortOrder
   status?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  planState?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  currencySymbol?: Prisma.SortOrder
+  currencyPosition?: Prisma.SortOrder
+  announcement?: Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type TenantCreateNestedOneWithoutBrandsInput = {
@@ -460,6 +906,34 @@ export type TenantUpdateOneRequiredWithoutBrandsNestedInput = {
   upsert?: Prisma.TenantUpsertWithoutBrandsInput
   connect?: Prisma.TenantWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutBrandsInput, Prisma.TenantUpdateWithoutBrandsInput>, Prisma.TenantUncheckedUpdateWithoutBrandsInput>
+}
+
+export type TenantCreateNestedOneWithoutCartsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCartsInput, Prisma.TenantUncheckedCreateWithoutCartsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCartsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutCartsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCartsInput, Prisma.TenantUncheckedCreateWithoutCartsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCartsInput
+  upsert?: Prisma.TenantUpsertWithoutCartsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCartsInput, Prisma.TenantUpdateWithoutCartsInput>, Prisma.TenantUncheckedUpdateWithoutCartsInput>
+}
+
+export type TenantCreateNestedOneWithoutWishlistsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWishlistsInput, Prisma.TenantUncheckedCreateWithoutWishlistsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWishlistsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutWishlistsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWishlistsInput, Prisma.TenantUncheckedCreateWithoutWishlistsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWishlistsInput
+  upsert?: Prisma.TenantUpsertWithoutWishlistsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutWishlistsInput, Prisma.TenantUpdateWithoutWishlistsInput>, Prisma.TenantUncheckedUpdateWithoutWishlistsInput>
 }
 
 export type TenantCreateNestedOneWithoutCategoriesInput = {
@@ -490,6 +964,314 @@ export type TenantUpdateOneRequiredWithoutCollectionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCollectionsInput, Prisma.TenantUpdateWithoutCollectionsInput>, Prisma.TenantUncheckedUpdateWithoutCollectionsInput>
 }
 
+export type TenantCreateNestedOneWithoutCmsPagesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCmsPagesInput, Prisma.TenantUncheckedCreateWithoutCmsPagesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCmsPagesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutCmsPagesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCmsPagesInput, Prisma.TenantUncheckedCreateWithoutCmsPagesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCmsPagesInput
+  upsert?: Prisma.TenantUpsertWithoutCmsPagesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCmsPagesInput, Prisma.TenantUpdateWithoutCmsPagesInput>, Prisma.TenantUncheckedUpdateWithoutCmsPagesInput>
+}
+
+export type TenantCreateNestedOneWithoutBlogPostsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutBlogPostsInput, Prisma.TenantUncheckedCreateWithoutBlogPostsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutBlogPostsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutBlogPostsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutBlogPostsInput, Prisma.TenantUncheckedCreateWithoutBlogPostsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutBlogPostsInput
+  upsert?: Prisma.TenantUpsertWithoutBlogPostsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutBlogPostsInput, Prisma.TenantUpdateWithoutBlogPostsInput>, Prisma.TenantUncheckedUpdateWithoutBlogPostsInput>
+}
+
+export type TenantCreateNestedOneWithoutMenusInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutMenusInput, Prisma.TenantUncheckedCreateWithoutMenusInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutMenusInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutMenusNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutMenusInput, Prisma.TenantUncheckedCreateWithoutMenusInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutMenusInput
+  upsert?: Prisma.TenantUpsertWithoutMenusInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutMenusInput, Prisma.TenantUpdateWithoutMenusInput>, Prisma.TenantUncheckedUpdateWithoutMenusInput>
+}
+
+export type TenantCreateNestedOneWithoutFaqsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutFaqsInput, Prisma.TenantUncheckedCreateWithoutFaqsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutFaqsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutFaqsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutFaqsInput, Prisma.TenantUncheckedCreateWithoutFaqsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutFaqsInput
+  upsert?: Prisma.TenantUpsertWithoutFaqsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutFaqsInput, Prisma.TenantUpdateWithoutFaqsInput>, Prisma.TenantUncheckedUpdateWithoutFaqsInput>
+}
+
+export type TenantCreateNestedOneWithoutMediaAssetsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutMediaAssetsInput, Prisma.TenantUncheckedCreateWithoutMediaAssetsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutMediaAssetsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutMediaAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutMediaAssetsInput, Prisma.TenantUncheckedCreateWithoutMediaAssetsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutMediaAssetsInput
+  upsert?: Prisma.TenantUpsertWithoutMediaAssetsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutMediaAssetsInput, Prisma.TenantUpdateWithoutMediaAssetsInput>, Prisma.TenantUncheckedUpdateWithoutMediaAssetsInput>
+}
+
+export type TenantCreateNestedOneWithoutCustomersInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCustomersInput, Prisma.TenantUncheckedCreateWithoutCustomersInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCustomersInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutCustomersNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCustomersInput, Prisma.TenantUncheckedCreateWithoutCustomersInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCustomersInput
+  upsert?: Prisma.TenantUpsertWithoutCustomersInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCustomersInput, Prisma.TenantUpdateWithoutCustomersInput>, Prisma.TenantUncheckedUpdateWithoutCustomersInput>
+}
+
+export type TenantCreateNestedOneWithoutDiscountsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutDiscountsInput, Prisma.TenantUncheckedCreateWithoutDiscountsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutDiscountsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutDiscountsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutDiscountsInput, Prisma.TenantUncheckedCreateWithoutDiscountsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutDiscountsInput
+  upsert?: Prisma.TenantUpsertWithoutDiscountsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutDiscountsInput, Prisma.TenantUpdateWithoutDiscountsInput>, Prisma.TenantUncheckedUpdateWithoutDiscountsInput>
+}
+
+export type TenantCreateNestedOneWithoutDomainsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutDomainsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutDomainsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutDomainsInput
+  upsert?: Prisma.TenantUpsertWithoutDomainsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutDomainsInput, Prisma.TenantUpdateWithoutDomainsInput>, Prisma.TenantUncheckedUpdateWithoutDomainsInput>
+}
+
+export type TenantCreateNestedOneWithoutApiKeysInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutApiKeysInput, Prisma.TenantUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutApiKeysInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutApiKeysNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutApiKeysInput, Prisma.TenantUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutApiKeysInput
+  upsert?: Prisma.TenantUpsertWithoutApiKeysInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutApiKeysInput, Prisma.TenantUpdateWithoutApiKeysInput>, Prisma.TenantUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type TenantCreateNestedOneWithoutWebhooksInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWebhooksInput, Prisma.TenantUncheckedCreateWithoutWebhooksInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWebhooksInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutWebhooksNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWebhooksInput, Prisma.TenantUncheckedCreateWithoutWebhooksInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWebhooksInput
+  upsert?: Prisma.TenantUpsertWithoutWebhooksInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutWebhooksInput, Prisma.TenantUpdateWithoutWebhooksInput>, Prisma.TenantUncheckedUpdateWithoutWebhooksInput>
+}
+
+export type TenantCreateNestedOneWithoutNotificationTemplatesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutNotificationTemplatesInput, Prisma.TenantUncheckedCreateWithoutNotificationTemplatesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutNotificationTemplatesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutNotificationTemplatesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutNotificationTemplatesInput, Prisma.TenantUncheckedCreateWithoutNotificationTemplatesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutNotificationTemplatesInput
+  upsert?: Prisma.TenantUpsertWithoutNotificationTemplatesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutNotificationTemplatesInput, Prisma.TenantUpdateWithoutNotificationTemplatesInput>, Prisma.TenantUncheckedUpdateWithoutNotificationTemplatesInput>
+}
+
+export type TenantCreateNestedOneWithoutNotificationLogsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutNotificationLogsInput, Prisma.TenantUncheckedCreateWithoutNotificationLogsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutNotificationLogsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutNotificationLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutNotificationLogsInput, Prisma.TenantUncheckedCreateWithoutNotificationLogsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutNotificationLogsInput
+  upsert?: Prisma.TenantUpsertWithoutNotificationLogsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutNotificationLogsInput, Prisma.TenantUpdateWithoutNotificationLogsInput>, Prisma.TenantUncheckedUpdateWithoutNotificationLogsInput>
+}
+
+export type TenantCreateNestedOneWithoutStockMovementsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutStockMovementsInput, Prisma.TenantUncheckedCreateWithoutStockMovementsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutStockMovementsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutStockMovementsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutStockMovementsInput, Prisma.TenantUncheckedCreateWithoutStockMovementsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutStockMovementsInput
+  upsert?: Prisma.TenantUpsertWithoutStockMovementsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutStockMovementsInput, Prisma.TenantUpdateWithoutStockMovementsInput>, Prisma.TenantUncheckedUpdateWithoutStockMovementsInput>
+}
+
+export type TenantCreateNestedOneWithoutCampaignsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCampaignsInput, Prisma.TenantUncheckedCreateWithoutCampaignsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCampaignsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutCampaignsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCampaignsInput, Prisma.TenantUncheckedCreateWithoutCampaignsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCampaignsInput
+  upsert?: Prisma.TenantUpsertWithoutCampaignsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCampaignsInput, Prisma.TenantUpdateWithoutCampaignsInput>, Prisma.TenantUncheckedUpdateWithoutCampaignsInput>
+}
+
+export type TenantCreateNestedOneWithoutAutomationsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutAutomationsInput, Prisma.TenantUncheckedCreateWithoutAutomationsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAutomationsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutAutomationsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutAutomationsInput, Prisma.TenantUncheckedCreateWithoutAutomationsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAutomationsInput
+  upsert?: Prisma.TenantUpsertWithoutAutomationsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutAutomationsInput, Prisma.TenantUpdateWithoutAutomationsInput>, Prisma.TenantUncheckedUpdateWithoutAutomationsInput>
+}
+
+export type TenantCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutOrdersInput, Prisma.TenantUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutOrdersInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutOrdersInput, Prisma.TenantUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.TenantUpsertWithoutOrdersInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutOrdersInput, Prisma.TenantUpdateWithoutOrdersInput>, Prisma.TenantUncheckedUpdateWithoutOrdersInput>
+}
+
+export type TenantCreateNestedOneWithoutProductsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutProductsInput, Prisma.TenantUncheckedCreateWithoutProductsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutProductsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutProductsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutProductsInput, Prisma.TenantUncheckedCreateWithoutProductsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutProductsInput
+  upsert?: Prisma.TenantUpsertWithoutProductsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutProductsInput, Prisma.TenantUpdateWithoutProductsInput>, Prisma.TenantUncheckedUpdateWithoutProductsInput>
+}
+
+export type TenantCreateNestedOneWithoutReturnsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutReturnsInput, Prisma.TenantUncheckedCreateWithoutReturnsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutReturnsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutReturnsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutReturnsInput, Prisma.TenantUncheckedCreateWithoutReturnsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutReturnsInput
+  upsert?: Prisma.TenantUpsertWithoutReturnsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutReturnsInput, Prisma.TenantUpdateWithoutReturnsInput>, Prisma.TenantUncheckedUpdateWithoutReturnsInput>
+}
+
+export type TenantCreateNestedOneWithoutReviewsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutReviewsInput, Prisma.TenantUncheckedCreateWithoutReviewsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutReviewsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutReviewsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutReviewsInput, Prisma.TenantUncheckedCreateWithoutReviewsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutReviewsInput
+  upsert?: Prisma.TenantUpsertWithoutReviewsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutReviewsInput, Prisma.TenantUpdateWithoutReviewsInput>, Prisma.TenantUncheckedUpdateWithoutReviewsInput>
+}
+
+export type TenantCreateNestedOneWithoutShippingZonesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutShippingZonesInput, Prisma.TenantUncheckedCreateWithoutShippingZonesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutShippingZonesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutShippingZonesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutShippingZonesInput, Prisma.TenantUncheckedCreateWithoutShippingZonesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutShippingZonesInput
+  upsert?: Prisma.TenantUpsertWithoutShippingZonesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutShippingZonesInput, Prisma.TenantUpdateWithoutShippingZonesInput>, Prisma.TenantUncheckedUpdateWithoutShippingZonesInput>
+}
+
+export type TenantCreateNestedOneWithoutSupportTicketsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSupportTicketsInput, Prisma.TenantUncheckedCreateWithoutSupportTicketsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSupportTicketsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutSupportTicketsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSupportTicketsInput, Prisma.TenantUncheckedCreateWithoutSupportTicketsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSupportTicketsInput
+  upsert?: Prisma.TenantUpsertWithoutSupportTicketsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutSupportTicketsInput, Prisma.TenantUpdateWithoutSupportTicketsInput>, Prisma.TenantUncheckedUpdateWithoutSupportTicketsInput>
+}
+
+export type TenantCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutAuditLogsInput, Prisma.TenantUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutAuditLogsInput, Prisma.TenantUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.TenantUpsertWithoutAuditLogsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.TenantUpdateWithoutAuditLogsInput>, Prisma.TenantUncheckedUpdateWithoutAuditLogsInput>
+}
+
 export type EnumTenantStatusFieldUpdateOperationsInput = {
   set?: $Enums.TenantStatus
 }
@@ -516,32 +1298,108 @@ export type TenantCreateWithoutBrandsInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutBrandsInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutBrandsInput = {
@@ -564,64 +1422,680 @@ export type TenantUpdateWithoutBrandsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutBrandsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutCartsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCartsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCartsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCartsInput, Prisma.TenantUncheckedCreateWithoutCartsInput>
+}
+
+export type TenantUpsertWithoutCartsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCartsInput, Prisma.TenantUncheckedUpdateWithoutCartsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCartsInput, Prisma.TenantUncheckedCreateWithoutCartsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutCartsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCartsInput, Prisma.TenantUncheckedUpdateWithoutCartsInput>
+}
+
+export type TenantUpdateWithoutCartsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCartsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutWishlistsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutWishlistsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutWishlistsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWishlistsInput, Prisma.TenantUncheckedCreateWithoutWishlistsInput>
+}
+
+export type TenantUpsertWithoutWishlistsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutWishlistsInput, Prisma.TenantUncheckedUpdateWithoutWishlistsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWishlistsInput, Prisma.TenantUncheckedCreateWithoutWishlistsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutWishlistsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutWishlistsInput, Prisma.TenantUncheckedUpdateWithoutWishlistsInput>
+}
+
+export type TenantUpdateWithoutWishlistsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutWishlistsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCategoriesInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCategoriesInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCategoriesInput = {
@@ -644,64 +2118,216 @@ export type TenantUpdateWithoutCategoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCategoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCollectionsInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCollectionsInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCollectionsInput = {
@@ -724,64 +2350,5320 @@ export type TenantUpdateWithoutCollectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCollectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutCmsPagesInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCmsPagesInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCmsPagesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCmsPagesInput, Prisma.TenantUncheckedCreateWithoutCmsPagesInput>
+}
+
+export type TenantUpsertWithoutCmsPagesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCmsPagesInput, Prisma.TenantUncheckedUpdateWithoutCmsPagesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCmsPagesInput, Prisma.TenantUncheckedCreateWithoutCmsPagesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutCmsPagesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCmsPagesInput, Prisma.TenantUncheckedUpdateWithoutCmsPagesInput>
+}
+
+export type TenantUpdateWithoutCmsPagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCmsPagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutBlogPostsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutBlogPostsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutBlogPostsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutBlogPostsInput, Prisma.TenantUncheckedCreateWithoutBlogPostsInput>
+}
+
+export type TenantUpsertWithoutBlogPostsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutBlogPostsInput, Prisma.TenantUncheckedUpdateWithoutBlogPostsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutBlogPostsInput, Prisma.TenantUncheckedCreateWithoutBlogPostsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutBlogPostsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutBlogPostsInput, Prisma.TenantUncheckedUpdateWithoutBlogPostsInput>
+}
+
+export type TenantUpdateWithoutBlogPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutBlogPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutMenusInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutMenusInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutMenusInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutMenusInput, Prisma.TenantUncheckedCreateWithoutMenusInput>
+}
+
+export type TenantUpsertWithoutMenusInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutMenusInput, Prisma.TenantUncheckedUpdateWithoutMenusInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutMenusInput, Prisma.TenantUncheckedCreateWithoutMenusInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutMenusInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutMenusInput, Prisma.TenantUncheckedUpdateWithoutMenusInput>
+}
+
+export type TenantUpdateWithoutMenusInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutMenusInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutFaqsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutFaqsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutFaqsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutFaqsInput, Prisma.TenantUncheckedCreateWithoutFaqsInput>
+}
+
+export type TenantUpsertWithoutFaqsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutFaqsInput, Prisma.TenantUncheckedUpdateWithoutFaqsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutFaqsInput, Prisma.TenantUncheckedCreateWithoutFaqsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutFaqsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutFaqsInput, Prisma.TenantUncheckedUpdateWithoutFaqsInput>
+}
+
+export type TenantUpdateWithoutFaqsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutFaqsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutMediaAssetsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutMediaAssetsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutMediaAssetsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutMediaAssetsInput, Prisma.TenantUncheckedCreateWithoutMediaAssetsInput>
+}
+
+export type TenantUpsertWithoutMediaAssetsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutMediaAssetsInput, Prisma.TenantUncheckedUpdateWithoutMediaAssetsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutMediaAssetsInput, Prisma.TenantUncheckedCreateWithoutMediaAssetsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutMediaAssetsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutMediaAssetsInput, Prisma.TenantUncheckedUpdateWithoutMediaAssetsInput>
+}
+
+export type TenantUpdateWithoutMediaAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutMediaAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutCustomersInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCustomersInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCustomersInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCustomersInput, Prisma.TenantUncheckedCreateWithoutCustomersInput>
+}
+
+export type TenantUpsertWithoutCustomersInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCustomersInput, Prisma.TenantUncheckedUpdateWithoutCustomersInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCustomersInput, Prisma.TenantUncheckedCreateWithoutCustomersInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutCustomersInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCustomersInput, Prisma.TenantUncheckedUpdateWithoutCustomersInput>
+}
+
+export type TenantUpdateWithoutCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutDiscountsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutDiscountsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutDiscountsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutDiscountsInput, Prisma.TenantUncheckedCreateWithoutDiscountsInput>
+}
+
+export type TenantUpsertWithoutDiscountsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutDiscountsInput, Prisma.TenantUncheckedUpdateWithoutDiscountsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutDiscountsInput, Prisma.TenantUncheckedCreateWithoutDiscountsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutDiscountsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutDiscountsInput, Prisma.TenantUncheckedUpdateWithoutDiscountsInput>
+}
+
+export type TenantUpdateWithoutDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutDomainsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutDomainsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutDomainsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+}
+
+export type TenantUpsertWithoutDomainsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutDomainsInput, Prisma.TenantUncheckedUpdateWithoutDomainsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutDomainsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutDomainsInput, Prisma.TenantUncheckedUpdateWithoutDomainsInput>
+}
+
+export type TenantUpdateWithoutDomainsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutDomainsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutApiKeysInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutApiKeysInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutApiKeysInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutApiKeysInput, Prisma.TenantUncheckedCreateWithoutApiKeysInput>
+}
+
+export type TenantUpsertWithoutApiKeysInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutApiKeysInput, Prisma.TenantUncheckedUpdateWithoutApiKeysInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutApiKeysInput, Prisma.TenantUncheckedCreateWithoutApiKeysInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutApiKeysInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutApiKeysInput, Prisma.TenantUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type TenantUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutWebhooksInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutWebhooksInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutWebhooksInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWebhooksInput, Prisma.TenantUncheckedCreateWithoutWebhooksInput>
+}
+
+export type TenantUpsertWithoutWebhooksInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutWebhooksInput, Prisma.TenantUncheckedUpdateWithoutWebhooksInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWebhooksInput, Prisma.TenantUncheckedCreateWithoutWebhooksInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutWebhooksInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutWebhooksInput, Prisma.TenantUncheckedUpdateWithoutWebhooksInput>
+}
+
+export type TenantUpdateWithoutWebhooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutWebhooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutNotificationTemplatesInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutNotificationTemplatesInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutNotificationTemplatesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutNotificationTemplatesInput, Prisma.TenantUncheckedCreateWithoutNotificationTemplatesInput>
+}
+
+export type TenantUpsertWithoutNotificationTemplatesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutNotificationTemplatesInput, Prisma.TenantUncheckedUpdateWithoutNotificationTemplatesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutNotificationTemplatesInput, Prisma.TenantUncheckedCreateWithoutNotificationTemplatesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutNotificationTemplatesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutNotificationTemplatesInput, Prisma.TenantUncheckedUpdateWithoutNotificationTemplatesInput>
+}
+
+export type TenantUpdateWithoutNotificationTemplatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutNotificationTemplatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutNotificationLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutNotificationLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutNotificationLogsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutNotificationLogsInput, Prisma.TenantUncheckedCreateWithoutNotificationLogsInput>
+}
+
+export type TenantUpsertWithoutNotificationLogsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutNotificationLogsInput, Prisma.TenantUncheckedUpdateWithoutNotificationLogsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutNotificationLogsInput, Prisma.TenantUncheckedCreateWithoutNotificationLogsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutNotificationLogsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutNotificationLogsInput, Prisma.TenantUncheckedUpdateWithoutNotificationLogsInput>
+}
+
+export type TenantUpdateWithoutNotificationLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutNotificationLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutStockMovementsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutStockMovementsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutStockMovementsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutStockMovementsInput, Prisma.TenantUncheckedCreateWithoutStockMovementsInput>
+}
+
+export type TenantUpsertWithoutStockMovementsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutStockMovementsInput, Prisma.TenantUncheckedUpdateWithoutStockMovementsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutStockMovementsInput, Prisma.TenantUncheckedCreateWithoutStockMovementsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutStockMovementsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutStockMovementsInput, Prisma.TenantUncheckedUpdateWithoutStockMovementsInput>
+}
+
+export type TenantUpdateWithoutStockMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutStockMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutCampaignsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCampaignsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCampaignsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCampaignsInput, Prisma.TenantUncheckedCreateWithoutCampaignsInput>
+}
+
+export type TenantUpsertWithoutCampaignsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCampaignsInput, Prisma.TenantUncheckedUpdateWithoutCampaignsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCampaignsInput, Prisma.TenantUncheckedCreateWithoutCampaignsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutCampaignsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCampaignsInput, Prisma.TenantUncheckedUpdateWithoutCampaignsInput>
+}
+
+export type TenantUpdateWithoutCampaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCampaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutAutomationsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutAutomationsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutAutomationsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutAutomationsInput, Prisma.TenantUncheckedCreateWithoutAutomationsInput>
+}
+
+export type TenantUpsertWithoutAutomationsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutAutomationsInput, Prisma.TenantUncheckedUpdateWithoutAutomationsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutAutomationsInput, Prisma.TenantUncheckedCreateWithoutAutomationsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutAutomationsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutAutomationsInput, Prisma.TenantUncheckedUpdateWithoutAutomationsInput>
+}
+
+export type TenantUpdateWithoutAutomationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutAutomationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutOrdersInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutOrdersInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutOrdersInput, Prisma.TenantUncheckedCreateWithoutOrdersInput>
+}
+
+export type TenantUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutOrdersInput, Prisma.TenantUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutOrdersInput, Prisma.TenantUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutOrdersInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutOrdersInput, Prisma.TenantUncheckedUpdateWithoutOrdersInput>
+}
+
+export type TenantUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutProductsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutProductsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutProductsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutProductsInput, Prisma.TenantUncheckedCreateWithoutProductsInput>
+}
+
+export type TenantUpsertWithoutProductsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutProductsInput, Prisma.TenantUncheckedUpdateWithoutProductsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutProductsInput, Prisma.TenantUncheckedCreateWithoutProductsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutProductsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutProductsInput, Prisma.TenantUncheckedUpdateWithoutProductsInput>
+}
+
+export type TenantUpdateWithoutProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutReturnsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutReturnsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutReturnsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutReturnsInput, Prisma.TenantUncheckedCreateWithoutReturnsInput>
+}
+
+export type TenantUpsertWithoutReturnsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutReturnsInput, Prisma.TenantUncheckedUpdateWithoutReturnsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutReturnsInput, Prisma.TenantUncheckedCreateWithoutReturnsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutReturnsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutReturnsInput, Prisma.TenantUncheckedUpdateWithoutReturnsInput>
+}
+
+export type TenantUpdateWithoutReturnsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutReturnsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutReviewsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutReviewsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutReviewsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutReviewsInput, Prisma.TenantUncheckedCreateWithoutReviewsInput>
+}
+
+export type TenantUpsertWithoutReviewsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutReviewsInput, Prisma.TenantUncheckedUpdateWithoutReviewsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutReviewsInput, Prisma.TenantUncheckedCreateWithoutReviewsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutReviewsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutReviewsInput, Prisma.TenantUncheckedUpdateWithoutReviewsInput>
+}
+
+export type TenantUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutShippingZonesInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutShippingZonesInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutShippingZonesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutShippingZonesInput, Prisma.TenantUncheckedCreateWithoutShippingZonesInput>
+}
+
+export type TenantUpsertWithoutShippingZonesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutShippingZonesInput, Prisma.TenantUncheckedUpdateWithoutShippingZonesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutShippingZonesInput, Prisma.TenantUncheckedCreateWithoutShippingZonesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutShippingZonesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutShippingZonesInput, Prisma.TenantUncheckedUpdateWithoutShippingZonesInput>
+}
+
+export type TenantUpdateWithoutShippingZonesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutShippingZonesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutSupportTicketsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutSupportTicketsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutSupportTicketsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSupportTicketsInput, Prisma.TenantUncheckedCreateWithoutSupportTicketsInput>
+}
+
+export type TenantUpsertWithoutSupportTicketsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutSupportTicketsInput, Prisma.TenantUncheckedUpdateWithoutSupportTicketsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSupportTicketsInput, Prisma.TenantUncheckedCreateWithoutSupportTicketsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutSupportTicketsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutSupportTicketsInput, Prisma.TenantUncheckedUpdateWithoutSupportTicketsInput>
+}
+
+export type TenantUpdateWithoutSupportTicketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutSupportTicketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline?: string | null
+  domain?: string | null
+  customDomain?: string | null
+  logo?: string | null
+  favicon?: string | null
+  status?: $Enums.TenantStatus
+  plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
+  brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
+  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutAuditLogsInput, Prisma.TenantUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type TenantUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutAuditLogsInput, Prisma.TenantUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutAuditLogsInput, Prisma.TenantUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutAuditLogsInput, Prisma.TenantUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type TenantUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
+  brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
+  collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutMembersInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMembersInput = {
   id?: string
   name: string
   slug: string
+  tagline?: string | null
+  domain?: string | null
   customDomain?: string | null
   logo?: string | null
-  currency?: string
+  favicon?: string | null
   status?: $Enums.TenantStatus
   plan?: $Enums.TenantPlan
+  planState?: string
+  currency?: string
+  currencySymbol?: string
+  currencyPosition?: string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: string | null
+  announcementEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutTenantInput
   brands?: Prisma.BrandUncheckedCreateNestedManyWithoutTenantInput
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTenantInput
+  returns?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerProfileUncheckedCreateNestedManyWithoutTenantInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTenantInput
+  discounts?: Prisma.DiscountUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  shippingZones?: Prisma.ShippingZoneUncheckedCreateNestedManyWithoutTenantInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutTenantInput
+  wishlists?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutTenantInput
+  cmsPages?: Prisma.CmsPageUncheckedCreateNestedManyWithoutTenantInput
+  blogPosts?: Prisma.BlogPostUncheckedCreateNestedManyWithoutTenantInput
+  menus?: Prisma.NavigationMenuUncheckedCreateNestedManyWithoutTenantInput
+  faqs?: Prisma.FaqItemUncheckedCreateNestedManyWithoutTenantInput
+  mediaAssets?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutTenantInput
+  campaigns?: Prisma.MarketingCampaignUncheckedCreateNestedManyWithoutTenantInput
+  automations?: Prisma.MarketingAutomationUncheckedCreateNestedManyWithoutTenantInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutTenantInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutTenantInput
+  webhooks?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedCreateNestedManyWithoutTenantInput
+  notificationLogs?: Prisma.NotificationLogUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMembersInput = {
@@ -804,32 +7686,108 @@ export type TenantUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  favicon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   plan?: Prisma.EnumTenantPlanFieldUpdateOperationsInput | $Enums.TenantPlan
+  planState?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyPosition?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  modules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contact?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  socials?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  announcement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutTenantNestedInput
   brands?: Prisma.BrandUncheckedUpdateManyWithoutTenantNestedInput
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutTenantNestedInput
+  returns?: Prisma.ReturnRequestUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerProfileUncheckedUpdateManyWithoutTenantNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTenantNestedInput
+  discounts?: Prisma.DiscountUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  shippingZones?: Prisma.ShippingZoneUncheckedUpdateManyWithoutTenantNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutTenantNestedInput
+  wishlists?: Prisma.WishlistItemUncheckedUpdateManyWithoutTenantNestedInput
+  cmsPages?: Prisma.CmsPageUncheckedUpdateManyWithoutTenantNestedInput
+  blogPosts?: Prisma.BlogPostUncheckedUpdateManyWithoutTenantNestedInput
+  menus?: Prisma.NavigationMenuUncheckedUpdateManyWithoutTenantNestedInput
+  faqs?: Prisma.FaqItemUncheckedUpdateManyWithoutTenantNestedInput
+  mediaAssets?: Prisma.MediaAssetUncheckedUpdateManyWithoutTenantNestedInput
+  campaigns?: Prisma.MarketingCampaignUncheckedUpdateManyWithoutTenantNestedInput
+  automations?: Prisma.MarketingAutomationUncheckedUpdateManyWithoutTenantNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutTenantNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutTenantNestedInput
+  webhooks?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  notificationTemplates?: Prisma.NotificationTemplateUncheckedUpdateManyWithoutTenantNestedInput
+  notificationLogs?: Prisma.NotificationLogUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -839,16 +7797,64 @@ export type TenantUncheckedUpdateWithoutMembersInput = {
 
 export type TenantCountOutputType = {
   members: number
+  domains: number
   categories: number
   brands: number
   collections: number
+  products: number
+  orders: number
+  returns: number
+  customers: number
+  reviews: number
+  discounts: number
+  stockMovements: number
+  shippingZones: number
+  carts: number
+  wishlists: number
+  cmsPages: number
+  blogPosts: number
+  menus: number
+  faqs: number
+  mediaAssets: number
+  campaigns: number
+  automations: number
+  supportTickets: number
+  auditLogs: number
+  apiKeys: number
+  webhooks: number
+  notificationTemplates: number
+  notificationLogs: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | TenantCountOutputTypeCountMembersArgs
+  domains?: boolean | TenantCountOutputTypeCountDomainsArgs
   categories?: boolean | TenantCountOutputTypeCountCategoriesArgs
   brands?: boolean | TenantCountOutputTypeCountBrandsArgs
   collections?: boolean | TenantCountOutputTypeCountCollectionsArgs
+  products?: boolean | TenantCountOutputTypeCountProductsArgs
+  orders?: boolean | TenantCountOutputTypeCountOrdersArgs
+  returns?: boolean | TenantCountOutputTypeCountReturnsArgs
+  customers?: boolean | TenantCountOutputTypeCountCustomersArgs
+  reviews?: boolean | TenantCountOutputTypeCountReviewsArgs
+  discounts?: boolean | TenantCountOutputTypeCountDiscountsArgs
+  stockMovements?: boolean | TenantCountOutputTypeCountStockMovementsArgs
+  shippingZones?: boolean | TenantCountOutputTypeCountShippingZonesArgs
+  carts?: boolean | TenantCountOutputTypeCountCartsArgs
+  wishlists?: boolean | TenantCountOutputTypeCountWishlistsArgs
+  cmsPages?: boolean | TenantCountOutputTypeCountCmsPagesArgs
+  blogPosts?: boolean | TenantCountOutputTypeCountBlogPostsArgs
+  menus?: boolean | TenantCountOutputTypeCountMenusArgs
+  faqs?: boolean | TenantCountOutputTypeCountFaqsArgs
+  mediaAssets?: boolean | TenantCountOutputTypeCountMediaAssetsArgs
+  campaigns?: boolean | TenantCountOutputTypeCountCampaignsArgs
+  automations?: boolean | TenantCountOutputTypeCountAutomationsArgs
+  supportTickets?: boolean | TenantCountOutputTypeCountSupportTicketsArgs
+  auditLogs?: boolean | TenantCountOutputTypeCountAuditLogsArgs
+  apiKeys?: boolean | TenantCountOutputTypeCountApiKeysArgs
+  webhooks?: boolean | TenantCountOutputTypeCountWebhooksArgs
+  notificationTemplates?: boolean | TenantCountOutputTypeCountNotificationTemplatesArgs
+  notificationLogs?: boolean | TenantCountOutputTypeCountNotificationLogsArgs
 }
 
 /**
@@ -866,6 +7872,13 @@ export type TenantCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
  */
 export type TenantCountOutputTypeCountMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TenantMemberWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountDomainsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TenantDomainWhereInput
 }
 
 /**
@@ -889,22 +7902,221 @@ export type TenantCountOutputTypeCountCollectionsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.CollectionWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountReturnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReturnRequestWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReviewWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DiscountWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountStockMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockMovementWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountShippingZonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShippingZoneWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountCartsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CartWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountWishlistsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WishlistItemWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountCmsPagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CmsPageWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountBlogPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BlogPostWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountMenusArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NavigationMenuWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountFaqsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FaqItemWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountMediaAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MediaAssetWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MarketingCampaignWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountAutomationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MarketingAutomationWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountSupportTicketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupportTicketWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApiKeyWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountWebhooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WebhookEndpointWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountNotificationTemplatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationTemplateWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountNotificationLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationLogWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
+  tagline?: boolean
+  domain?: boolean
   customDomain?: boolean
   logo?: boolean
-  currency?: boolean
+  favicon?: boolean
   status?: boolean
   plan?: boolean
+  planState?: boolean
+  currency?: boolean
+  currencySymbol?: boolean
+  currencyPosition?: boolean
+  theme?: boolean
+  modules?: boolean
+  contact?: boolean
+  socials?: boolean
+  settings?: boolean
+  announcement?: boolean
+  announcementEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   members?: boolean | Prisma.Tenant$membersArgs<ExtArgs>
+  domains?: boolean | Prisma.Tenant$domainsArgs<ExtArgs>
   categories?: boolean | Prisma.Tenant$categoriesArgs<ExtArgs>
   brands?: boolean | Prisma.Tenant$brandsArgs<ExtArgs>
   collections?: boolean | Prisma.Tenant$collectionsArgs<ExtArgs>
+  products?: boolean | Prisma.Tenant$productsArgs<ExtArgs>
+  orders?: boolean | Prisma.Tenant$ordersArgs<ExtArgs>
+  returns?: boolean | Prisma.Tenant$returnsArgs<ExtArgs>
+  customers?: boolean | Prisma.Tenant$customersArgs<ExtArgs>
+  reviews?: boolean | Prisma.Tenant$reviewsArgs<ExtArgs>
+  discounts?: boolean | Prisma.Tenant$discountsArgs<ExtArgs>
+  stockMovements?: boolean | Prisma.Tenant$stockMovementsArgs<ExtArgs>
+  shippingZones?: boolean | Prisma.Tenant$shippingZonesArgs<ExtArgs>
+  carts?: boolean | Prisma.Tenant$cartsArgs<ExtArgs>
+  wishlists?: boolean | Prisma.Tenant$wishlistsArgs<ExtArgs>
+  cmsPages?: boolean | Prisma.Tenant$cmsPagesArgs<ExtArgs>
+  blogPosts?: boolean | Prisma.Tenant$blogPostsArgs<ExtArgs>
+  menus?: boolean | Prisma.Tenant$menusArgs<ExtArgs>
+  faqs?: boolean | Prisma.Tenant$faqsArgs<ExtArgs>
+  mediaAssets?: boolean | Prisma.Tenant$mediaAssetsArgs<ExtArgs>
+  campaigns?: boolean | Prisma.Tenant$campaignsArgs<ExtArgs>
+  automations?: boolean | Prisma.Tenant$automationsArgs<ExtArgs>
+  supportTickets?: boolean | Prisma.Tenant$supportTicketsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Tenant$auditLogsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.Tenant$apiKeysArgs<ExtArgs>
+  webhooks?: boolean | Prisma.Tenant$webhooksArgs<ExtArgs>
+  notificationTemplates?: boolean | Prisma.Tenant$notificationTemplatesArgs<ExtArgs>
+  notificationLogs?: boolean | Prisma.Tenant$notificationLogsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -912,47 +8124,113 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   slug?: boolean
+  tagline?: boolean
+  domain?: boolean
   customDomain?: boolean
   logo?: boolean
-  currency?: boolean
+  favicon?: boolean
   status?: boolean
   plan?: boolean
+  planState?: boolean
+  currency?: boolean
+  currencySymbol?: boolean
+  currencyPosition?: boolean
+  theme?: boolean
+  modules?: boolean
+  contact?: boolean
+  socials?: boolean
+  settings?: boolean
+  announcement?: boolean
+  announcementEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
 
 export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
+  tagline?: boolean
+  domain?: boolean
   customDomain?: boolean
   logo?: boolean
-  currency?: boolean
+  favicon?: boolean
   status?: boolean
   plan?: boolean
+  planState?: boolean
+  currency?: boolean
+  currencySymbol?: boolean
+  currencyPosition?: boolean
+  theme?: boolean
+  modules?: boolean
+  contact?: boolean
+  socials?: boolean
+  settings?: boolean
+  announcement?: boolean
+  announcementEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
 
 export type TenantSelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
+  tagline?: boolean
+  domain?: boolean
   customDomain?: boolean
   logo?: boolean
-  currency?: boolean
+  favicon?: boolean
   status?: boolean
   plan?: boolean
+  planState?: boolean
+  currency?: boolean
+  currencySymbol?: boolean
+  currencyPosition?: boolean
+  theme?: boolean
+  modules?: boolean
+  contact?: boolean
+  socials?: boolean
+  settings?: boolean
+  announcement?: boolean
+  announcementEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "customDomain" | "logo" | "currency" | "status" | "plan" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "domain" | "customDomain" | "logo" | "favicon" | "status" | "plan" | "planState" | "currency" | "currencySymbol" | "currencyPosition" | "theme" | "modules" | "contact" | "socials" | "settings" | "announcement" | "announcementEnabled" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Tenant$membersArgs<ExtArgs>
+  domains?: boolean | Prisma.Tenant$domainsArgs<ExtArgs>
   categories?: boolean | Prisma.Tenant$categoriesArgs<ExtArgs>
   brands?: boolean | Prisma.Tenant$brandsArgs<ExtArgs>
   collections?: boolean | Prisma.Tenant$collectionsArgs<ExtArgs>
+  products?: boolean | Prisma.Tenant$productsArgs<ExtArgs>
+  orders?: boolean | Prisma.Tenant$ordersArgs<ExtArgs>
+  returns?: boolean | Prisma.Tenant$returnsArgs<ExtArgs>
+  customers?: boolean | Prisma.Tenant$customersArgs<ExtArgs>
+  reviews?: boolean | Prisma.Tenant$reviewsArgs<ExtArgs>
+  discounts?: boolean | Prisma.Tenant$discountsArgs<ExtArgs>
+  stockMovements?: boolean | Prisma.Tenant$stockMovementsArgs<ExtArgs>
+  shippingZones?: boolean | Prisma.Tenant$shippingZonesArgs<ExtArgs>
+  carts?: boolean | Prisma.Tenant$cartsArgs<ExtArgs>
+  wishlists?: boolean | Prisma.Tenant$wishlistsArgs<ExtArgs>
+  cmsPages?: boolean | Prisma.Tenant$cmsPagesArgs<ExtArgs>
+  blogPosts?: boolean | Prisma.Tenant$blogPostsArgs<ExtArgs>
+  menus?: boolean | Prisma.Tenant$menusArgs<ExtArgs>
+  faqs?: boolean | Prisma.Tenant$faqsArgs<ExtArgs>
+  mediaAssets?: boolean | Prisma.Tenant$mediaAssetsArgs<ExtArgs>
+  campaigns?: boolean | Prisma.Tenant$campaignsArgs<ExtArgs>
+  automations?: boolean | Prisma.Tenant$automationsArgs<ExtArgs>
+  supportTickets?: boolean | Prisma.Tenant$supportTicketsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Tenant$auditLogsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.Tenant$apiKeysArgs<ExtArgs>
+  webhooks?: boolean | Prisma.Tenant$webhooksArgs<ExtArgs>
+  notificationTemplates?: boolean | Prisma.Tenant$notificationTemplatesArgs<ExtArgs>
+  notificationLogs?: boolean | Prisma.Tenant$notificationLogsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -962,21 +8240,59 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Tenant"
   objects: {
     members: Prisma.$TenantMemberPayload<ExtArgs>[]
+    domains: Prisma.$TenantDomainPayload<ExtArgs>[]
     categories: Prisma.$CategoryPayload<ExtArgs>[]
     brands: Prisma.$BrandPayload<ExtArgs>[]
     collections: Prisma.$CollectionPayload<ExtArgs>[]
+    products: Prisma.$ProductPayload<ExtArgs>[]
+    orders: Prisma.$OrderPayload<ExtArgs>[]
+    returns: Prisma.$ReturnRequestPayload<ExtArgs>[]
+    customers: Prisma.$CustomerProfilePayload<ExtArgs>[]
+    reviews: Prisma.$ReviewPayload<ExtArgs>[]
+    discounts: Prisma.$DiscountPayload<ExtArgs>[]
+    stockMovements: Prisma.$StockMovementPayload<ExtArgs>[]
+    shippingZones: Prisma.$ShippingZonePayload<ExtArgs>[]
+    carts: Prisma.$CartPayload<ExtArgs>[]
+    wishlists: Prisma.$WishlistItemPayload<ExtArgs>[]
+    cmsPages: Prisma.$CmsPagePayload<ExtArgs>[]
+    blogPosts: Prisma.$BlogPostPayload<ExtArgs>[]
+    menus: Prisma.$NavigationMenuPayload<ExtArgs>[]
+    faqs: Prisma.$FaqItemPayload<ExtArgs>[]
+    mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
+    campaigns: Prisma.$MarketingCampaignPayload<ExtArgs>[]
+    automations: Prisma.$MarketingAutomationPayload<ExtArgs>[]
+    supportTickets: Prisma.$SupportTicketPayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+    apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
+    webhooks: Prisma.$WebhookEndpointPayload<ExtArgs>[]
+    notificationTemplates: Prisma.$NotificationTemplatePayload<ExtArgs>[]
+    notificationLogs: Prisma.$NotificationLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     slug: string
+    tagline: string | null
+    domain: string | null
     customDomain: string | null
     logo: string | null
-    currency: string
+    favicon: string | null
     status: $Enums.TenantStatus
     plan: $Enums.TenantPlan
+    planState: string
+    currency: string
+    currencySymbol: string
+    currencyPosition: string
+    theme: runtime.JsonValue | null
+    modules: runtime.JsonValue | null
+    contact: runtime.JsonValue | null
+    socials: runtime.JsonValue | null
+    settings: runtime.JsonValue | null
+    announcement: string | null
+    announcementEnabled: boolean
     createdAt: Date
     updatedAt: Date
+    deletedAt: Date | null
   }, ExtArgs["result"]["tenant"]>
   composites: {}
 }
@@ -1372,9 +8688,33 @@ readonly fields: TenantFieldRefs;
 export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   members<T extends Prisma.Tenant$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  domains<T extends Prisma.Tenant$domainsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   categories<T extends Prisma.Tenant$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   brands<T extends Prisma.Tenant$brandsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$brandsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   collections<T extends Prisma.Tenant$collectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$collectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  products<T extends Prisma.Tenant$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orders<T extends Prisma.Tenant$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  returns<T extends Prisma.Tenant$returnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$returnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customers<T extends Prisma.Tenant$customersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$customersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviews<T extends Prisma.Tenant$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  discounts<T extends Prisma.Tenant$discountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$discountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stockMovements<T extends Prisma.Tenant$stockMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$stockMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shippingZones<T extends Prisma.Tenant$shippingZonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$shippingZonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShippingZonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  carts<T extends Prisma.Tenant$cartsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$cartsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  wishlists<T extends Prisma.Tenant$wishlistsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$wishlistsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WishlistItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cmsPages<T extends Prisma.Tenant$cmsPagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$cmsPagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CmsPagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  blogPosts<T extends Prisma.Tenant$blogPostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$blogPostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlogPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  menus<T extends Prisma.Tenant$menusArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$menusArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NavigationMenuPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  faqs<T extends Prisma.Tenant$faqsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$faqsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FaqItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mediaAssets<T extends Prisma.Tenant$mediaAssetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  campaigns<T extends Prisma.Tenant$campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MarketingCampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  automations<T extends Prisma.Tenant$automationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$automationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MarketingAutomationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  supportTickets<T extends Prisma.Tenant$supportTicketsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$supportTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.Tenant$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  apiKeys<T extends Prisma.Tenant$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  webhooks<T extends Prisma.Tenant$webhooksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$webhooksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationTemplates<T extends Prisma.Tenant$notificationTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$notificationTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationLogs<T extends Prisma.Tenant$notificationLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$notificationLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1407,13 +8747,27 @@ export interface TenantFieldRefs {
   readonly id: Prisma.FieldRef<"Tenant", 'String'>
   readonly name: Prisma.FieldRef<"Tenant", 'String'>
   readonly slug: Prisma.FieldRef<"Tenant", 'String'>
+  readonly tagline: Prisma.FieldRef<"Tenant", 'String'>
+  readonly domain: Prisma.FieldRef<"Tenant", 'String'>
   readonly customDomain: Prisma.FieldRef<"Tenant", 'String'>
   readonly logo: Prisma.FieldRef<"Tenant", 'String'>
-  readonly currency: Prisma.FieldRef<"Tenant", 'String'>
+  readonly favicon: Prisma.FieldRef<"Tenant", 'String'>
   readonly status: Prisma.FieldRef<"Tenant", 'TenantStatus'>
   readonly plan: Prisma.FieldRef<"Tenant", 'TenantPlan'>
+  readonly planState: Prisma.FieldRef<"Tenant", 'String'>
+  readonly currency: Prisma.FieldRef<"Tenant", 'String'>
+  readonly currencySymbol: Prisma.FieldRef<"Tenant", 'String'>
+  readonly currencyPosition: Prisma.FieldRef<"Tenant", 'String'>
+  readonly theme: Prisma.FieldRef<"Tenant", 'Json'>
+  readonly modules: Prisma.FieldRef<"Tenant", 'Json'>
+  readonly contact: Prisma.FieldRef<"Tenant", 'Json'>
+  readonly socials: Prisma.FieldRef<"Tenant", 'Json'>
+  readonly settings: Prisma.FieldRef<"Tenant", 'Json'>
+  readonly announcement: Prisma.FieldRef<"Tenant", 'String'>
+  readonly announcementEnabled: Prisma.FieldRef<"Tenant", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }
     
 
@@ -1826,6 +9180,30 @@ export type Tenant$membersArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * Tenant.domains
+ */
+export type Tenant$domainsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TenantDomain
+   */
+  select?: Prisma.TenantDomainSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TenantDomain
+   */
+  omit?: Prisma.TenantDomainOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantDomainInclude<ExtArgs> | null
+  where?: Prisma.TenantDomainWhereInput
+  orderBy?: Prisma.TenantDomainOrderByWithRelationInput | Prisma.TenantDomainOrderByWithRelationInput[]
+  cursor?: Prisma.TenantDomainWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TenantDomainScalarFieldEnum | Prisma.TenantDomainScalarFieldEnum[]
+}
+
+/**
  * Tenant.categories
  */
 export type Tenant$categoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1895,6 +9273,558 @@ export type Tenant$collectionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.CollectionScalarFieldEnum | Prisma.CollectionScalarFieldEnum[]
+}
+
+/**
+ * Tenant.products
+ */
+export type Tenant$productsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Product
+   */
+  select?: Prisma.ProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Product
+   */
+  omit?: Prisma.ProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductInclude<ExtArgs> | null
+  where?: Prisma.ProductWhereInput
+  orderBy?: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[]
+  cursor?: Prisma.ProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
+}
+
+/**
+ * Tenant.orders
+ */
+export type Tenant$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * Tenant.returns
+ */
+export type Tenant$returnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReturnRequest
+   */
+  select?: Prisma.ReturnRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReturnRequest
+   */
+  omit?: Prisma.ReturnRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReturnRequestInclude<ExtArgs> | null
+  where?: Prisma.ReturnRequestWhereInput
+  orderBy?: Prisma.ReturnRequestOrderByWithRelationInput | Prisma.ReturnRequestOrderByWithRelationInput[]
+  cursor?: Prisma.ReturnRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReturnRequestScalarFieldEnum | Prisma.ReturnRequestScalarFieldEnum[]
+}
+
+/**
+ * Tenant.customers
+ */
+export type Tenant$customersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerProfile
+   */
+  select?: Prisma.CustomerProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerProfile
+   */
+  omit?: Prisma.CustomerProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerProfileInclude<ExtArgs> | null
+  where?: Prisma.CustomerProfileWhereInput
+  orderBy?: Prisma.CustomerProfileOrderByWithRelationInput | Prisma.CustomerProfileOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerProfileWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerProfileScalarFieldEnum | Prisma.CustomerProfileScalarFieldEnum[]
+}
+
+/**
+ * Tenant.reviews
+ */
+export type Tenant$reviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Review
+   */
+  select?: Prisma.ReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Review
+   */
+  omit?: Prisma.ReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewInclude<ExtArgs> | null
+  where?: Prisma.ReviewWhereInput
+  orderBy?: Prisma.ReviewOrderByWithRelationInput | Prisma.ReviewOrderByWithRelationInput[]
+  cursor?: Prisma.ReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReviewScalarFieldEnum | Prisma.ReviewScalarFieldEnum[]
+}
+
+/**
+ * Tenant.discounts
+ */
+export type Tenant$discountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Discount
+   */
+  select?: Prisma.DiscountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Discount
+   */
+  omit?: Prisma.DiscountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DiscountInclude<ExtArgs> | null
+  where?: Prisma.DiscountWhereInput
+  orderBy?: Prisma.DiscountOrderByWithRelationInput | Prisma.DiscountOrderByWithRelationInput[]
+  cursor?: Prisma.DiscountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DiscountScalarFieldEnum | Prisma.DiscountScalarFieldEnum[]
+}
+
+/**
+ * Tenant.stockMovements
+ */
+export type Tenant$stockMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockMovement
+   */
+  select?: Prisma.StockMovementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockMovement
+   */
+  omit?: Prisma.StockMovementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockMovementInclude<ExtArgs> | null
+  where?: Prisma.StockMovementWhereInput
+  orderBy?: Prisma.StockMovementOrderByWithRelationInput | Prisma.StockMovementOrderByWithRelationInput[]
+  cursor?: Prisma.StockMovementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockMovementScalarFieldEnum | Prisma.StockMovementScalarFieldEnum[]
+}
+
+/**
+ * Tenant.shippingZones
+ */
+export type Tenant$shippingZonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ShippingZone
+   */
+  select?: Prisma.ShippingZoneSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ShippingZone
+   */
+  omit?: Prisma.ShippingZoneOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShippingZoneInclude<ExtArgs> | null
+  where?: Prisma.ShippingZoneWhereInput
+  orderBy?: Prisma.ShippingZoneOrderByWithRelationInput | Prisma.ShippingZoneOrderByWithRelationInput[]
+  cursor?: Prisma.ShippingZoneWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ShippingZoneScalarFieldEnum | Prisma.ShippingZoneScalarFieldEnum[]
+}
+
+/**
+ * Tenant.carts
+ */
+export type Tenant$cartsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Cart
+   */
+  select?: Prisma.CartSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Cart
+   */
+  omit?: Prisma.CartOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CartInclude<ExtArgs> | null
+  where?: Prisma.CartWhereInput
+  orderBy?: Prisma.CartOrderByWithRelationInput | Prisma.CartOrderByWithRelationInput[]
+  cursor?: Prisma.CartWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CartScalarFieldEnum | Prisma.CartScalarFieldEnum[]
+}
+
+/**
+ * Tenant.wishlists
+ */
+export type Tenant$wishlistsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WishlistItem
+   */
+  select?: Prisma.WishlistItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WishlistItem
+   */
+  omit?: Prisma.WishlistItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WishlistItemInclude<ExtArgs> | null
+  where?: Prisma.WishlistItemWhereInput
+  orderBy?: Prisma.WishlistItemOrderByWithRelationInput | Prisma.WishlistItemOrderByWithRelationInput[]
+  cursor?: Prisma.WishlistItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WishlistItemScalarFieldEnum | Prisma.WishlistItemScalarFieldEnum[]
+}
+
+/**
+ * Tenant.cmsPages
+ */
+export type Tenant$cmsPagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CmsPage
+   */
+  select?: Prisma.CmsPageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CmsPage
+   */
+  omit?: Prisma.CmsPageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CmsPageInclude<ExtArgs> | null
+  where?: Prisma.CmsPageWhereInput
+  orderBy?: Prisma.CmsPageOrderByWithRelationInput | Prisma.CmsPageOrderByWithRelationInput[]
+  cursor?: Prisma.CmsPageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CmsPageScalarFieldEnum | Prisma.CmsPageScalarFieldEnum[]
+}
+
+/**
+ * Tenant.blogPosts
+ */
+export type Tenant$blogPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BlogPost
+   */
+  select?: Prisma.BlogPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BlogPost
+   */
+  omit?: Prisma.BlogPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BlogPostInclude<ExtArgs> | null
+  where?: Prisma.BlogPostWhereInput
+  orderBy?: Prisma.BlogPostOrderByWithRelationInput | Prisma.BlogPostOrderByWithRelationInput[]
+  cursor?: Prisma.BlogPostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BlogPostScalarFieldEnum | Prisma.BlogPostScalarFieldEnum[]
+}
+
+/**
+ * Tenant.menus
+ */
+export type Tenant$menusArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NavigationMenu
+   */
+  select?: Prisma.NavigationMenuSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NavigationMenu
+   */
+  omit?: Prisma.NavigationMenuOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NavigationMenuInclude<ExtArgs> | null
+  where?: Prisma.NavigationMenuWhereInput
+  orderBy?: Prisma.NavigationMenuOrderByWithRelationInput | Prisma.NavigationMenuOrderByWithRelationInput[]
+  cursor?: Prisma.NavigationMenuWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NavigationMenuScalarFieldEnum | Prisma.NavigationMenuScalarFieldEnum[]
+}
+
+/**
+ * Tenant.faqs
+ */
+export type Tenant$faqsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FaqItem
+   */
+  select?: Prisma.FaqItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FaqItem
+   */
+  omit?: Prisma.FaqItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FaqItemInclude<ExtArgs> | null
+  where?: Prisma.FaqItemWhereInput
+  orderBy?: Prisma.FaqItemOrderByWithRelationInput | Prisma.FaqItemOrderByWithRelationInput[]
+  cursor?: Prisma.FaqItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FaqItemScalarFieldEnum | Prisma.FaqItemScalarFieldEnum[]
+}
+
+/**
+ * Tenant.mediaAssets
+ */
+export type Tenant$mediaAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MediaAsset
+   */
+  select?: Prisma.MediaAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MediaAsset
+   */
+  omit?: Prisma.MediaAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MediaAssetInclude<ExtArgs> | null
+  where?: Prisma.MediaAssetWhereInput
+  orderBy?: Prisma.MediaAssetOrderByWithRelationInput | Prisma.MediaAssetOrderByWithRelationInput[]
+  cursor?: Prisma.MediaAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MediaAssetScalarFieldEnum | Prisma.MediaAssetScalarFieldEnum[]
+}
+
+/**
+ * Tenant.campaigns
+ */
+export type Tenant$campaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MarketingCampaign
+   */
+  select?: Prisma.MarketingCampaignSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MarketingCampaign
+   */
+  omit?: Prisma.MarketingCampaignOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MarketingCampaignInclude<ExtArgs> | null
+  where?: Prisma.MarketingCampaignWhereInput
+  orderBy?: Prisma.MarketingCampaignOrderByWithRelationInput | Prisma.MarketingCampaignOrderByWithRelationInput[]
+  cursor?: Prisma.MarketingCampaignWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MarketingCampaignScalarFieldEnum | Prisma.MarketingCampaignScalarFieldEnum[]
+}
+
+/**
+ * Tenant.automations
+ */
+export type Tenant$automationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MarketingAutomation
+   */
+  select?: Prisma.MarketingAutomationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MarketingAutomation
+   */
+  omit?: Prisma.MarketingAutomationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MarketingAutomationInclude<ExtArgs> | null
+  where?: Prisma.MarketingAutomationWhereInput
+  orderBy?: Prisma.MarketingAutomationOrderByWithRelationInput | Prisma.MarketingAutomationOrderByWithRelationInput[]
+  cursor?: Prisma.MarketingAutomationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MarketingAutomationScalarFieldEnum | Prisma.MarketingAutomationScalarFieldEnum[]
+}
+
+/**
+ * Tenant.supportTickets
+ */
+export type Tenant$supportTicketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SupportTicket
+   */
+  select?: Prisma.SupportTicketSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SupportTicket
+   */
+  omit?: Prisma.SupportTicketOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupportTicketInclude<ExtArgs> | null
+  where?: Prisma.SupportTicketWhereInput
+  orderBy?: Prisma.SupportTicketOrderByWithRelationInput | Prisma.SupportTicketOrderByWithRelationInput[]
+  cursor?: Prisma.SupportTicketWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupportTicketScalarFieldEnum | Prisma.SupportTicketScalarFieldEnum[]
+}
+
+/**
+ * Tenant.auditLogs
+ */
+export type Tenant$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
+}
+
+/**
+ * Tenant.apiKeys
+ */
+export type Tenant$apiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiKey
+   */
+  select?: Prisma.ApiKeySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiKey
+   */
+  omit?: Prisma.ApiKeyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiKeyInclude<ExtArgs> | null
+  where?: Prisma.ApiKeyWhereInput
+  orderBy?: Prisma.ApiKeyOrderByWithRelationInput | Prisma.ApiKeyOrderByWithRelationInput[]
+  cursor?: Prisma.ApiKeyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
+}
+
+/**
+ * Tenant.webhooks
+ */
+export type Tenant$webhooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WebhookEndpoint
+   */
+  select?: Prisma.WebhookEndpointSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WebhookEndpoint
+   */
+  omit?: Prisma.WebhookEndpointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WebhookEndpointInclude<ExtArgs> | null
+  where?: Prisma.WebhookEndpointWhereInput
+  orderBy?: Prisma.WebhookEndpointOrderByWithRelationInput | Prisma.WebhookEndpointOrderByWithRelationInput[]
+  cursor?: Prisma.WebhookEndpointWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WebhookEndpointScalarFieldEnum | Prisma.WebhookEndpointScalarFieldEnum[]
+}
+
+/**
+ * Tenant.notificationTemplates
+ */
+export type Tenant$notificationTemplatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NotificationTemplate
+   */
+  select?: Prisma.NotificationTemplateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NotificationTemplate
+   */
+  omit?: Prisma.NotificationTemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationTemplateInclude<ExtArgs> | null
+  where?: Prisma.NotificationTemplateWhereInput
+  orderBy?: Prisma.NotificationTemplateOrderByWithRelationInput | Prisma.NotificationTemplateOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationTemplateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationTemplateScalarFieldEnum | Prisma.NotificationTemplateScalarFieldEnum[]
+}
+
+/**
+ * Tenant.notificationLogs
+ */
+export type Tenant$notificationLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NotificationLog
+   */
+  select?: Prisma.NotificationLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NotificationLog
+   */
+  omit?: Prisma.NotificationLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationLogInclude<ExtArgs> | null
+  where?: Prisma.NotificationLogWhereInput
+  orderBy?: Prisma.NotificationLogOrderByWithRelationInput | Prisma.NotificationLogOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationLogScalarFieldEnum | Prisma.NotificationLogScalarFieldEnum[]
 }
 
 /**

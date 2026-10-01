@@ -23,6 +23,21 @@ export * from './enums';
  */
 export type Brand = Prisma.BrandModel
 /**
+ * Model Cart
+ * 
+ */
+export type Cart = Prisma.CartModel
+/**
+ * Model CartItem
+ * 
+ */
+export type CartItem = Prisma.CartItemModel
+/**
+ * Model WishlistItem
+ * 
+ */
+export type WishlistItem = Prisma.WishlistItemModel
+/**
  * Model Category
  * 
  */
@@ -33,10 +48,185 @@ export type Category = Prisma.CategoryModel
  */
 export type Collection = Prisma.CollectionModel
 /**
+ * Model CmsPage
+ * 
+ */
+export type CmsPage = Prisma.CmsPageModel
+/**
+ * Model BlogPost
+ * 
+ */
+export type BlogPost = Prisma.BlogPostModel
+/**
+ * Model NavigationMenu
+ * 
+ */
+export type NavigationMenu = Prisma.NavigationMenuModel
+/**
+ * Model FaqItem
+ * 
+ */
+export type FaqItem = Prisma.FaqItemModel
+/**
+ * Model MediaAsset
+ * 
+ */
+export type MediaAsset = Prisma.MediaAssetModel
+/**
+ * Model CustomerProfile
+ * 
+ */
+export type CustomerProfile = Prisma.CustomerProfileModel
+/**
+ * Model CustomerAddress
+ * 
+ */
+export type CustomerAddress = Prisma.CustomerAddressModel
+/**
+ * Model Discount
+ * 
+ */
+export type Discount = Prisma.DiscountModel
+/**
+ * Model TenantDomain
+ * 
+ */
+export type TenantDomain = Prisma.TenantDomainModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model WebhookEndpoint
+ * 
+ */
+export type WebhookEndpoint = Prisma.WebhookEndpointModel
+/**
+ * Model NotificationTemplate
+ * 
+ */
+export type NotificationTemplate = Prisma.NotificationTemplateModel
+/**
+ * Model NotificationLog
+ * 
+ */
+export type NotificationLog = Prisma.NotificationLogModel
+/**
+ * Model StockMovement
+ * 
+ */
+export type StockMovement = Prisma.StockMovementModel
+/**
+ * Model MarketingCampaign
+ * 
+ */
+export type MarketingCampaign = Prisma.MarketingCampaignModel
+/**
+ * Model MarketingAutomation
+ * 
+ */
+export type MarketingAutomation = Prisma.MarketingAutomationModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderAddress
+ * 
+ */
+export type OrderAddress = Prisma.OrderAddressModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model PaymentAttempt
+ * 
+ */
+export type PaymentAttempt = Prisma.PaymentAttemptModel
+/**
+ * Model OrderTimeline
+ * 
+ */
+export type OrderTimeline = Prisma.OrderTimelineModel
+/**
+ * Model OrderNote
+ * 
+ */
+export type OrderNote = Prisma.OrderNoteModel
+/**
  * Model OTP
  * 
  */
 export type OTP = Prisma.OTPModel
+/**
+ * Model Product
+ * 
+ */
+export type Product = Prisma.ProductModel
+/**
+ * Model ProductImage
+ * 
+ */
+export type ProductImage = Prisma.ProductImageModel
+/**
+ * Model ProductVariant
+ * 
+ */
+export type ProductVariant = Prisma.ProductVariantModel
+/**
+ * Model ProductCollection
+ * 
+ */
+export type ProductCollection = Prisma.ProductCollectionModel
+/**
+ * Model ReturnRequest
+ * 
+ */
+export type ReturnRequest = Prisma.ReturnRequestModel
+/**
+ * Model ReturnItem
+ * 
+ */
+export type ReturnItem = Prisma.ReturnItemModel
+/**
+ * Model ReturnTimeline
+ * 
+ */
+export type ReturnTimeline = Prisma.ReturnTimelineModel
+/**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel
+/**
+ * Model ShippingZone
+ * 
+ */
+export type ShippingZone = Prisma.ShippingZoneModel
+/**
+ * Model ShippingRate
+ * 
+ */
+export type ShippingRate = Prisma.ShippingRateModel
+/**
+ * Model SupportTicket
+ * 
+ */
+export type SupportTicket = Prisma.SupportTicketModel
+/**
+ * Model TicketMessage
+ * 
+ */
+export type TicketMessage = Prisma.TicketMessageModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
 /**
  * Model Tenant
  * 
