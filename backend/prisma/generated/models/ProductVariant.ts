@@ -351,6 +351,7 @@ export type ProductVariantOrderByWithRelationInput = {
 
 export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  productId_color_size?: Prisma.ProductVariantProductIdColorSizeCompoundUniqueInput
   AND?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
   OR?: Prisma.ProductVariantWhereInput[]
   NOT?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
@@ -373,7 +374,7 @@ export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   orderItems?: Prisma.OrderItemListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
   cartItems?: Prisma.CartItemListRelationFilter
-}, "id">
+}, "id" | "productId_color_size">
 
 export type ProductVariantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -583,6 +584,12 @@ export type ProductVariantListRelationFilter = {
 
 export type ProductVariantOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ProductVariantProductIdColorSizeCompoundUniqueInput = {
+  productId: string
+  color: string
+  size: string
 }
 
 export type ProductVariantCountOrderByAggregateInput = {
