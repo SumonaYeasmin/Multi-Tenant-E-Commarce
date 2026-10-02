@@ -49,6 +49,19 @@ export class CollectionController {
     return this.collectionService.findAll(tenantId || user?.tenantId);
   }
 
+  @Get(':idOrSlug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get single collection details by ID or Slug' })
+  @ApiResponse({ status: 200, description: 'Collection details retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Collection not found' })
+  async findOne(
+    @Param('idOrSlug') idOrSlug: string,
+    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.collectionService.findOne(idOrSlug, tenantId || user?.tenantId);
+  }
+
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update an existing collection by ID or Slug' })

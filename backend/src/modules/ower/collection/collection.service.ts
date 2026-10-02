@@ -172,4 +172,35 @@ export class CollectionService {
       'Collections retrieved successfully',
     );
   }
+
+  /**
+   * Get single collection details by ID or Slug
+   */
+  async findOne(idOrSlug: string, tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const collection = await this.prisma.collection.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      include: {
+        products: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!collection) {
+      throw new NotFoundException('Collection');
+    }
+
+    return ResponseHelper.success(
+      collection,
+      'Collection details retrieved successfully',
+    );
+  }
 }
