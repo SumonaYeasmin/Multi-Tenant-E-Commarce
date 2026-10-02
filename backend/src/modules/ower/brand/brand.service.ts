@@ -117,6 +117,15 @@ export class BrandService {
         _count: {
           select: { products: true },
         },
+        products: {
+          where: { deletedAt: null },
+          include: {
+            images: {
+              where: { isCover: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
