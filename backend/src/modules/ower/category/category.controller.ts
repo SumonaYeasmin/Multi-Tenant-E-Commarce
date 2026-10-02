@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -83,5 +84,21 @@ export class CategoryController {
   ) {
     return this.categoryService.update(idOrSlug, dto, user?.tenantId);
   }
+
+  @Delete(':idOrSlug')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a category or subcategory' })
+  @ApiResponse({ status: 200, description: 'Category deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Category not found' })
+  async remove(
+    @Param('idOrSlug') idOrSlug: string,
+    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.categoryService.remove(idOrSlug, tenantId || user?.tenantId);
+  }
 }
+
 

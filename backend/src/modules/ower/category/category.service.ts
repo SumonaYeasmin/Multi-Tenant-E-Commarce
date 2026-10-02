@@ -315,5 +315,49 @@ export class CategoryService {
 
     return ResponseHelper.success(category, 'Category details retrieved successfully');
   }
+
+  /**
+   * Delete a category (soft delete, cascade to child categories)
+   */
+  async remove(idOrSlug: string, tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const category = await this.prisma.category.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      include: {
+        children: {
+          where: { deletedAt: null },
+        },
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category');
+    }
+
+    const now = new Date();
+    await this.prisma.$transaction([
+      // Soft delete child categories (subcategories)
+      this.prisma.category.updateMany({
+        where: {
+          parentId: category.id,
+          deletedAt: null,
+        },
+        data: { deletedAt: now },
+      }),
+      // Soft delete category itself
+      this.prisma.category.update({
+        where: { id: category.id },
+        data: { deletedAt: now },
+      }),
+    ]);
+
+    return ResponseHelper.success(null, 'Category deleted successfully');
+  }
 }
+
 

@@ -86,5 +86,20 @@ export const categoryService = {
       : `/categories/${idOrSlug}`;
     return await apiClient.get<ApiResponse<CategoryResponseData>>(endpoint);
   },
+
+  /**
+   * Delete a category or subcategory
+   */
+  async deleteCategory(
+    idOrSlug: string,
+    tenantId?: string,
+  ): Promise<ApiResponse<null>> {
+    const endpoint = tenantId
+      ? `/categories/${idOrSlug}?tenantId=${tenantId}`
+      : `/categories/${idOrSlug}`;
+    return await apiClient.delete<ApiResponse<null>>(endpoint);
+  },
 };
+
+
 
