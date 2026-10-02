@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { Copy, ExternalLink, ImagePlus, X, Plus } from 'lucide-react';
+import { Copy, ExternalLink, ImagePlus, X, Plus, Loader2 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
-import { brands, categories as seedCategories, collections } from '@/data/products';
+import { brands as seedBrands, categories as seedCategories, collections as seedCollections } from '@/data/products';
 import { images } from '@/data/images';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Panel } from '@/components/dashboard/shared/Panel';
@@ -19,7 +19,16 @@ import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
 import { available } from '@/utils/pricing';
 import { formatBDT } from '@/utils/format';
-import type { Product, Variant, CategoryKey } from '@/types/commerce';
+import type { Product, Variant, CategoryKey, CreateProductPayload } from '@/types';
+import {
+  productService,
+  categoryService,
+  brandService,
+  collectionService,
+  CategoryResponseData,
+  BrandResponseData,
+  CollectionResponseData,
+} from '@/services';
 
 const blankProduct: Product = {
   id: '',
@@ -61,20 +70,61 @@ const allSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const imagePool = Object.values(images);
 
 function slugify(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 export function ProductEditor({ id }: { id?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { products, saveProduct, categories: storeCategories, addSubcategory } = useStore();
-  const categoriesList =
-    storeCategories && storeCategories.length > 0 ? storeCategories : seedCategories;
   const { can } = useAdmin();
   const existing = products.find((p) => p.id === id);
 
   const paramCategory = searchParams?.get('category');
   const paramSubcategory = searchParams?.get('subcategory');
+
+  // Live Database States
+  const [dbCategories, setDbCategories] = useState<CategoryResponseData[]>([]);
+  const [dbBrands, setDbBrands] = useState<BrandResponseData[]>([]);
+  const [dbCollections, setDbCollections] = useState<CollectionResponseData[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch Categories, Brands, and Collections from backend
+  useEffect(() => {
+    let mounted = true;
+    const fetchDropdownData = async () => {
+      try {
+        const [catRes, brandRes, colRes] = await Promise.allSettled([
+          categoryService.getCategories(),
+          brandService.getBrands(),
+          collectionService.getCollections(),
+        ]);
+
+        if (!mounted) return;
+
+        if (catRes.status === 'fulfilled' && catRes.value?.data) {
+          setDbCategories(catRes.value.data);
+        }
+        if (brandRes.status === 'fulfilled' && brandRes.value?.data) {
+          setDbBrands(brandRes.value.data);
+        }
+        if (colRes.status === 'fulfilled' && colRes.value?.data) {
+          setDbCollections(colRes.value.data);
+        }
+      } catch (err) {
+        console.error('Failed to load product relational data', err);
+      }
+    };
+
+    fetchDropdownData();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const [p, setP] = useState<Product>(() => {
     if (existing) return existing;
@@ -84,10 +134,12 @@ export function ProductEditor({ id }: { id?: string }) {
       subcategory: paramSubcategory || blankProduct.subcategory,
     };
   });
+
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [tagInput, setTagInput] = useState('');
   const readOnly = !can('products', existing ? 'update' : 'create');
+
   const set = (patch: Partial<Product>) => {
     setP((x) => ({ ...x, ...patch }));
     setDirty(true);
@@ -96,7 +148,57 @@ export function ProductEditor({ id }: { id?: string }) {
   const margin = p.price
     ? Math.round((((p.salePrice ?? p.price) - p.cost) / (p.salePrice ?? p.price)) * 100)
     : 0;
-  const cats = categoriesList.find((c) => c.key === p.category) ?? categoriesList[0];
+
+  // Process Category List (Merge DB categories or fallback to storeCategories)
+  const categoryOptions = useMemo(() => {
+    if (dbCategories.length > 0) {
+      const parents = dbCategories.filter((c) => !c.parentId);
+      return parents.map((parent) => {
+        const subcategories = dbCategories
+          .filter((c) => c.parentId === parent.id)
+          .map((sub) => ({ id: sub.id, name: sub.name, slug: sub.slug }));
+
+        return {
+          id: parent.id,
+          key: parent.slug,
+          name: parent.name,
+          subcategories,
+        };
+      });
+    }
+
+    const fallback = storeCategories && storeCategories.length > 0 ? storeCategories : seedCategories;
+    return fallback.map((c) => ({
+      id: c.key,
+      key: c.key,
+      name: c.name,
+      subcategories: (c.subcategories || []).map((name) => ({ id: name, name, slug: slugify(name) })),
+    }));
+  }, [dbCategories, storeCategories]);
+
+  // Current active category object
+  const activeCategory = useMemo(() => {
+    return (
+      categoryOptions.find((c) => c.key === p.category || c.id === p.category) ??
+      categoryOptions[0]
+    );
+  }, [categoryOptions, p.category]);
+
+  // Brand Options
+  const brandOptions = useMemo(() => {
+    if (dbBrands.length > 0) {
+      return dbBrands.map((b) => ({ id: b.id, name: b.name, slug: b.slug }));
+    }
+    return seedBrands.map((b) => ({ id: b.name, name: b.name, slug: slugify(b.name) }));
+  }, [dbBrands]);
+
+  // Collection Options
+  const collectionOptions = useMemo(() => {
+    if (dbCollections.length > 0) {
+      return dbCollections.map((c) => ({ id: c.id, name: c.name, slug: c.slug }));
+    }
+    return seedCollections.map((c) => ({ id: c.slug, name: c.name, slug: c.slug }));
+  }, [dbCollections]);
 
   const generateVariants = () => {
     const vs: Variant[] = [];
@@ -111,7 +213,7 @@ export function ProductEditor({ id }: { id?: string }) {
             size: s,
             price: p.price,
             salePrice: p.salePrice,
-            stock: 0,
+            stock: 10,
             reserved: 0,
             enabled: true,
           }
@@ -125,22 +227,145 @@ export function ProductEditor({ id }: { id?: string }) {
   const setVariant = (vid: string, patch: Partial<Variant>) =>
     set({ variants: p.variants.map((v) => (v.id === vid ? { ...v, ...patch } : v)) });
 
-  const save = (status?: Product['status']) => {
+  // Save / Publish Handler
+  const save = async (status?: Product['status']) => {
     const er: Record<string, string> = {};
     if (p.title.trim().length < 3) er.title = 'Enter a product title';
-    if (!p.price) er.price = 'Enter a price';
+    if (!p.price || p.price <= 0) er.price = 'Enter a valid price';
     if (p.salePrice && p.salePrice >= p.price) er.salePrice = 'Sale price must be lower than the price';
+    if (!p.category) er.category = 'Select a category';
+
     setErrors(er);
-    if (Object.keys(er).length) return toast.error('Fix the highlighted fields');
-    const final: Product = { ...p, id: p.id || `p${Date.now()}`, slug: p.slug || slugify(p.title), status: status ?? p.status };
-    saveProduct(final);
-    setP(final);
-    setDirty(false);
-    toast.success(status === 'published' ? 'Product published' : 'Product saved');
-    if (!existing) router.push(`/admin/products/${final.id}`);
+    if (Object.keys(er).length) {
+      return toast.error('Please fix the highlighted errors');
+    }
+
+    setIsSubmitting(true);
+    try {
+      const finalStatus = status ?? p.status;
+      const backendStatus = finalStatus === 'published' ? 'PUBLISHED' : finalStatus === 'archived' ? 'ARCHIVED' : 'DRAFT';
+
+      // Find Category ID / Slug
+      const categoryId = activeCategory ? activeCategory.id || activeCategory.key : p.category;
+
+      // Find Subcategory ID / Slug
+      let subcategoryId: string | undefined = undefined;
+      if (p.subcategory) {
+        const matchedSub = activeCategory?.subcategories.find(
+          (s) => s.name === p.subcategory || s.slug === p.subcategory || s.id === p.subcategory
+        );
+        subcategoryId = matchedSub ? matchedSub.id : p.subcategory;
+      }
+
+      // Find Brand ID
+      const matchedBrand = brandOptions.find(
+        (b) => b.name === p.brand || b.slug === p.brand || b.id === p.brand
+      );
+      const brandId = matchedBrand ? matchedBrand.id : undefined;
+
+      // Format specs as key-value object
+      const specsObj = p.specs?.reduce((acc, curr) => {
+        if (curr.label?.trim() && curr.value?.trim()) {
+          acc[curr.label.trim()] = curr.value.trim();
+        }
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Map Variants
+      const variantsData =
+        p.variants.length > 0
+          ? p.variants.map((v) => ({
+              sku: v.sku?.trim() || undefined,
+              color: v.color.trim(),
+              colorHex: p.colors.find((c) => c.name === v.color)?.hex,
+              size: v.size.trim(),
+              price: Number(v.price || p.price),
+              salePrice: v.salePrice !== undefined ? Number(v.salePrice) : undefined,
+              stock: Number(v.stock || 0),
+              enabled: v.enabled ?? true,
+            }))
+          : undefined;
+
+      // Map Images
+      const imagesData =
+        p.images.length > 0
+          ? p.images.map((url, idx) => ({
+              url: url.trim(),
+              alt: p.title.trim(),
+              isCover: idx === 0,
+              order: idx,
+            }))
+          : undefined;
+
+      // Prepare API Payload
+      const payload: CreateProductPayload = {
+        title: p.title.trim(),
+        slug: p.slug?.trim() || slugify(p.title),
+        shortDescription: p.shortDescription?.trim() || undefined,
+        description: p.description?.trim() || undefined,
+        status: backendStatus as any,
+        price: Number(p.price),
+        salePrice: p.salePrice ? Number(p.salePrice) : undefined,
+        cost: Number(p.cost || 0),
+        weightGrams: Number(p.weightGrams || 0),
+        preorder: Boolean(p.preorder),
+        isNew: Boolean(p.isNew),
+        isBestseller: Boolean(p.isBestseller),
+        tags: p.tags,
+        specs: Object.keys(specsObj || {}).length > 0 ? specsObj : undefined,
+        categoryId,
+        subcategoryId,
+        brandId,
+        collectionIds: p.collections,
+        images: imagesData,
+        variants: variantsData,
+      };
+
+      if (existing) {
+        // Update Local Store (or Update API when created)
+        const updatedProduct: Product = {
+          ...p,
+          status: finalStatus,
+          slug: p.slug || slugify(p.title),
+        };
+        saveProduct(updatedProduct);
+        setP(updatedProduct);
+        setDirty(false);
+        toast.success(finalStatus === 'published' ? 'Product published' : 'Product saved');
+      } else {
+        // Backend Create Product API
+        const response = await productService.createProduct(payload);
+        const createdData = response?.data;
+
+        const newSavedProduct: Product = {
+          ...p,
+          id: createdData?.id || `p${Date.now()}`,
+          slug: createdData?.slug || p.slug || slugify(p.title),
+          status: finalStatus,
+        };
+
+        saveProduct(newSavedProduct);
+        setP(newSavedProduct);
+        setDirty(false);
+        toast.success(
+          finalStatus === 'published'
+            ? 'Product published successfully!'
+            : 'Product created and saved as draft!'
+        );
+        router.push('/admin/products');
+      }
+    } catch (err: any) {
+      console.error('Error saving product:', err);
+      toast.error(err?.message || 'Failed to save product. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const totalStock = useMemo(() => p.variants.reduce((s, v) => s + available(v), 0), [p.variants]);
+  const totalStock = useMemo(
+    () => p.variants.reduce((s, v) => s + available(v), 0),
+    [p.variants]
+  );
 
   return (
     <div className="w-full space-y-6 pb-24">
@@ -149,7 +374,16 @@ export function ProductEditor({ id }: { id?: string }) {
         title={existing ? p.title : 'Add product'}
         meta={
           existing && (
-            <Badge tone={p.status === 'published' ? 'success' : p.status === 'draft' ? 'neutral' : 'warning'} dot>
+            <Badge
+              tone={
+                p.status === 'published'
+                  ? 'success'
+                  : p.status === 'draft'
+                  ? 'neutral'
+                  : 'warning'
+              }
+              dot
+            >
               {p.status}
             </Badge>
           )
@@ -190,7 +424,7 @@ export function ProductEditor({ id }: { id?: string }) {
           )
         }
       />
-      <fieldset disabled={readOnly} className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <fieldset disabled={readOnly || isSubmitting} className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <Panel>
             <div className="space-y-4">
@@ -216,12 +450,23 @@ export function ProductEditor({ id }: { id?: string }) {
             </div>
           </Panel>
 
-          <Panel title="Media" description="First image is the cover. Images are converted to WebP automatically.">
+          <Panel
+            title="Media"
+            description="First image is the cover. Images are converted to WebP automatically."
+          >
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
               {p.images.map((src, i) => (
                 <div key={src + i} className="group relative">
-                  <img src={src} alt="" className="aspect-[3/4] w-full rounded-md object-cover" />
-                  {i === 0 && <span className="absolute left-1.5 top-1.5 rounded bg-surface px-1.5 text-[10px] font-medium text-ink shadow-xs">Cover</span>}
+                  <img
+                    src={src}
+                    alt=""
+                    className="aspect-[3/4] w-full rounded-md object-cover"
+                  />
+                  {i === 0 && (
+                    <span className="absolute left-1.5 top-1.5 rounded bg-surface px-1.5 text-[10px] font-medium text-ink shadow-xs">
+                      Cover
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => set({ images: p.images.filter((_, x) => x !== i) })}
@@ -234,7 +479,11 @@ export function ProductEditor({ id }: { id?: string }) {
               ))}
               <button
                 type="button"
-                onClick={() => set({ images: [...p.images, imagePool[p.images.length % imagePool.length]] })}
+                onClick={() =>
+                  set({
+                    images: [...p.images, imagePool[p.images.length % imagePool.length]],
+                  })
+                }
                 className="flex aspect-[3/4] flex-col items-center justify-center gap-1 rounded-md border border-dashed border-line-strong text-xs text-ink-muted hover:border-ink hover:text-ink cursor-pointer transition-colors"
               >
                 <ImagePlus className="h-5 w-5" aria-hidden /> Add media
@@ -258,7 +507,11 @@ export function ProductEditor({ id }: { id?: string }) {
                 inputMode="numeric"
                 value={p.salePrice ?? ''}
                 onChange={(e) =>
-                  set({ salePrice: e.target.value ? Number(e.target.value.replace(/\D/g, '')) : undefined })
+                  set({
+                    salePrice: e.target.value
+                      ? Number(e.target.value.replace(/\D/g, ''))
+                      : undefined,
+                  })
                 }
                 error={errors.salePrice}
               />
@@ -270,15 +523,22 @@ export function ProductEditor({ id }: { id?: string }) {
                 onChange={(e) => set({ cost: Number(e.target.value.replace(/\D/g, '')) })}
                 hint={
                   p.price
-                    ? `Margin ${margin}% · Profit ${formatBDT((p.salePrice ?? p.price) - p.cost)}`
+                    ? `Margin ${margin}% · Profit ${formatBDT(
+                        (p.salePrice ?? p.price) - p.cost
+                      )}`
                     : 'Customers won’t see this'
                 }
               />
             </div>
-            <p className="mt-3 text-xs text-ink-muted">VAT (7.5%) is included in the price per store tax settings.</p>
+            <p className="mt-3 text-xs text-ink-muted">
+              VAT (7.5%) is included in the price per store tax settings.
+            </p>
           </Panel>
 
-          <Panel title="Options & variants" description={`${p.variants.length} variants · ${totalStock} available`}>
+          <Panel
+            title="Options & variants"
+            description={`${p.variants.length} variants · ${totalStock} available`}
+          >
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-ink">Colour</p>
@@ -291,13 +551,23 @@ export function ProductEditor({ id }: { id?: string }) {
                         key={c.name}
                         aria-pressed={on}
                         onClick={() =>
-                          set({ colors: on ? p.colors.filter((x) => x.name !== c.name) : [...p.colors, c] })
+                          set({
+                            colors: on
+                              ? p.colors.filter((x) => x.name !== c.name)
+                              : [...p.colors, c],
+                          })
                         }
                         className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs cursor-pointer transition-colors ${
-                          on ? 'border-ink bg-ink text-canvas font-medium' : 'border-line-strong hover:border-ink'
+                          on
+                            ? 'border-ink bg-ink text-canvas font-medium'
+                            : 'border-line-strong hover:border-ink'
                         }`}
                       >
-                        <span className="h-3 w-3 rounded-full border border-ink/10" style={{ backgroundColor: c.hex }} /> {c.name}
+                        <span
+                          className="h-3 w-3 rounded-full border border-ink/10"
+                          style={{ backgroundColor: c.hex }}
+                        />{' '}
+                        {c.name}
                       </button>
                     );
                   })}
@@ -321,7 +591,9 @@ export function ProductEditor({ id }: { id?: string }) {
                           })
                         }
                         className={`h-8 min-w-[40px] rounded border px-2 text-xs cursor-pointer transition-colors ${
-                          on ? 'border-ink bg-ink text-canvas font-medium' : 'border-line-strong hover:border-ink'
+                          on
+                            ? 'border-ink bg-ink text-canvas font-medium'
+                            : 'border-line-strong hover:border-ink'
                         }`}
                       >
                         {s}
@@ -338,7 +610,8 @@ export function ProductEditor({ id }: { id?: string }) {
                 size="sm"
                 onClick={generateVariants}
               >
-                <Plus className="h-4 w-4" aria-hidden /> Generate variants ({p.colors.length * p.sizes.length})
+                <Plus className="h-4 w-4" aria-hidden /> Generate variants (
+                {p.colors.length * p.sizes.length})
               </GuardedButton>
             </div>
             {p.variants.length > 0 && (
@@ -373,7 +646,11 @@ export function ProductEditor({ id }: { id?: string }) {
                           <input
                             aria-label="Price"
                             value={v.price}
-                            onChange={(e) => setVariant(v.id, { price: Number(e.target.value.replace(/\D/g, '')) })}
+                            onChange={(e) =>
+                              setVariant(v.id, {
+                                price: Number(e.target.value.replace(/\D/g, '')),
+                              })
+                            }
                             className="h-8 w-20 rounded border border-line bg-surface px-2 text-ink focus:outline-none"
                           />
                         </td>
@@ -383,7 +660,9 @@ export function ProductEditor({ id }: { id?: string }) {
                             value={v.salePrice ?? ''}
                             onChange={(e) =>
                               setVariant(v.id, {
-                                salePrice: e.target.value ? Number(e.target.value.replace(/\D/g, '')) : undefined,
+                                salePrice: e.target.value
+                                  ? Number(e.target.value.replace(/\D/g, ''))
+                                  : undefined,
                               })
                             }
                             className="h-8 w-20 rounded border border-line bg-surface px-2 text-ink focus:outline-none"
@@ -393,11 +672,17 @@ export function ProductEditor({ id }: { id?: string }) {
                           <input
                             aria-label="Stock"
                             value={v.stock}
-                            onChange={(e) => setVariant(v.id, { stock: Number(e.target.value.replace(/\D/g, '')) })}
+                            onChange={(e) =>
+                              setVariant(v.id, {
+                                stock: Number(e.target.value.replace(/\D/g, '')),
+                              })
+                            }
                             className="h-8 w-16 rounded border border-line bg-surface px-2 text-ink focus:outline-none"
                           />
                         </td>
-                        <td className="px-2 py-2 text-ink-muted tabular-nums">{v.reserved}</td>
+                        <td className="px-2 py-2 text-ink-muted tabular-nums">
+                          {v.reserved}
+                        </td>
                         <td className="px-5 py-2">
                           <Switch
                             checked={v.enabled}
@@ -422,7 +707,11 @@ export function ProductEditor({ id }: { id?: string }) {
                     aria-label="Attribute"
                     value={s.label}
                     onChange={(e) =>
-                      set({ specs: p.specs.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })
+                      set({
+                        specs: p.specs.map((x, j) =>
+                          j === i ? { ...x, label: e.target.value } : x
+                        ),
+                      })
                     }
                     className="h-9 w-40 rounded-md border border-line bg-surface px-3 text-sm text-ink focus:outline-none"
                     placeholder="Attribute name"
@@ -431,7 +720,11 @@ export function ProductEditor({ id }: { id?: string }) {
                     aria-label="Value"
                     value={s.value}
                     onChange={(e) =>
-                      set({ specs: p.specs.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)) })
+                      set({
+                        specs: p.specs.map((x, j) =>
+                          j === i ? { ...x, value: e.target.value } : x
+                        ),
+                      })
                     }
                     className="h-9 flex-1 rounded-md border border-line bg-surface px-3 text-sm text-ink focus:outline-none"
                     placeholder="Attribute value"
@@ -462,9 +755,15 @@ export function ProductEditor({ id }: { id?: string }) {
                 label="Weight (g)"
                 inputMode="numeric"
                 value={p.weightGrams}
-                onChange={(e) => set({ weightGrams: Number(e.target.value.replace(/\D/g, '')) })}
+                onChange={(e) =>
+                  set({ weightGrams: Number(e.target.value.replace(/\D/g, '')) })
+                }
               />
-              <Input label="Barcode / GTIN" value={p.barcode} onChange={(e) => set({ barcode: e.target.value })} />
+              <Input
+                label="Barcode / GTIN"
+                value={p.barcode}
+                onChange={(e) => set({ barcode: e.target.value })}
+              />
               <Input label="HS code" defaultValue="6211.42" />
             </div>
             <div className="mt-4 space-y-2">
@@ -479,11 +778,15 @@ export function ProductEditor({ id }: { id?: string }) {
           <Panel title="Search engine listing">
             <div className="rounded-md bg-canvas p-3">
               <p className="text-sm text-info">
-                tanti.com.bd › products › {p.slug || slugify(p.title) || 'new-product'}
+                tanti.com.bd › products ›{' '}
+                {p.slug || slugify(p.title) || 'new-product'}
               </p>
-              <p className="text-base text-[#1a0dab] font-medium">{p.title || 'Product title'} | Tanti</p>
+              <p className="text-base text-[#1a0dab] font-medium">
+                {p.title || 'Product title'} | Tanti
+              </p>
               <p className="line-clamp-2 text-sm text-ink-soft">
-                {p.shortDescription || 'Add a short description to control how this product appears in search results.'}
+                {p.shortDescription ||
+                  'Add a short description to control how this product appears in search results.'}
               </p>
             </div>
             <div className="mt-4 grid gap-4">
@@ -510,7 +813,9 @@ export function ProductEditor({ id }: { id?: string }) {
               ]}
               aria-label="Status"
             />
-            <p className="mt-2 text-xs text-ink-muted">Sales channels: Online store, Facebook shop</p>
+            <p className="mt-2 text-xs text-ink-muted">
+              Sales channels: Online store, Facebook shop
+            </p>
           </Panel>
 
           <Panel title="Organization">
@@ -519,29 +824,47 @@ export function ProductEditor({ id }: { id?: string }) {
                 label="Category"
                 value={p.category}
                 onChange={(e) => {
-                  const c = categoriesList.find((x) => x.key === e.target.value) ?? categoriesList[0];
-                  set({ category: c.key, subcategory: c.subcategories?.[0] || '' });
+                  const selectedCat = categoryOptions.find(
+                    (x) => x.key === e.target.value || x.id === e.target.value
+                  );
+                  set({
+                    category: (selectedCat?.key || e.target.value) as CategoryKey,
+                    subcategory: selectedCat?.subcategories?.[0]?.name || '',
+                  });
                 }}
-                options={categoriesList.map((c) => ({ value: c.key, label: c.name }))}
+                options={categoryOptions.map((c) => ({
+                  value: c.key,
+                  label: c.name,
+                }))}
               />
-              {cats?.subcategories && cats.subcategories.length > 0 ? (
+
+              {activeCategory?.subcategories && activeCategory.subcategories.length > 0 ? (
                 <div className="space-y-1.5">
                   <Select
                     label="Subcategory"
                     value={p.subcategory}
                     onChange={(e) => set({ subcategory: e.target.value })}
-                    options={cats.subcategories}
+                    options={activeCategory.subcategories.map((sub) => ({
+                      value: sub.name,
+                      label: sub.name,
+                    }))}
                   />
                   <div className="flex items-center justify-between text-xs text-ink-muted">
-                    <span>{cats.subcategories.length} subcategories available</span>
+                    <span>
+                      {activeCategory.subcategories.length} subcategories available
+                    </span>
                     <button
                       type="button"
                       onClick={() => {
-                        const newName = window.prompt(`Enter new subcategory for ${cats.name}:`);
+                        const newName = window.prompt(
+                          `Enter new subcategory for ${activeCategory.name}:`
+                        );
                         if (newName && newName.trim()) {
-                          addSubcategory(cats.key, newName.trim());
+                          addSubcategory(activeCategory.key, newName.trim());
                           set({ subcategory: newName.trim() });
-                          toast.success(`Added "${newName.trim()}" to ${cats.name}`);
+                          toast.success(
+                            `Added "${newName.trim()}" to ${activeCategory.name}`
+                          );
                         }
                       }}
                       className="text-clay hover:underline cursor-pointer font-medium"
@@ -563,43 +886,54 @@ export function ProductEditor({ id }: { id?: string }) {
                     type="button"
                     onClick={() => {
                       if (p.subcategory.trim()) {
-                        addSubcategory(cats.key, p.subcategory.trim());
-                        toast.success(`"${p.subcategory.trim()}" saved to ${cats.name}`);
+                        addSubcategory(activeCategory?.key || p.category, p.subcategory.trim());
+                        toast.success(
+                          `"${p.subcategory.trim()}" saved to ${activeCategory?.name || 'category'}`
+                        );
                       }
                     }}
                     className="text-xs text-clay hover:underline cursor-pointer font-medium"
                   >
-                    + Save &quot;{p.subcategory || 'name'}&quot; to category subcategories
+                    + Save &quot;{p.subcategory || 'name'}&quot; to category
                   </button>
                 </div>
               )}
+
               <Select
                 label="Brand"
                 value={p.brand}
                 onChange={(e) => set({ brand: e.target.value })}
-                options={brands.map((b) => b.name)}
+                options={brandOptions.map((b) => ({
+                  value: b.name,
+                  label: b.name,
+                }))}
               />
+
               <div>
                 <p className="mb-1.5 text-sm font-medium text-ink">Collections</p>
                 <div className="space-y-2">
-                  {collections
-                    .filter((c) => c.type === 'manual')
-                    .map((c) => (
-                      <Checkbox
-                        key={c.slug}
-                        checked={p.collections.includes(c.slug)}
-                        onChange={(v) =>
-                          set({
-                            collections: v ? [...p.collections, c.slug] : p.collections.filter((x) => x !== c.slug),
-                          })
-                        }
-                        label={c.name}
-                      />
-                    ))}
+                  {collectionOptions.map((c) => (
+                    <Checkbox
+                      key={c.slug || c.id}
+                      checked={p.collections.includes(c.slug) || p.collections.includes(c.id)}
+                      onChange={(v) =>
+                        set({
+                          collections: v
+                            ? [...p.collections, c.slug]
+                            : p.collections.filter((x) => x !== c.slug && x !== c.id),
+                        })
+                      }
+                      label={c.name}
+                    />
+                  ))}
                 </div>
               </div>
+
               <div>
-                <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-ink">
+                <label
+                  htmlFor="tags"
+                  className="mb-1.5 block text-sm font-medium text-ink"
+                >
                   Tags
                 </label>
                 <input
@@ -670,13 +1004,16 @@ export function ProductEditor({ id }: { id?: string }) {
       {(dirty || !existing) && !readOnly && (
         <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur-md lg:left-60">
           <div className="flex w-full items-center justify-between gap-3 px-6 py-3 lg:px-8">
-            <p className="text-sm text-ink-muted">{existing ? 'Unsaved changes' : 'New product'}</p>
+            <p className="text-sm text-ink-muted">
+              {existing ? 'Unsaved changes' : 'New product'}
+            </p>
             <div className="flex gap-2">
               <GuardedButton
                 module="products"
                 action="update"
                 variant="ghost"
                 size="sm"
+                disabled={isSubmitting}
                 onClick={() => {
                   setP(existing ?? blankProduct);
                   setDirty(false);
@@ -684,12 +1021,37 @@ export function ProductEditor({ id }: { id?: string }) {
               >
                 Discard
               </GuardedButton>
-              <GuardedButton module="products" action="update" variant="secondary" size="sm" onClick={() => save()}>
-                Save
+              <GuardedButton
+                module="products"
+                action="update"
+                variant="secondary"
+                size="sm"
+                disabled={isSubmitting}
+                onClick={() => save()}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  'Save'
+                )}
               </GuardedButton>
               {p.status !== 'published' && (
-                <GuardedButton module="products" action="publish" size="sm" onClick={() => save('published')}>
-                  Save & publish
+                <GuardedButton
+                  module="products"
+                  action="publish"
+                  size="sm"
+                  disabled={isSubmitting}
+                  onClick={() => save('published')}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Publishing...
+                    </>
+                  ) : (
+                    'Save & publish'
+                  )}
                 </GuardedButton>
               )}
             </div>
