@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 import {
   ConflictException,
@@ -83,5 +84,72 @@ export class CollectionService {
     });
 
     return ResponseHelper.created(collection, 'Collection created successfully');
+  }
+
+  /**
+   * Update an existing collection
+   */
+  async update(idOrSlug: string, dto: UpdateCollectionDto, tenantId?: string) {
+    const targetTenantId = dto.tenantId || tenantId;
+
+    // Find collection by id or slug
+    const collection = await this.prisma.collection.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+    });
+
+    if (!collection) {
+      throw new NotFoundException('Collection');
+    }
+
+    // If new slug or name is provided, check for conflicts
+    let slug = collection.slug;
+    if (dto.slug) {
+      slug = this.generateSlug(dto.slug);
+    } else if (dto.name && !dto.slug && dto.name !== collection.name) {
+      slug = this.generateSlug(dto.name);
+    }
+
+    if (slug !== collection.slug) {
+      const existingWithSlug = await this.prisma.collection.findFirst({
+        where: {
+          tenantId: collection.tenantId,
+          slug,
+          id: { not: collection.id },
+          deletedAt: null,
+        },
+      });
+
+      if (existingWithSlug) {
+        throw new ConflictException(
+          `Collection with slug '${slug}' already exists in this store.`,
+        );
+      }
+    }
+
+    // Update in database
+    const updatedCollection = await this.prisma.collection.update({
+      where: { id: collection.id },
+      data: {
+        name: dto.name ?? undefined,
+        slug: slug !== collection.slug ? slug : undefined,
+        description: dto.description !== undefined ? dto.description : undefined,
+        image: dto.image !== undefined ? dto.image : undefined,
+        seoTitle: dto.seoTitle !== undefined ? dto.seoTitle : undefined,
+        seoDescription: dto.seoDescription !== undefined ? dto.seoDescription : undefined,
+        type: dto.type ?? undefined,
+        rule: dto.rule !== undefined ? dto.rule : undefined,
+        isActive: dto.isActive !== undefined ? dto.isActive : undefined,
+        isFeatured: dto.isFeatured !== undefined ? dto.isFeatured : undefined,
+        order: dto.order !== undefined ? dto.order : undefined,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : undefined,
+        endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
+      },
+    });
+
+    return ResponseHelper.success(updatedCollection, 'Collection updated successfully');
   }
 }
