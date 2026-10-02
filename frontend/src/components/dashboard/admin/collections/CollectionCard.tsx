@@ -2,19 +2,21 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, Hand, Star, ExternalLink, EyeOff } from 'lucide-react';
+import { Sparkles, Hand, Star, ExternalLink, EyeOff, Trash2 } from 'lucide-react';
 import type { CollectionItem } from '@/types/collection';
 
 interface CollectionCardProps {
   collection: CollectionItem;
   productCount: number;
   onEdit?: (col: CollectionItem) => void;
+  onDelete?: (col: CollectionItem) => void;
 }
 
 export function CollectionCard({
   collection,
   productCount,
   onEdit,
+  onDelete,
 }: CollectionCardProps) {
   return (
     <li className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface transition-all duration-200 hover:shadow-md hover:border-line-strong relative">
@@ -28,7 +30,7 @@ export function CollectionCard({
           loading="lazy"
         />
 
-        {/* Top Floating Badges */}
+        {/* Top Floating Badges (Left) */}
         <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5 z-10">
           {collection.isFeatured && (
             <span className="inline-flex items-center gap-1 rounded-full bg-clay px-2 py-0.5 text-[11px] font-medium text-white shadow-xs">
@@ -44,6 +46,24 @@ export function CollectionCard({
             </span>
           )}
         </div>
+
+        {/* Top Floating Delete Button (Right) */}
+        {onDelete && (
+          <div className="absolute top-2.5 right-2.5 z-10">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(collection);
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface/90 text-ink-muted backdrop-blur-xs border border-line/60 shadow-xs transition-all duration-200 hover:bg-danger hover:text-white hover:border-danger hover:scale-105 cursor-pointer opacity-90 group-hover:opacity-100"
+              title="Delete collection"
+              aria-label="Delete collection"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Card Content */}
@@ -75,7 +95,7 @@ export function CollectionCard({
           </p>
         )}
 
-        {/* Card Footer: Product Count & Store Link */}
+        {/* Card Footer: Product Count & Action Buttons */}
         <div className="mt-auto flex items-center justify-between pt-4 border-t border-line/50 text-xs">
           <span className="font-medium text-ink-muted">
             <strong className="text-ink font-semibold">{productCount}</strong> {productCount === 1 ? 'product' : 'products'}

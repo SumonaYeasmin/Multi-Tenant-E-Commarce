@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -75,5 +76,18 @@ export class CollectionController {
     @CurrentUser() user?: any,
   ) {
     return this.collectionService.update(id, dto, user?.tenantId);
+  }
+
+  @Delete(':idOrSlug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete collection by ID or Slug' })
+  @ApiResponse({ status: 200, description: 'Collection deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Collection not found' })
+  async remove(
+    @Param('idOrSlug') idOrSlug: string,
+    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.collectionService.remove(idOrSlug, tenantId || user?.tenantId);
   }
 }

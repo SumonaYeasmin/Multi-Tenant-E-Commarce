@@ -113,6 +113,7 @@ export function CollectionsManager({
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCollection, setEditingCollection] = useState<CollectionItem | null>(null);
   const [deletingCollection, setDeletingCollection] = useState<CollectionItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Search & Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,12 +146,27 @@ export function CollectionsManager({
   };
 
   // Delete Collection
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deletingCollection) return;
     const name = deletingCollection.name;
-    setCollectionsList((prev) => prev.filter((c) => c.slug !== deletingCollection.slug));
-    setDeletingCollection(null);
-    toast.success(`Collection "${name}" deleted`);
+    const slug = deletingCollection.slug;
+    setIsDeleting(true);
+    try {
+      // 1. Delete in database
+      await collectionService.deleteCollection(
+        slug,
+        'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2'
+      );
+      // 2. Update local state
+      setCollectionsList((prev) => prev.filter((c) => c.slug !== slug));
+      setDeletingCollection(null);
+      toast.success(`Collection "${name}" deleted successfully`);
+    } catch (error: any) {
+      console.error('Failed to delete collection:', error);
+      toast.error(error?.message || 'Failed to delete collection');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Toggle Featured status
@@ -373,6 +389,7 @@ export function CollectionsManager({
                 collection={col}
                 productCount={productCount}
                 onEdit={handleOpenEdit}
+                onDelete={setDeletingCollection}
               />
             );
           })}
@@ -403,6 +420,7 @@ export function CollectionsManager({
               variant="ghost"
               onClick={() => setDeletingCollection(null)}
               type="button"
+              disabled={isDeleting}
             >
               Cancel
             </Button>
@@ -410,6 +428,7 @@ export function CollectionsManager({
               variant="danger"
               onClick={handleConfirmDelete}
               type="button"
+              loading={isDeleting}
             >
               Delete collection
             </Button>

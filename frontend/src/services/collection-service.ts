@@ -89,4 +89,17 @@ export const collectionService = {
       payload,
     );
   },
+
+  /**
+   * Delete a collection in the backend
+   */
+  async deleteCollection(
+    idOrSlug: string,
+    tenantId?: string,
+  ): Promise<ApiResponse<null>> {
+    return await apiClient.delete<ApiResponse<null>>(
+      `/collections/${idOrSlug}`,
+      tenantId ? { tenantId } : undefined,
+    );
+  },
 };

@@ -203,4 +203,30 @@ export class CollectionService {
       'Collection details retrieved successfully',
     );
   }
+
+  /**
+   * Delete a collection (soft delete)
+   */
+  async remove(idOrSlug: string, tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const collection = await this.prisma.collection.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+    });
+
+    if (!collection) {
+      throw new NotFoundException('Collection');
+    }
+
+    await this.prisma.collection.update({
+      where: { id: collection.id },
+      data: { deletedAt: new Date() },
+    });
+
+    return ResponseHelper.success(null, 'Collection deleted successfully');
+  }
 }
