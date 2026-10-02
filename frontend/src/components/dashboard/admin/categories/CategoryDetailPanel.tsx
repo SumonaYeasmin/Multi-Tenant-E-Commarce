@@ -42,6 +42,7 @@ interface CategoryDetailPanelProps {
   products?: Product[];
   productCount: number;
   getProductCount?: (categoryKey: string, subcategory?: string) => number;
+  onRefresh?: () => void;
 }
 
 const sampleImages = [
@@ -64,6 +65,7 @@ export function CategoryDetailPanel({
   products = [],
   productCount,
   getProductCount,
+  onRefresh,
 }: CategoryDetailPanelProps) {
   const router = useRouter();
   const {
@@ -90,6 +92,7 @@ export function CategoryDetailPanel({
 
   // Subcategory management state
   const [newSubName, setNewSubName] = useState('');
+  const [isAddingSub, setIsAddingSub] = useState(false);
   const [editingSub, setEditingSub] = useState<string | null>(null);
   const [editingSubValue, setEditingSubValue] = useState('');
   const [deleteSubTarget, setDeleteSubTarget] = useState<string | null>(null);
@@ -189,6 +192,7 @@ export function CategoryDetailPanel({
       toast.success(`Category "${name.trim()}" updated successfully`);
       setIsEditingCategory(false);
       setShowImagePicker(false);
+      onRefresh?.();
     } catch (error: any) {
       console.error('Failed to update category:', error);
       toast.error(error?.message || 'Failed to update category');
@@ -208,6 +212,7 @@ export function CategoryDetailPanel({
       );
       toast.success(`Category "${category.name}" has been deleted`);
       setConfirmDeleteCategory(false);
+      onRefresh?.();
     } catch (error: any) {
       console.error('Failed to delete category:', error);
       toast.error(error?.message || 'Failed to delete category');
@@ -217,7 +222,7 @@ export function CategoryDetailPanel({
   };
 
   // Handle quick add subcategory
-  const handleAddSubcategory = () => {
+  const handleAddSubcategory = async () => {
     const trimmed = newSubName.trim();
     if (!trimmed) {
       toast.error('Please enter a subcategory name');
@@ -227,13 +232,30 @@ export function CategoryDetailPanel({
       toast.error(`"${trimmed}" already exists in ${category.name}`);
       return;
     }
-    addSubcategory(category.key, trimmed);
-    toast.success(`Added subcategory "${trimmed}"`);
-    setNewSubName('');
+
+    setIsAddingSub(true);
+    try {
+      await categoryService.createCategory({
+        name: trimmed,
+        parentId: category.key,
+        tenantId: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
+        status: 'published',
+      });
+
+      addSubcategory(category.key, trimmed);
+      toast.success(`Added subcategory "${trimmed}" to ${category.name}`);
+      setNewSubName('');
+      onRefresh?.();
+    } catch (error: any) {
+      console.error('Failed to add subcategory:', error);
+      toast.error(error?.message || 'Failed to add subcategory');
+    } finally {
+      setIsAddingSub(false);
+    }
   };
 
   // Handle inline rename subcategory
-  const handleInlineRenameSubmit = (oldSub: string) => {
+  const handleInlineRenameSubmit = async (oldSub: string) => {
     const trimmed = editingSubValue.trim();
     if (!trimmed) {
       toast.error('Subcategory name cannot be empty');
@@ -243,11 +265,22 @@ export function CategoryDetailPanel({
       toast.error(`"${trimmed}" already exists in ${category.name}`);
       return;
     }
-    renameSubcategory(category.key, oldSub, trimmed);
-    toast.success(`Renamed "${oldSub}" to "${trimmed}"`);
-    setEditingSub(null);
-    if (activeSubcategory === oldSub) {
-      onSelectSubcategory?.(trimmed);
+
+    try {
+      await categoryService.updateCategory(oldSub, {
+        name: trimmed,
+        tenantId: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
+      });
+      renameSubcategory(category.key, oldSub, trimmed);
+      toast.success(`Renamed "${oldSub}" to "${trimmed}"`);
+      setEditingSub(null);
+      if (activeSubcategory === oldSub) {
+        onSelectSubcategory?.(trimmed);
+      }
+      onRefresh?.();
+    } catch (error: any) {
+      console.error('Failed to rename subcategory:', error);
+      toast.error(error?.message || 'Failed to rename subcategory');
     }
   };
 
@@ -264,6 +297,7 @@ export function CategoryDetailPanel({
       if (activeSubcategory === sub) {
         onSelectSubcategory?.(null);
       }
+      onRefresh?.();
     } catch (error: any) {
       console.error('Failed to remove subcategory:', error);
       toast.error('Failed to remove subcategory');
@@ -333,7 +367,7 @@ export function CategoryDetailPanel({
                   type="button"
                   variant="primary"
                   size="md"
-                  onClick={() => {
+                  onClick={async () => {
                     const trimmed = subRenameValue.trim();
                     if (!trimmed) {
                       toast.error('Subcategory name cannot be empty');
@@ -346,11 +380,21 @@ export function CategoryDetailPanel({
                       toast.error(`"${trimmed}" already exists in ${category.name}`);
                       return;
                     }
-                    renameSubcategory(category.key, activeSubcategory, trimmed);
-                    toast.success(
-                      `Updated "${activeSubcategory}" to "${trimmed}". Assigned products were updated.`
-                    );
-                    onSelectSubcategory?.(trimmed);
+                    try {
+                      await categoryService.updateCategory(activeSubcategory, {
+                        name: trimmed,
+                        tenantId: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
+                      });
+                      renameSubcategory(category.key, activeSubcategory, trimmed);
+                      toast.success(
+                        `Updated "${activeSubcategory}" to "${trimmed}". Assigned products were updated.`
+                      );
+                      onSelectSubcategory?.(trimmed);
+                      onRefresh?.();
+                    } catch (error: any) {
+                      console.error('Failed to update subcategory:', error);
+                      toast.error(error?.message || 'Failed to update subcategory');
+                    }
                   }}
                   className="cursor-pointer shrink-0"
                 >
@@ -774,6 +818,7 @@ export function CategoryDetailPanel({
             <Button
               type="button"
               variant="secondary"
+              loading={isAddingSub}
               onClick={handleAddSubcategory}
               className="cursor-pointer shrink-0"
             >
