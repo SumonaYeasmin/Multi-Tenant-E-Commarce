@@ -40,6 +40,18 @@ export interface CollectionResponseData {
 
 export const collectionService = {
   /**
+   * Get all collections from the backend
+   */
+  async getCollections(
+    tenantId?: string,
+  ): Promise<ApiResponse<CollectionResponseData[]>> {
+    return await apiClient.get<ApiResponse<CollectionResponseData[]>>(
+      '/collections',
+      tenantId ? { tenantId } : undefined,
+    );
+  },
+
+  /**
    * Create a new collection in the backend
    */
   async createCollection(

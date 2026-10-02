@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
   Plus,
@@ -10,6 +10,7 @@ import {
   Hand,
   Star,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CollectionCard } from './CollectionCard';
 import { CreateCollectionModal } from './CreateCollectionModal';
+import { collectionService } from '@/services/collection-service';
+import { images } from '@/data/images';
 import type { CollectionItem } from '@/types/collection';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
@@ -67,6 +70,44 @@ export function CollectionsManager({
 }: CollectionsManagerProps) {
   const [collectionsList, setCollectionsList] =
     useState<CollectionItem[]>(initialCollections);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch collections from backend database
+  const fetchCollections = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await collectionService.getCollections(
+        'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2'
+      );
+      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+        const backendCols: CollectionItem[] = res.data.map((c) => ({
+          slug: c.slug,
+          name: c.name,
+          description: c.description || '',
+          image: c.image || images.hero,
+          type: (c.type?.toLowerCase() === 'rule' ? 'rule' : 'manual') as 'manual' | 'rule',
+          ruleDetails: c.rule || undefined,
+          rule:
+            c.rule && typeof c.rule === 'object'
+              ? `${c.rule.field || 'Tag'} ${c.rule.op || 'contains'} "${c.rule.value || ''}"`
+              : undefined,
+          isFeatured: Boolean(c.isFeatured),
+          isActive: c.isActive ?? true,
+          seoTitle: c.seoTitle || undefined,
+          seoDescription: c.seoDescription || undefined,
+        }));
+        setCollectionsList(backendCols);
+      }
+    } catch (error) {
+      console.error('Failed to fetch collections from DB:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCollections();
+  }, [fetchCollections]);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -99,6 +140,8 @@ export function CollectionsManager({
       // Update existing
       setCollectionsList((prev) => prev.map((c) => (c.slug === col.slug ? col : c)));
     }
+    // Sync with database
+    fetchCollections();
   };
 
   // Delete Collection
