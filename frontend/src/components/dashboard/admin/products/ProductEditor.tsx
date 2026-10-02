@@ -137,6 +137,17 @@ export function ProductEditor({ id }: { id?: string }) {
     };
   }, []);
 
+  // Fetch product by ID from backend if not found locally
+  useEffect(() => {
+    if (id && !existing) {
+      productService.getProductById(id).then((found) => {
+        if (found) {
+          setP(found);
+        }
+      });
+    }
+  }, [id, existing]);
+
   const [p, setP] = useState<Product>(() => {
     if (existing) return existing;
     return {
