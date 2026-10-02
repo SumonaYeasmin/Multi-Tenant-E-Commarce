@@ -83,6 +83,7 @@ export function CategoryDetailPanel({
     category.status || 'published'
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [confirmDeleteCategory, setConfirmDeleteCategory] = useState(false);
@@ -198,13 +199,20 @@ export function CategoryDetailPanel({
 
   // Handle category deletion
   const handleDeleteCategory = async () => {
+    setIsDeletingCategory(true);
     try {
       deleteCategory(category.key);
-      await productService.deleteCategory(category.key);
+      await categoryService.deleteCategory(
+        category.key,
+        'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2'
+      );
       toast.success(`Category "${category.name}" has been deleted`);
       setConfirmDeleteCategory(false);
-    } catch {
-      toast.error('Failed to delete category');
+    } catch (error: any) {
+      console.error('Failed to delete category:', error);
+      toast.error(error?.message || 'Failed to delete category');
+    } finally {
+      setIsDeletingCategory(false);
     }
   };
 
@@ -244,12 +252,21 @@ export function CategoryDetailPanel({
   };
 
   // Handle delete subcategory
-  const handleDeleteSubcategory = (sub: string) => {
-    removeSubcategory(category.key, sub);
-    toast.success(`Subcategory "${sub}" removed`);
-    setDeleteSubTarget(null);
-    if (activeSubcategory === sub) {
-      onSelectSubcategory?.(null);
+  const handleDeleteSubcategory = async (sub: string) => {
+    try {
+      removeSubcategory(category.key, sub);
+      await categoryService.deleteCategory(
+        sub,
+        'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2'
+      );
+      toast.success(`Subcategory "${sub}" removed`);
+      setDeleteSubTarget(null);
+      if (activeSubcategory === sub) {
+        onSelectSubcategory?.(null);
+      }
+    } catch (error: any) {
+      console.error('Failed to remove subcategory:', error);
+      toast.error('Failed to remove subcategory');
     }
   };
 
@@ -1086,6 +1103,7 @@ export function CategoryDetailPanel({
                 variant="ghost"
                 size="sm"
                 onClick={() => setConfirmDeleteCategory(false)}
+                disabled={isDeletingCategory}
                 className="cursor-pointer"
               >
                 Cancel
@@ -1093,6 +1111,7 @@ export function CategoryDetailPanel({
               <Button
                 variant="danger"
                 size="sm"
+                loading={isDeletingCategory}
                 onClick={handleDeleteCategory}
                 className="cursor-pointer"
               >
