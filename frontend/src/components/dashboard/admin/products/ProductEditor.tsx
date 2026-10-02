@@ -1,9 +1,20 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { Copy, ExternalLink, ImagePlus, X, Plus, Loader2 } from 'lucide-react';
+import {
+  Copy,
+  ExternalLink,
+  ImagePlus,
+  X,
+  Plus,
+  Loader2,
+  Upload,
+  Link as LinkIcon,
+  UploadCloud,
+  Trash2,
+} from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { brands as seedBrands, categories as seedCategories, collections as seedCollections } from '@/data/products';
@@ -140,9 +151,68 @@ export function ProductEditor({ id }: { id?: string }) {
   const [tagInput, setTagInput] = useState('');
   const readOnly = !can('products', existing ? 'update' : 'create');
 
+  // Media Manager States & Handlers
+  const [imageMode, setImageMode] = useState<'upload' | 'url'>('upload');
+  const [inputImageUrl, setInputImageUrl] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const set = (patch: Partial<Product>) => {
     setP((x) => ({ ...x, ...patch }));
     setDirty(true);
+  };
+
+  const handleFileUpload = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please choose a valid image file (PNG, JPG, WEBP, AVIF)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      if (result) {
+        set({ images: [...p.images, result] });
+        toast.success(`Image "${file.name}" added to gallery`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddUrlImage = () => {
+    const trimmed = inputImageUrl.trim();
+    if (!trimmed) {
+      toast.error('Please enter a valid image URL');
+      return;
+    }
+    if (
+      !trimmed.startsWith('http://') &&
+      !trimmed.startsWith('https://') &&
+      !trimmed.startsWith('/')
+    ) {
+      toast.error('Image URL must start with http:// or https://');
+      return;
+    }
+    set({ images: [...p.images, trimmed] });
+    setInputImageUrl('');
+    toast.success('Image URL added to gallery');
+  };
+
+  const handleSetCover = (index: number) => {
+    if (index === 0) return;
+    const newImages = [...p.images];
+    const [selected] = newImages.splice(index, 1);
+    newImages.unshift(selected);
+    set({ images: newImages });
+    toast.success('Main cover image updated');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    set({ images: p.images.filter((_, i) => i !== index) });
+    toast.success('Image removed from gallery');
   };
 
   const margin = p.price
@@ -450,46 +520,197 @@ export function ProductEditor({ id }: { id?: string }) {
             </div>
           </Panel>
 
-          <Panel
-            title="Media"
-            description="First image is the cover. Images are converted to WebP automatically."
-          >
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
-              {p.images.map((src, i) => (
-                <div key={src + i} className="group relative">
-                  <img
-                    src={src}
-                    alt=""
-                    className="aspect-[3/4] w-full rounded-md object-cover"
-                  />
-                  {i === 0 && (
-                    <span className="absolute left-1.5 top-1.5 rounded bg-surface px-1.5 text-[10px] font-medium text-ink shadow-xs">
-                      Cover
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => set({ images: p.images.filter((_, x) => x !== i) })}
-                    className="absolute right-1.5 top-1.5 rounded-full bg-surface p-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus:opacity-100 cursor-pointer shadow-xs"
-                    aria-label="Remove image"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() =>
-                  set({
-                    images: [...p.images, imagePool[p.images.length % imagePool.length]],
-                  })
-                }
-                className="flex aspect-[3/4] flex-col items-center justify-center gap-1 rounded-md border border-dashed border-line-strong text-xs text-ink-muted hover:border-ink hover:text-ink cursor-pointer transition-colors"
-              >
-                <ImagePlus className="h-5 w-5" aria-hidden /> Add media
-              </button>
+          {/* PROFESSIONAL MEDIA & GALLERY PANEL */}
+          <div className="space-y-4 rounded-xl border border-line bg-surface p-5 shadow-xs">
+            {/* Header with Mode Switcher */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line/60 pb-3">
+              <div>
+                <h3 className="text-sm font-semibold text-ink">Product Media & Gallery</h3>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  Add multiple product photos. The first photo will be used as the main cover.
+                </p>
+              </div>
+
+              {/* Mode Switcher Tabs */}
+              <div className="inline-flex rounded-lg border border-line bg-canvas/60 p-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setImageMode('upload')}
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-medium transition-all cursor-pointer ${
+                    imageMode === 'upload'
+                      ? 'bg-ink text-canvas shadow-xs'
+                      : 'text-ink-muted hover:text-ink'
+                  }`}
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  <span>Upload</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setImageMode('url')}
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-medium transition-all cursor-pointer ${
+                    imageMode === 'url'
+                      ? 'bg-ink text-canvas shadow-xs'
+                      : 'text-ink-muted hover:text-ink'
+                  }`}
+                >
+                  <LinkIcon className="h-3.5 w-3.5" />
+                  <span>Image URL</span>
+                </button>
+              </div>
             </div>
-          </Panel>
+
+            {/* 1. UPLOAD TAB */}
+            {imageMode === 'upload' && (
+              <div className="space-y-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      Array.from(e.target.files).forEach((file) => handleFileUpload(file));
+                      e.target.value = '';
+                    }
+                  }}
+                />
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                      Array.from(e.dataTransfer.files).forEach((file) => handleFileUpload(file));
+                    }
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-all cursor-pointer select-none ${
+                    isDragging
+                      ? 'border-clay bg-clay/10 scale-[0.99]'
+                      : 'border-line-strong hover:border-ink hover:bg-subtle/30 bg-canvas/20'
+                  }`}
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface shadow-xs border border-line text-ink">
+                    <UploadCloud className="h-5 w-5 text-clay" />
+                  </div>
+                  <p className="mt-3 text-xs font-semibold text-ink">
+                    Click to browse or drag and drop product images here
+                  </p>
+                  <p className="mt-1 text-[11px] text-ink-muted">
+                    Supports PNG, JPG, WebP, AVIF up to 5MB (Multiple photos supported)
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* 2. DIRECT IMAGE URL TAB */}
+            {imageMode === 'url' && (
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-4 items-start rounded-xl border border-line bg-canvas/20 p-4">
+                  {/* URL Preview */}
+                  <div className="relative aspect-[3/4] w-28 shrink-0 overflow-hidden rounded-lg border border-line bg-subtle">
+                    <img
+                      src={inputImageUrl.trim() || images.kurta}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    <span className="absolute bottom-1 right-1 rounded bg-ink/75 px-1.5 py-0.5 text-[9px] font-medium text-white">
+                      {inputImageUrl.trim() ? 'Live Preview' : 'Sample'}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 w-full space-y-2">
+                    <label className="block text-xs font-semibold text-ink">
+                      Direct Image URL
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="https://images.unsplash.com/... or public image link"
+                        value={inputImageUrl}
+                        onChange={(e) => setInputImageUrl(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddUrlImage();
+                          }
+                        }}
+                        className="h-9 flex-1 rounded-md border border-line bg-surface px-3 text-xs text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none focus:ring-1 focus:ring-clay/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddUrlImage}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-canvas hover:bg-ink/90 cursor-pointer shadow-xs shrink-0"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Add Image</span>
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-ink-muted">
+                      Paste any public image link and click &quot;Add Image&quot; to include it in the gallery.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* GALLERY IMAGES GRID */}
+            {p.images.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-line/60">
+                <div className="flex items-center justify-between text-xs text-ink-muted">
+                  <span className="font-medium text-ink">Gallery Photos ({p.images.length})</span>
+                  <span className="text-[11px]">Hover over an image to set as main cover or remove</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
+                  {p.images.map((src, i) => (
+                    <div
+                      key={src + i}
+                      className="group relative aspect-[3/4] overflow-hidden rounded-lg border border-line bg-surface shadow-xs transition-all hover:border-ink"
+                    >
+                      <img
+                        src={src}
+                        alt={`Product photo ${i + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+
+                      {/* Main Cover Badge */}
+                      {i === 0 ? (
+                        <span className="absolute left-2 top-2 rounded bg-ink px-2 py-0.5 text-[10px] font-semibold text-canvas shadow-xs">
+                          Main Cover
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetCover(i)}
+                          className="absolute left-2 top-2 rounded bg-surface/90 backdrop-blur-xs px-2 py-0.5 text-[10px] font-medium text-ink opacity-0 transition-opacity group-hover:opacity-100 hover:bg-clay hover:text-white cursor-pointer shadow-xs"
+                        >
+                          Set as cover
+                        </button>
+                      )}
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(i)}
+                        className="absolute right-2 top-2 rounded-full bg-surface/90 backdrop-blur-xs p-1 text-ink-muted opacity-0 transition-opacity group-hover:opacity-100 hover:bg-danger hover:text-white cursor-pointer shadow-xs"
+                        aria-label="Remove photo"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           <Panel title="Pricing">
             <div className="grid gap-4 sm:grid-cols-3">

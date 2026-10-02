@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { QueryProductDto } from './dto/query-product.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 import {
   ConflictException,
@@ -268,6 +269,227 @@ export class ProductService {
     });
 
     return ResponseHelper.created(product, 'Product created successfully');
+  }
+
+  /**
+   * Get all products with filters, search, and pagination
+   */
+  async findAll(query?: QueryProductDto, tenantId?: string) {
+    const targetTenantId =
+      query?.tenantId || tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const where: any = {
+      tenantId: targetTenantId,
+      deletedAt: null,
+    };
+
+    // Filter by Status
+    if (query?.status) {
+      where.status = query.status;
+    }
+
+    // Filter by Category (UUID or Slug)
+    if (query?.category && query.category !== 'all') {
+      where.category = {
+        OR: [{ id: query.category }, { slug: query.category }],
+      };
+    }
+
+    // Filter by Subcategory (UUID or Slug)
+    if (query?.subcategory && query.subcategory !== 'all') {
+      where.subcategory = {
+        OR: [{ id: query.subcategory }, { slug: query.subcategory }],
+      };
+    }
+
+    // Filter by Brand (UUID or Slug)
+    if (query?.brand && query.brand !== 'all') {
+      where.brand = {
+        OR: [{ id: query.brand }, { slug: query.brand }],
+      };
+    }
+
+    // Filter by Collection (UUID or Slug)
+    if (query?.collection && query.collection !== 'all') {
+      where.collections = {
+        some: {
+          collection: {
+            OR: [{ id: query.collection }, { slug: query.collection }],
+          },
+        },
+      };
+    }
+
+    // Filter by Flags
+    if (query?.isBestseller !== undefined) {
+      where.isBestseller = query.isBestseller;
+    }
+    if (query?.isNew !== undefined) {
+      where.isNew = query.isNew;
+    }
+
+    // Filter by Price Range
+    if (query?.minPrice !== undefined || query?.maxPrice !== undefined) {
+      where.price = {};
+      if (query.minPrice !== undefined) where.price.gte = query.minPrice;
+      if (query.maxPrice !== undefined) where.price.lte = query.maxPrice;
+    }
+
+    // Search Filter (Title, ShortDescription, Slug, Tags)
+    if (query?.search && query.search.trim()) {
+      const q = query.search.trim();
+      where.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { shortDescription: { contains: q, mode: 'insensitive' } },
+        { slug: { contains: q, mode: 'insensitive' } },
+        { tags: { has: q } },
+      ];
+    }
+
+    const page = query?.page && query.page > 0 ? Number(query.page) : 1;
+    const limit = query?.limit && query.limit > 0 ? Number(query.limit) : 50;
+    const skip = (page - 1) * limit;
+
+    const allowedSortFields = ['createdAt', 'price', 'title', 'sold', 'rating'];
+    const sortBy = allowedSortFields.includes(query?.sortBy || '')
+      ? query!.sortBy!
+      : 'createdAt';
+    const sortOrder = query?.sortOrder === 'asc' ? 'asc' : 'desc';
+
+    const products = await this.prisma.product.findMany({
+      where,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        subcategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+          },
+        },
+        images: {
+          orderBy: { order: 'asc' },
+        },
+        variants: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'asc' },
+        },
+        collections: {
+          include: {
+            collection: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            variants: true,
+            images: true,
+            reviews: true,
+          },
+        },
+      },
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: limit,
+    });
+
+    return ResponseHelper.success(
+      products,
+      'Products retrieved successfully',
+    );
+  }
+
+  /**
+   * Get single product details by ID or Slug
+   */
+  async findOne(idOrSlug: string, tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const product = await this.prisma.product.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        subcategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+          },
+        },
+        images: {
+          orderBy: { order: 'asc' },
+        },
+        variants: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'asc' },
+        },
+        collections: {
+          include: {
+            collection: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        reviews: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+        },
+        _count: {
+          select: {
+            variants: true,
+            images: true,
+            reviews: true,
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product');
+    }
+
+    return ResponseHelper.success(product, 'Product details retrieved successfully');
   }
 
   /**
