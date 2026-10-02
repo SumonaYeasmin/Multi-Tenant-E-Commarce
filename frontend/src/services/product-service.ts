@@ -1,11 +1,53 @@
-import { apiClient } from './api-client';
+import { apiClient, ApiResponse } from './api-client';
 import { products as seedProducts } from '@/data/products';
-import type { Product, ProductStatus } from '@/types/commerce';
+import type {
+  Product,
+  ProductStatus,
+  CreateProductPayload,
+  ProductResponseData,
+} from '@/types';
 
 export const productService = {
-  async getProducts(params?: { category?: string; status?: ProductStatus; search?: string }): Promise<Product[]> {
+  /**
+   * Create a new product in the backend
+   */
+  async createProduct(
+    payload: CreateProductPayload,
+  ): Promise<ApiResponse<ProductResponseData>> {
+    return await apiClient.post<ApiResponse<ProductResponseData>>(
+      '/products',
+      payload,
+    );
+  },
+
+  /**
+   * Get all products from the backend with optional query filters
+   */
+  async getProducts(params?: {
+    category?: string;
+    status?: ProductStatus;
+    search?: string;
+    tenantId?: string;
+  }): Promise<Product[]> {
     try {
-      return await apiClient.get<Product[]>('/products');
+      const searchParams = new URLSearchParams();
+      if (params?.category && params.category !== 'all') {
+        searchParams.append('category', params.category);
+      }
+      if (params?.status && params.status !== ('all' as any)) {
+        searchParams.append('status', params.status);
+      }
+      if (params?.search) {
+        searchParams.append('search', params.search);
+      }
+      if (params?.tenantId) {
+        searchParams.append('tenantId', params.tenantId);
+      }
+
+      const queryString = searchParams.toString();
+      const endpoint = queryString ? `/products?${queryString}` : '/products';
+      const res = await apiClient.get<any>(endpoint);
+      return res.data || res;
     } catch {
       // Fallback to local mock data
       let result = [...seedProducts];
@@ -17,20 +59,31 @@ export const productService = {
       }
       if (params?.search) {
         const q = params.search.toLowerCase();
-        result = result.filter((p) => p.title.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+        result = result.filter(
+          (p) =>
+            p.title.toLowerCase().includes(q) ||
+            p.brand.toLowerCase().includes(q),
+        );
       }
       return result;
     }
   },
 
-  async getProductById(id: string): Promise<Product | undefined> {
+  /**
+   * Get a single product by ID or Slug
+   */
+  async getProductById(idOrSlug: string): Promise<Product | undefined> {
     try {
-      return await apiClient.get<Product>(`/products/${id}`);
+      const res = await apiClient.get<any>(`/products/${idOrSlug}`);
+      return res.data || res;
     } catch {
-      return seedProducts.find((p) => p.id === id);
+      return seedProducts.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
     }
   },
 
+  /**
+   * Save or update product (local/backend hybrid)
+   */
   async saveProduct(product: Product): Promise<Product> {
     try {
       if (product.id) {
@@ -42,6 +95,9 @@ export const productService = {
     }
   },
 
+  /**
+   * Delete product
+   */
   async deleteProduct(id: string): Promise<boolean> {
     try {
       await apiClient.delete(`/products/${id}`);
@@ -51,9 +107,18 @@ export const productService = {
     }
   },
 
-  async adjustStock(productId: string, variantId: string, delta: number): Promise<boolean> {
+  /**
+   * Adjust stock for a variant
+   */
+  async adjustStock(
+    productId: string,
+    variantId: string,
+    delta: number,
+  ): Promise<boolean> {
     try {
-      await apiClient.patch(`/products/${productId}/variants/${variantId}/stock`, { delta });
+      await apiClient.patch(`/products/${productId}/variants/${variantId}/stock`, {
+        delta,
+      });
       return true;
     } catch {
       return true;
