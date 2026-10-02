@@ -274,38 +274,37 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
     })),
     ...(filters.minPrice || filters.maxPrice
       ? [
-          {
-            label: `৳${filters.minPrice || 0} – ${
-              filters.maxPrice ? `৳${filters.maxPrice}` : 'any'
+        {
+          label: `৳${filters.minPrice || 0} – ${filters.maxPrice ? `৳${filters.maxPrice}` : 'any'
             }`,
-            clear: () =>
-              setFilters((f) => ({ ...f, minPrice: '', maxPrice: '' })),
-          },
-        ]
+          clear: () =>
+            setFilters((f) => ({ ...f, minPrice: '', maxPrice: '' })),
+        },
+      ]
       : []),
     ...(filters.inStock
       ? [
-          {
-            label: 'In stock',
-            clear: () => setFilters((f) => ({ ...f, inStock: false })),
-          },
-        ]
+        {
+          label: 'In stock',
+          clear: () => setFilters((f) => ({ ...f, inStock: false })),
+        },
+      ]
       : []),
     ...(filters.onSale
       ? [
-          {
-            label: 'On sale',
-            clear: () => setFilters((f) => ({ ...f, onSale: false })),
-          },
-        ]
+        {
+          label: 'On sale',
+          clear: () => setFilters((f) => ({ ...f, onSale: false })),
+        },
+      ]
       : []),
     ...(filters.minRating
       ? [
-          {
-            label: `${filters.minRating}★ & up`,
-            clear: () => setFilters((f) => ({ ...f, minRating: 0 })),
-          },
-        ]
+        {
+          label: `${filters.minRating}★ & up`,
+          clear: () => setFilters((f) => ({ ...f, minRating: 0 })),
+        },
+      ]
       : []),
   ];
 
@@ -316,8 +315,8 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
     (mode === 'search'
       ? `Results for “${suggestion ?? q}”`
       : filters.onSale
-      ? 'Sale'
-      : 'Shop all');
+        ? 'Sale'
+        : 'Shop all');
 
   const description =
     collection?.description ??
