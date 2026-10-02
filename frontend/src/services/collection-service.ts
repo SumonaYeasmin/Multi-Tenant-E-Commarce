@@ -36,6 +36,7 @@ export interface CollectionResponseData {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  products?: any[];
 }
 
 export const collectionService = {
@@ -47,6 +48,19 @@ export const collectionService = {
   ): Promise<ApiResponse<CollectionResponseData[]>> {
     return await apiClient.get<ApiResponse<CollectionResponseData[]>>(
       '/collections',
+      tenantId ? { tenantId } : undefined,
+    );
+  },
+
+  /**
+   * Get a single collection details by ID or Slug
+   */
+  async getCollectionBySlugOrId(
+    idOrSlug: string,
+    tenantId?: string,
+  ): Promise<ApiResponse<CollectionResponseData>> {
+    return await apiClient.get<ApiResponse<CollectionResponseData>>(
+      `/collections/${idOrSlug}`,
       tenantId ? { tenantId } : undefined,
     );
   },
