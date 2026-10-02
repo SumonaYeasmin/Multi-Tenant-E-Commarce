@@ -33,10 +33,8 @@ export const brandService = {
   async getBrands(
     tenantId?: string,
   ): Promise<ApiResponse<BrandResponseData[]>> {
-    return await apiClient.get<ApiResponse<BrandResponseData[]>>(
-      '/brands',
-      tenantId ? { tenantId } : undefined,
-    );
+    const endpoint = tenantId ? `/brands?tenantId=${tenantId}` : '/brands';
+    return await apiClient.get<ApiResponse<BrandResponseData[]>>(endpoint);
   },
 
   /**
@@ -46,10 +44,10 @@ export const brandService = {
     idOrSlug: string,
     tenantId?: string,
   ): Promise<ApiResponse<BrandResponseData>> {
-    return await apiClient.get<ApiResponse<BrandResponseData>>(
-      `/brands/${idOrSlug}`,
-      tenantId ? { tenantId } : undefined,
-    );
+    const endpoint = tenantId
+      ? `/brands/${idOrSlug}?tenantId=${tenantId}`
+      : `/brands/${idOrSlug}`;
+    return await apiClient.get<ApiResponse<BrandResponseData>>(endpoint);
   },
 
   /**
@@ -62,6 +60,32 @@ export const brandService = {
       '/brands',
       payload,
     );
+  },
+
+  /**
+   * Update an existing brand in the backend
+   */
+  async updateBrand(
+    idOrSlug: string,
+    payload: Partial<CreateBrandPayload>,
+  ): Promise<ApiResponse<BrandResponseData>> {
+    return await apiClient.patch<ApiResponse<BrandResponseData>>(
+      `/brands/${idOrSlug}`,
+      payload,
+    );
+  },
+
+  /**
+   * Delete a brand in the backend (soft delete)
+   */
+  async deleteBrand(
+    idOrSlug: string,
+    tenantId?: string,
+  ): Promise<ApiResponse<null>> {
+    const endpoint = tenantId
+      ? `/brands/${idOrSlug}?tenantId=${tenantId}`
+      : `/brands/${idOrSlug}`;
+    return await apiClient.delete<ApiResponse<null>>(endpoint);
   },
 };
 
