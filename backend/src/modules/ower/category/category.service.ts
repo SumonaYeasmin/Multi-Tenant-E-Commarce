@@ -61,11 +61,16 @@ export class CategoryService {
       );
     }
 
+    let resolvedParentId: string | null = null;
+
     // If parentId is provided, validate parent category
     if (dto.parentId) {
       const parentCategory = await this.prisma.category.findFirst({
         where: {
-          id: dto.parentId,
+          OR: [
+            { id: dto.parentId },
+            { slug: dto.parentId },
+          ],
           tenantId: targetTenantId,
           deletedAt: null,
         },
@@ -75,11 +80,13 @@ export class CategoryService {
         throw new NotFoundException('Parent category');
       }
 
+      resolvedParentId = parentCategory.id;
+
       // Check for duplicate subcategory name under the same parent
       const duplicateChild = await this.prisma.category.findFirst({
         where: {
           tenantId: targetTenantId,
-          parentId: dto.parentId,
+          parentId: resolvedParentId,
           name: dto.name,
           deletedAt: null,
         },
@@ -106,7 +113,7 @@ export class CategoryService {
         isActive: dto.isActive ?? true,
         showInNav: dto.showInNav ?? true,
         order: dto.order ?? 0,
-        parentId: dto.parentId || null,
+        parentId: resolvedParentId,
       },
       include: {
         parent: {
