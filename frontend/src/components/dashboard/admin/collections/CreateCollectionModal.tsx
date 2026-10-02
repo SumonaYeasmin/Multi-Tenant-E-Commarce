@@ -322,6 +322,21 @@ function CollectionForm({
           isFeatured,
           tenantId: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
         });
+      } else if (initialCollection) {
+        // 2. Call backend API to update existing collection in PostgreSQL DB
+        await collectionService.updateCollection(initialCollection.slug, {
+          name: title.trim(),
+          slug,
+          description: finalDescription,
+          image: finalImage || undefined,
+          seoTitle: seoTitle.trim() || undefined,
+          seoDescription: seoDescription.trim() || undefined,
+          type: type.toUpperCase() as 'MANUAL' | 'RULE',
+          rule: type === 'rule' ? rule : undefined,
+          isActive,
+          isFeatured,
+          tenantId: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
+        });
       }
 
       if (onSaveCollection) {

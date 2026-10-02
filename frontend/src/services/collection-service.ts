@@ -50,4 +50,17 @@ export const collectionService = {
       payload,
     );
   },
+
+  /**
+   * Update an existing collection in the backend
+   */
+  async updateCollection(
+    idOrSlug: string,
+    payload: Partial<CreateCollectionPayload>,
+  ): Promise<ApiResponse<CollectionResponseData>> {
+    return await apiClient.patch<ApiResponse<CollectionResponseData>>(
+      `/collections/${idOrSlug}`,
+      payload,
+    );
+  },
 };

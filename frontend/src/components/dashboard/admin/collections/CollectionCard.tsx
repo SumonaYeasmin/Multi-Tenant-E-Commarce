@@ -2,24 +2,19 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, Hand, Pencil, Trash2, Star, ExternalLink, EyeOff } from 'lucide-react';
+import { Sparkles, Hand, Star, ExternalLink, EyeOff } from 'lucide-react';
 import type { CollectionItem } from '@/types/collection';
-import { cn } from '@/lib/utils';
 
 interface CollectionCardProps {
   collection: CollectionItem;
   productCount: number;
   onEdit?: (col: CollectionItem) => void;
-  onDelete?: (col: CollectionItem) => void;
-  onToggleFeatured?: (col: CollectionItem) => void;
 }
 
 export function CollectionCard({
   collection,
   productCount,
   onEdit,
-  onDelete,
-  onToggleFeatured,
 }: CollectionCardProps) {
   return (
     <li className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface transition-all duration-200 hover:shadow-md hover:border-line-strong relative">
@@ -47,50 +42,6 @@ export function CollectionCard({
               <EyeOff className="h-3 w-3" />
               <span>Draft</span>
             </span>
-          )}
-        </div>
-
-        {/* Top-right Quick Action Bar (Pencil, Star, Trash) */}
-        <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-lg bg-surface/90 backdrop-blur-sm p-1 shadow-xs border border-line opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
-          {onToggleFeatured && (
-            <button
-              type="button"
-              onClick={() => onToggleFeatured(collection)}
-              title={collection.isFeatured ? 'Remove from featured' : 'Feature on homepage'}
-              className={cn(
-                'rounded p-1 transition-colors cursor-pointer',
-                collection.isFeatured
-                  ? 'text-clay hover:bg-clay/10'
-                  : 'text-ink-muted hover:text-clay hover:bg-subtle'
-              )}
-              aria-label="Toggle featured"
-            >
-              <Star className={cn('h-3.5 w-3.5', collection.isFeatured && 'fill-clay')} />
-            </button>
-          )}
-
-          {onEdit && (
-            <button
-              type="button"
-              onClick={() => onEdit(collection)}
-              title="Edit collection"
-              className="rounded p-1 text-ink-muted hover:text-ink hover:bg-subtle transition-colors cursor-pointer"
-              aria-label="Edit collection"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </button>
-          )}
-
-          {onDelete && (
-            <button
-              type="button"
-              onClick={() => onDelete(collection)}
-              title="Delete collection"
-              className="rounded p-1 text-ink-muted hover:text-danger hover:bg-danger-soft/60 transition-colors cursor-pointer"
-              aria-label="Delete collection"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
           )}
         </div>
       </div>
