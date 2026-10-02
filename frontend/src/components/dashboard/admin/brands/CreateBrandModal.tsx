@@ -66,13 +66,35 @@ export function CreateBrandModal({
 
     try {
       if (isEditing && initialBrand) {
+        // Call backend API to update brand in PostgreSQL DB
+        const res = await brandService.updateBrand(
+          initialBrand.id || initialBrand.slug,
+          {
+            name: name.trim(),
+            slug: brandSlug !== initialBrand.slug ? brandSlug : undefined,
+            description: description.trim() || undefined,
+            logo: logo.trim() || undefined,
+            isActive,
+            tenantId: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
+          }
+        );
+
+        const updatedData = res?.data;
         const updatedItem: BrandItem = {
           ...initialBrand,
-          name: name.trim(),
-          slug: brandSlug,
-          description: description.trim() || null,
-          logo: logo.trim() || null,
-          isActive,
+          id: updatedData?.id || initialBrand.id,
+          name: updatedData?.name || name.trim(),
+          slug: updatedData?.slug || brandSlug,
+          description:
+            updatedData?.description !== undefined
+              ? updatedData.description
+              : description.trim() || null,
+          logo:
+            updatedData?.logo !== undefined
+              ? updatedData.logo
+              : logo.trim() || null,
+          isActive:
+            updatedData?.isActive !== undefined ? updatedData.isActive : isActive,
         };
 
         if (onSaveBrand) {

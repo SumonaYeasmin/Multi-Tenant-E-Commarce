@@ -55,7 +55,7 @@ export function BrandsManager({
       const res = await brandService.getBrands(
         'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2'
       );
-      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+      if (res?.data && Array.isArray(res.data)) {
         const backendBrands: BrandItem[] = res.data.map((b) => ({
           id: b.id,
           name: b.name,
@@ -106,12 +106,18 @@ export function BrandsManager({
   const handleConfirmDelete = async () => {
     if (!deletingBrand) return;
     const name = deletingBrand.name;
-    const slug = deletingBrand.slug;
+    const identifier = deletingBrand.id || deletingBrand.slug;
     setIsDeleting(true);
 
     try {
+      await brandService.deleteBrand(
+        identifier,
+        'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2'
+      );
       // Remove locally
-      setBrandList((prev) => prev.filter((b) => b.slug !== slug));
+      setBrandList((prev) =>
+        prev.filter((b) => b.slug !== deletingBrand.slug && b.id !== deletingBrand.id)
+      );
       setDeletingBrand(null);
       toast.success(`Brand "${name}" deleted successfully`);
     } catch (error: any) {
@@ -350,16 +356,22 @@ export function BrandsManager({
         </div>
       </div>
 
-      {/* Brands List Panel or Empty State */}
-      {filteredBrands.length === 0 ? (
+      {/* Brands List Panel, Loading, or Empty State */}
+      {loading && brandList.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-line bg-surface p-16 text-center shadow-xs">
+          <Loader2 className="h-8 w-8 animate-spin text-clay" />
+          <p className="mt-3 text-sm font-medium text-ink">Loading brands from database...</p>
+          <p className="mt-1 text-xs text-ink-muted">Connecting to your store database</p>
+        </div>
+      ) : filteredBrands.length === 0 ? (
         <div className="rounded-2xl border border-line bg-surface p-10 shadow-xs">
           <EmptyState
             icon={Award}
-            title={searchQuery ? 'No brands found' : 'No brands in this view'}
+            title={searchQuery ? 'No brands found' : 'No brands registered yet'}
             description={
               searchQuery
                 ? `No brands match "${searchQuery}". Try a different search term or clear filters.`
-                : 'Create a new brand or switch tabs to view other brands.'
+                : 'Create your first brand partner to feature on your storefront.'
             }
             action={
               searchQuery ? (

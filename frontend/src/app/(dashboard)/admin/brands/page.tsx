@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { brands, products } from '@/data/products';
+import { products } from '@/data/products';
 import { BrandsManager } from '@/components/dashboard/admin/brands';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function AdminBrandsPage() {
   return (
     <div className="w-full">
-      <BrandsManager initialBrands={brands} products={products} />
+      <BrandsManager initialBrands={[]} products={products} />
     </div>
   );
 }
