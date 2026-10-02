@@ -152,4 +152,24 @@ export class CollectionService {
 
     return ResponseHelper.success(updatedCollection, 'Collection updated successfully');
   }
+
+  /**
+   * Get all collections for a tenant
+   */
+  async findAll(tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const collections = await this.prisma.collection.findMany({
+      where: {
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+    });
+
+    return ResponseHelper.success(
+      collections,
+      'Collections retrieved successfully',
+    );
+  }
 }

@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -34,6 +36,17 @@ export class CollectionController {
     @CurrentUser() user?: any,
   ) {
     return this.collectionService.create(dto, user?.tenantId);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all collections for tenant' })
+  @ApiResponse({ status: 200, description: 'Collections retrieved successfully' })
+  async findAll(
+    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.collectionService.findAll(tenantId || user?.tenantId);
   }
 
   @Patch(':id')
