@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -17,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 
@@ -64,4 +67,36 @@ export class BrandController {
   ) {
     return this.brandService.findOne(idOrSlug, tenantId || user?.tenantId);
   }
+
+  @Patch(':idOrSlug')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update an existing brand' })
+  @ApiResponse({ status: 200, description: 'Brand updated successfully' })
+  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @ApiResponse({ status: 404, description: 'Brand not found' })
+  @ApiResponse({ status: 409, description: 'Brand slug already exists' })
+  async update(
+    @Param('idOrSlug') idOrSlug: string,
+    @Body() dto: UpdateBrandDto,
+    @CurrentUser() user?: any,
+  ) {
+    return this.brandService.update(idOrSlug, dto, user?.tenantId);
+  }
+
+  @Delete(':idOrSlug')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a brand (soft delete)' })
+  @ApiResponse({ status: 200, description: 'Brand deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Brand not found' })
+  async remove(
+    @Param('idOrSlug') idOrSlug: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.brandService.remove(idOrSlug, user?.tenantId);
+  }
 }
+

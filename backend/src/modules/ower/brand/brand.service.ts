@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 import {
   ConflictException,
@@ -77,6 +78,65 @@ export class BrandService {
   }
 
   /**
+   * Update an existing brand
+   */
+  async update(idOrSlug: string, dto: UpdateBrandDto, tenantId?: string) {
+    const targetTenantId = dto.tenantId || tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    // Find brand by id or slug
+    const brand = await this.prisma.brand.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+    });
+
+    if (!brand) {
+      throw new NotFoundException('Brand');
+    }
+
+    // If new slug or name is provided, check for conflicts
+    let slug = brand.slug;
+    if (dto.slug) {
+      slug = this.generateSlug(dto.slug);
+    } else if (dto.name && !dto.slug && dto.name !== brand.name) {
+      slug = this.generateSlug(dto.name);
+    }
+
+    if (slug !== brand.slug) {
+      const existingWithSlug = await this.prisma.brand.findFirst({
+        where: {
+          tenantId: brand.tenantId,
+          slug,
+          id: { not: brand.id },
+          deletedAt: null,
+        },
+      });
+
+      if (existingWithSlug) {
+        throw new ConflictException(
+          `Brand with slug '${slug}' already exists in this store.`,
+        );
+      }
+    }
+
+    // Update in database
+    const updatedBrand = await this.prisma.brand.update({
+      where: { id: brand.id },
+      data: {
+        name: dto.name ?? undefined,
+        slug: slug !== brand.slug ? slug : undefined,
+        description: dto.description !== undefined ? dto.description : undefined,
+        logo: dto.logo !== undefined ? dto.logo : undefined,
+        isActive: dto.isActive !== undefined ? dto.isActive : undefined,
+      },
+    });
+
+    return ResponseHelper.success(updatedBrand, 'Brand updated successfully');
+  }
+
+  /**
    * Get all brands for a tenant
    */
   async findAll(tenantId?: string) {
@@ -138,4 +198,31 @@ export class BrandService {
       'Brand details retrieved successfully',
     );
   }
+
+  /**
+   * Delete a brand (soft delete)
+   */
+  async remove(idOrSlug: string, tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const brand = await this.prisma.brand.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+    });
+
+    if (!brand) {
+      throw new NotFoundException('Brand');
+    }
+
+    await this.prisma.brand.update({
+      where: { id: brand.id },
+      data: { deletedAt: new Date() },
+    });
+
+    return ResponseHelper.success(null, 'Brand deleted successfully');
+  }
 }
+
