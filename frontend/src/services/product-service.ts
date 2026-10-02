@@ -79,7 +79,7 @@ export const productService = {
 
   async updateCategory(key: string, patch: any) {
     try {
-      return await apiClient.put(`/categories/${key}`, patch);
+      return await apiClient.patch(`/categories/${key}`, patch);
     } catch {
       return patch;
     }
