@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -36,5 +39,29 @@ export class BrandController {
     @CurrentUser() user?: any,
   ) {
     return this.brandService.create(dto, user?.tenantId);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all brands for tenant' })
+  @ApiResponse({ status: 200, description: 'Brands retrieved successfully' })
+  async findAll(
+    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.brandService.findAll(tenantId || user?.tenantId);
+  }
+
+  @Get(':idOrSlug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get single brand details by ID or Slug' })
+  @ApiResponse({ status: 200, description: 'Brand details retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Brand not found' })
+  async findOne(
+    @Param('idOrSlug') idOrSlug: string,
+    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.brandService.findOne(idOrSlug, tenantId || user?.tenantId);
   }
 }

@@ -75,4 +75,58 @@ export class BrandService {
 
     return ResponseHelper.created(brand, 'Brand created successfully');
   }
+
+  /**
+   * Get all brands for a tenant
+   */
+  async findAll(tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const brands = await this.prisma.brand.findMany({
+      where: {
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return ResponseHelper.success(
+      brands,
+      'Brands retrieved successfully',
+    );
+  }
+
+  /**
+   * Get single brand details by ID or Slug
+   */
+  async findOne(idOrSlug: string, tenantId?: string) {
+    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const brand = await this.prisma.brand.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
+    });
+
+    if (!brand) {
+      throw new NotFoundException('Brand');
+    }
+
+    return ResponseHelper.success(
+      brand,
+      'Brand details retrieved successfully',
+    );
+  }
 }
