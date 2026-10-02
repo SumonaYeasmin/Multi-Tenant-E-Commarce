@@ -1,0 +1,53 @@
+import { apiClient, ApiResponse } from './api-client';
+
+export interface CreateCollectionPayload {
+  name: string;
+  slug?: string;
+  description?: string;
+  image?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  type?: 'MANUAL' | 'RULE';
+  rule?: any;
+  isActive?: boolean;
+  isFeatured?: boolean;
+  order?: number;
+  startsAt?: string;
+  endsAt?: string;
+  tenantId?: string;
+}
+
+export interface CollectionResponseData {
+  id: string;
+  tenantId: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  type: 'MANUAL' | 'RULE';
+  rule: any;
+  isActive: boolean;
+  isFeatured: boolean;
+  order: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export const collectionService = {
+  /**
+   * Create a new collection in the backend
+   */
+  async createCollection(
+    payload: CreateCollectionPayload,
+  ): Promise<ApiResponse<CollectionResponseData>> {
+    return await apiClient.post<ApiResponse<CollectionResponseData>>(
+      '/collections',
+      payload,
+    );
+  },
+};
