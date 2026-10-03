@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Download, Search, ClipboardCheck } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
-import { stockMovements } from '@/data/admin';
+import { stockMovements, type StockMovementItem } from '@/data/admin';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { GuardedButton } from '@/components/dashboard/shared/GuardedButton';
 import { ModuleGate } from '@/components/dashboard/shared/ModuleGate';
@@ -43,7 +43,9 @@ export default function AdminInventoryPage() {
   } | null>(null);
   const [delta, setDelta] = useState('');
   const [reason, setReason] = useState(reasons[0]);
-  const [ledger, setLedger] = useState(stockMovements);
+  const [reference, setReference] = useState('');
+  const [note, setNote] = useState('');
+  const [ledger, setLedger] = useState<StockMovementItem[]>(stockMovements);
 
   const rows = useMemo(
     () =>
@@ -87,9 +89,11 @@ export default function AdminInventoryPage() {
           sku: v.sku,
           product: p.title,
           change: n,
+          stockAfter: adjust.current + n,
           reason,
           by: actor || 'Admin',
-          ref: '',
+          ref: reference.trim(),
+          note: note.trim() || undefined,
         },
         ...l,
       ]);
@@ -97,6 +101,8 @@ export default function AdminInventoryPage() {
     toast.success(`Stock ${n > 0 ? '+' : ''}${n} · ${reason}`);
     setAdjust(null);
     setDelta('');
+    setReference('');
+    setNote('');
   };
 
   const stats: [string, string, string][] = [
@@ -295,13 +301,14 @@ export default function AdminInventoryPage() {
 
           {tab === 'ledger' && (
             <div className="overflow-x-auto border-t border-line">
-              <table className="w-full min-w-[720px] text-sm">
+              <table className="w-full min-w-[760px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-ink-muted">
                     <th className="px-4 py-2.5 font-medium">Time</th>
                     <th className="px-3 py-2.5 font-medium">Product / SKU</th>
                     <th className="px-3 py-2.5 text-right font-medium">Change</th>
-                    <th className="px-3 py-2.5 font-medium">Reason</th>
+                    <th className="px-3 py-2.5 text-right font-medium">New on hand</th>
+                    <th className="px-3 py-2.5 font-medium">Reason & Details</th>
                     <th className="px-4 py-2.5 font-medium">By</th>
                   </tr>
                 </thead>
@@ -327,12 +334,22 @@ export default function AdminInventoryPage() {
                       >
                         {m.change > 0 ? `+${m.change}` : m.change}
                       </td>
+                      <td className="px-3 py-2.5 text-right tabular-nums text-ink font-medium">
+                        {m.stockAfter !== undefined ? m.stockAfter : '—'}
+                      </td>
                       <td className="px-3 py-2.5 text-ink">
-                        {m.reason}
-                        {m.ref && (
-                          <span className="ml-1 text-xs text-ink-muted">
-                            · {m.ref}
-                          </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-medium">{m.reason}</span>
+                          {m.ref && (
+                            <span className="rounded bg-subtle px-1.5 py-0.5 font-mono text-[11px] text-ink-muted">
+                              {m.ref}
+                            </span>
+                          )}
+                        </div>
+                        {m.note && (
+                          <p className="mt-0.5 text-xs text-ink-muted line-clamp-1">
+                            {m.note}
+                          </p>
                         )}
                       </td>
                       <td className="px-4 py-2.5 text-ink-muted">{m.by}</td>
@@ -381,14 +398,28 @@ export default function AdminInventoryPage() {
                   </p>
                 </div>
               </div>
-              <Select
-                label="Reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                options={reasons}
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  label="Reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  options={reasons}
+                />
+                <Input
+                  label="Reference (PO / Order #)"
+                  value={reference}
+                  onChange={(e) => setReference(e.target.value)}
+                  placeholder="e.g. PO-0412"
+                />
+              </div>
+              <Input
+                label="Note / Remarks (Optional)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="e.g. Packaging damage, audit count mismatch..."
               />
               <p className="text-xs text-ink-muted">
-                Every adjustment is written to the movement ledger and audit log.
+                Every adjustment is recorded to the movement ledger with full timestamp and user audit trail.
               </p>
             </div>
           )}
