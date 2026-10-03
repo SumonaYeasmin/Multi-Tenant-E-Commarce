@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   QueryInventoryDto,
   InventoryStockFilter,
 } from './dto/query-inventory.dto';
+import {
+  AdjustStockDto,
+  StockAdjustmentType,
+} from './dto/adjust-stock.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 import {
   ConflictException,
@@ -12,7 +16,7 @@ import {
 
 @Injectable()
 export class InventoryService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   // Fetch inventory stock overview and dashboard metrics
   async getOverview(query?: QueryInventoryDto, tenantId?: string) {
@@ -197,6 +201,95 @@ export class InventoryService {
         items: filteredVariants,
       },
       'Inventory overview retrieved successfully',
+    );
+  }
+
+  /**
+   * ধাপ ২: স্টক এডজাস্টমেন্ট (Stock Adjustment with Audit Log & Atomic Transaction)
+   */
+  async adjustStock(dto: AdjustStockDto, tenantId?: string, actor?: string) {
+    const targetTenantId =
+      dto.tenantId || tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    // ১. ভ্যারিয়েন্ট ও টেন্যান্ট ওনারশিপ চেক
+    const variant = await this.prisma.productVariant.findFirst({
+      where: {
+        id: dto.variantId,
+        deletedAt: null,
+        product: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+        },
+      },
+      include: {
+        product: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    if (!variant) {
+      throw new NotFoundException('Product variant');
+    }
+
+    const stockBefore = variant.stock;
+    let stockAfter: number;
+    let change: number;
+
+    if (dto.type === StockAdjustmentType.ADD) {
+      change = dto.quantity;
+      stockAfter = stockBefore + change;
+    } else if (dto.type === StockAdjustmentType.SUBTRACT) {
+      if (stockBefore < dto.quantity) {
+        throw new BadRequestException(
+          `Cannot reduce ${dto.quantity} items. Available stock is only ${stockBefore}.`,
+        );
+      }
+      change = -dto.quantity;
+      stockAfter = stockBefore + change;
+    } else if (dto.type === StockAdjustmentType.SET) {
+      stockAfter = dto.quantity;
+      change = stockAfter - stockBefore;
+    } else {
+      throw new BadRequestException('Invalid adjustment type');
+    }
+
+    // ২. ট্রানজেকশনের মাধ্যমে স্টক আপডেট ও অডিট মুভমেন্ট লগ তৈরি
+    const result = await this.prisma.$transaction(async (tx) => {
+      const updatedVariant = await tx.productVariant.update({
+        where: { id: variant.id },
+        data: {
+          stock: stockAfter,
+          version: { increment: 1 },
+        },
+      });
+
+      const movement = await tx.stockMovement.create({
+        data: {
+          tenantId: targetTenantId,
+          variantId: variant.id,
+          change,
+          stockBefore,
+          stockAfter,
+          reason: dto.reason,
+          ref: dto.ref || null,
+          note: dto.note || null,
+          by: actor || 'Store Owner',
+        },
+      });
+
+      return {
+        variant: updatedVariant,
+        movement,
+      };
+    });
+
+    return ResponseHelper.success(
+      result,
+      `Stock adjusted successfully. New stock: ${stockAfter}`,
     );
   }
 }
