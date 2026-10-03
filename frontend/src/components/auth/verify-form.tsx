@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { Button } from '@/components/ui/button';
+import { authService } from '@/services/auth';
 
 function VerifyFormContent() {
   const router = useRouter();
@@ -12,7 +13,7 @@ function VerifyFormContent() {
 
   const type = searchParams.get('type') ?? 'otp';
   const to = searchParams.get('to') ?? '';
-  const next = searchParams.get('next') ?? '/';
+  const next = searchParams.get('next') ?? '';
 
   const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [error, setError] = useState('');
@@ -65,50 +66,38 @@ function VerifyFormContent() {
           return;
         }
         await new Promise((r) => setTimeout(r, 600));
-        router.push(next);
+        router.push(next || '/account');
         return;
       }
 
-      // Verify Backend Email OTP (Account verify or Password reset)
+      // Verify OTP via authService
       const otpType = type === 'reset' ? 'PASSWORD_RESET' : 'ACCOUNT_VERIFY';
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-      const res = await fetch(`${apiUrl}/auth/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: to,
-          code,
-          type: otpType,
-        }),
+      const res = await authService.verifyOtp({
+        email: to,
+        code,
+        type: otpType,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'Invalid or expired verification code.');
+      // Handle password reset flow
+      if (type === 'reset' && res.data?.resetToken) {
+        router.push(`/reset-password?token=${encodeURIComponent(res.data.resetToken)}&next=${encodeURIComponent(next)}`);
         return;
       }
 
-      // If password reset -> redirect to /reset-password with resetToken
-      if (type === 'reset' && data.data?.resetToken) {
-        router.push(`/reset-password?token=${encodeURIComponent(data.data.resetToken)}`);
-        return;
-      }
+      // Account verification flow: redirect based on role
+      const role = (res.data?.user?.role || authService.getUserRole() || '').toUpperCase();
+      const isOwnerOrAdmin = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(role);
 
-      // If account verification -> save tokens and user info
-      if (data.data?.accessToken) {
-        localStorage.setItem('accessToken', data.data.accessToken);
-        if (data.data.refreshToken) {
-          localStorage.setItem('refreshToken', data.data.refreshToken);
-        }
-        if (data.data.user) {
-          localStorage.setItem('user', JSON.stringify(data.data.user));
+      let targetUrl = isOwnerOrAdmin ? '/admin' : '/account';
+      if (next && !next.startsWith('/login') && !next.startsWith('/register')) {
+        if (next.startsWith('/admin')) {
+          targetUrl = isOwnerOrAdmin ? next : '/account';
+        } else {
+          targetUrl = next;
         }
       }
 
-      router.push(next);
+      window.location.href = targetUrl;
     } catch (err: any) {
       setError(err?.message || 'Verification failed. Please try again.');
     } finally {
@@ -125,19 +114,9 @@ function VerifyFormContent() {
         setSeconds(60);
       } else {
         const otpType = type === 'reset' ? 'PASSWORD_RESET' : 'ACCOUNT_VERIFY';
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-        const res = await fetch(`${apiUrl}/auth/resend-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: to, type: otpType }),
-        });
-        if (res.ok) {
-          setResendMsg('A new verification code has been sent to your email.');
-          setSeconds(60);
-        } else {
-          const d = await res.json();
-          setError(d.message || 'Unable to resend verification code.');
-        }
+        await authService.resendOtp({ email: to, type: otpType });
+        setResendMsg('A new verification code has been sent to your email.');
+        setSeconds(60);
       }
     } catch (err: any) {
       setError(err?.message || 'Failed to resend code. Please try again.');
@@ -203,7 +182,7 @@ function VerifyFormContent() {
             <button
               type="button"
               onClick={handleResend}
-              className="font-medium text-ink underline hover:opacity-80"
+              className="font-medium text-ink underline hover:opacity-80 cursor-pointer"
             >
               Resend code
             </button>
@@ -214,7 +193,7 @@ function VerifyFormContent() {
       {type === 'mfa' && (
         <button
           type="button"
-          className="mt-5 w-full text-center text-sm text-ink-muted underline hover:text-ink"
+          className="mt-5 w-full text-center text-sm text-ink-muted underline hover:text-ink cursor-pointer"
         >
           Use a backup code instead
         </button>

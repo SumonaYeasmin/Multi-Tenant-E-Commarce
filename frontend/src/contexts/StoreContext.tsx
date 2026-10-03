@@ -21,11 +21,14 @@ import type {
 } from '../types/commerce';
 import { variantPrice } from '../utils/pricing';
 
+import { authService } from '@/services/auth';
+
 interface User {
   id: string;
   name: string;
   email: string;
   phone: string;
+  role?: string;
 }
 
 export interface PlaceOrderInput {
@@ -137,7 +140,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useState<CategoryItemData[]>(() =>
     load('tanti.categories', seedCategories as CategoryItemData[])
   );
-  const [user, setUser] = useState<User | null>(DEFAULT_USER);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const stored = authService.getStoredUser();
+    if (stored) {
+      return {
+        id: stored.id,
+        name: stored.name || stored.email?.split('@')[0] || 'User',
+        email: stored.email,
+        phone: stored.phone || '',
+        role: stored.role,
+      };
+    }
+    return null;
+  });
+
+  // Re-sync session state on mount
+  useEffect(() => {
+    const stored = authService.getStoredUser();
+    if (stored) {
+      setUser({
+        id: stored.id,
+        name: stored.name || stored.email?.split('@')[0] || 'User',
+        email: stored.email,
+        phone: stored.phone || '',
+        role: stored.role,
+      });
+    }
+  }, []);
   const [addresses, setAddresses] = useState<Address[]>(currentUserAddresses);
   const [storeCredit] = useState(450);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
@@ -223,9 +253,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       toggleCompare: (id) =>
         setCompare((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 4 ? prev : [...prev, id])),
       trackView: (id) => setRecentlyViewed((prev) => [id, ...prev.filter((x) => x !== id)].slice(0, 8)),
-      login: (email) => setUser({ ...DEFAULT_USER, email: email || DEFAULT_USER.email }),
-      register: (u) => setUser({ ...u, id: 'c01' }),
-      logout: () => setUser(null),
+      login: (email) => {
+        const stored = authService.getStoredUser();
+        if (stored) {
+          setUser({
+            id: stored.id,
+            name: stored.name,
+            email: stored.email,
+            phone: stored.phone || '',
+            role: stored.role,
+          });
+        }
+      },
+      register: (u) => setUser({ ...u, id: 'c01', role: 'CUSTOMER' }),
+      logout: () => {
+        authService.logout();
+        setUser(null);
+      },
       saveAddress: (a) =>
         setAddresses((prev) => {
           const exists = prev.some((x) => x.id === a.id);

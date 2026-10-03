@@ -146,7 +146,9 @@ export class AuthService {
                 refreshToken,
                 user: {
                     id: user.id,
+                    name: user.name || 'User',
                     email: user.email,
+                    phone: user.phone || undefined,
                     role: user.role,
                     tenantId,
                 },
