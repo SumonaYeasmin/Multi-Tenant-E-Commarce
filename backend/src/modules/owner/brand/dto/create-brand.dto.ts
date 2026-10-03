@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -34,29 +35,25 @@ export class CreateBrandDto {
   description?: string;
 
   @ApiProperty({
-    example: 'https://example.com/logos/tanti-studio.png',
+    type: 'string',
+    format: 'binary',
     required: false,
-    description: 'Brand logo image URL',
+    description: 'Brand logo image file to upload',
   })
-  @IsString()
   @IsOptional()
-  logo?: string;
+  logo?: any;
 
   @ApiProperty({
     example: true,
     required: false,
     default: true,
   })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
-
-  @ApiProperty({
-    example: 'uuid-of-tenant',
-    required: false,
-    description: 'Tenant ID (can be extracted from authenticated user)',
-  })
-  @IsString()
-  @IsOptional()
-  tenantId?: string;
 }

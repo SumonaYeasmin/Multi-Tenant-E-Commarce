@@ -81,12 +81,4 @@ export class QueryInventoryDto {
   @IsString()
   @IsOptional()
   sortOrder?: 'asc' | 'desc' = 'desc';
-
-  @ApiPropertyOptional({
-    description: 'Tenant ID (store identifier)',
-    example: 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2',
-  })
-  @IsString()
-  @IsOptional()
-  tenantId?: string;
 }
