@@ -106,7 +106,6 @@ export interface StoreContextValue {
 
 const StoreContext = createContext<StoreContextValue | null>(null);
 
-const DEFAULT_USER: User = { id: 'c01', name: 'Nusrat Jahan', email: 'nusrat.jahan@gmail.com', phone: '01712-345678' };
 
 function load<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
@@ -265,7 +264,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           });
         }
       },
-      register: (u) => setUser({ ...u, id: 'c01', role: 'CUSTOMER' }),
+      register: (u) => {
+        const stored = authService.getStoredUser();
+        if (stored) {
+          setUser({
+            id: stored.id,
+            name: stored.name,
+            email: stored.email,
+            phone: stored.phone || '',
+            role: stored.role,
+          });
+        } else {
+          setUser({ ...u, id: u.email, role: 'CUSTOMER' });
+        }
+      },
       logout: () => {
         authService.logout();
         setUser(null);

@@ -129,6 +129,7 @@ export class OtpService {
             const payload = {
                 sub: updatedUser.id,
                 email: updatedUser.email,
+                name: updatedUser.name || 'User',
                 role: updatedUser.role,
             };
             const { accessToken, refreshToken } = generateTokens(

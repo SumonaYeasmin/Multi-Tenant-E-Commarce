@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Pure TypeScript JWT payload parser without external binary dependencies
+// Parse JWT payload without external dependencies
 function parseJwtPayload(token: string): {
   sub?: string;
   email?: string;
+  name?: string;
   role?: string;
   exp?: number;
   tenantId?: string;
@@ -26,14 +27,14 @@ function parseJwtPayload(token: string): {
   }
 }
 
-// Next.js 16 Network Boundary Proxy (handles RBAC routing, protection and multi-tenancy)
+// Next.js 16 Network Boundary Proxy handling RBAC and multi-tenancy
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const hostname = request.headers.get('host') || 'localhost:3000';
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost';
   const hostWithoutPort = hostname.split(':')[0].toLowerCase();
 
-  // Multi-tenant hostname resolution
+  // Resolve tenant slug
   let tenantSlug = 'tanti';
   if (
     hostWithoutPort !== rootDomain &&
@@ -51,26 +52,26 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Token and role extraction from secure cookies
-  const token = request.cookies.get('auth_token')?.value;
-  const cookieRole = request.cookies.get('auth_role')?.value;
+  // Extract access token from cookie
+  const token = request.cookies.get('access_token')?.value || request.cookies.get('auth_token')?.value;
 
   const jwtPayload = token ? parseJwtPayload(token) : null;
   const isTokenExpired = Boolean(jwtPayload?.exp && Date.now() >= jwtPayload.exp * 1000);
   const isAuthenticated = Boolean(token && !isTokenExpired && jwtPayload);
-  const userRole = (jwtPayload?.role || cookieRole || '').toUpperCase();
+  const userRole = (jwtPayload?.role || '').toUpperCase();
 
-  // Allowed administrative roles for merchant dashboard
+  // Allowed staff roles for admin dashboard
   const isStaffOrOwner = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(userRole);
 
-  // Route 1: Owner / Admin Dashboard Protection (/admin and sub-routes)
+  // Admin dashboard guard
   if (pathname.startsWith('/admin')) {
-    // If not authenticated, immediately redirect to login with return path
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('next', `${pathname}${search}`);
       const response = NextResponse.redirect(loginUrl);
       if (isTokenExpired) {
+        response.cookies.delete('access_token');
+        response.cookies.delete('refresh_token');
         response.cookies.delete('auth_token');
         response.cookies.delete('auth_role');
         response.cookies.delete('auth_user');
@@ -78,21 +79,20 @@ export function proxy(request: NextRequest) {
       return response;
     }
 
-    // If authenticated as customer, strictly forbid access to owner dashboard
     if (!isStaffOrOwner) {
-      const accountUrl = new URL('/account', request.url);
-      return NextResponse.redirect(accountUrl);
+      return NextResponse.redirect(new URL('/account', request.url));
     }
   }
 
-  // Route 2: Customer Account Dashboard Protection (/account and sub-routes)
+  // Customer account guard
   if (pathname.startsWith('/account')) {
-    // If unauthenticated visitor types /account, redirect to login
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('next', `${pathname}${search}`);
       const response = NextResponse.redirect(loginUrl);
       if (isTokenExpired) {
+        response.cookies.delete('access_token');
+        response.cookies.delete('refresh_token');
         response.cookies.delete('auth_token');
         response.cookies.delete('auth_role');
         response.cookies.delete('auth_user');
@@ -101,28 +101,22 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Route 3: Auth Pages Redirection for already logged-in users (/login, /register)
+  // Redirect already authenticated users from auth pages
   if (pathname === '/login' || pathname === '/register') {
     if (isAuthenticated) {
       const nextParam = request.nextUrl.searchParams.get('next');
       if (nextParam && !nextParam.startsWith('/login') && !nextParam.startsWith('/register')) {
-        // If customer tried to go to an admin url via next param, route to customer dashboard
         if (nextParam.startsWith('/admin') && !isStaffOrOwner) {
           return NextResponse.redirect(new URL('/account', request.url));
         }
         return NextResponse.redirect(new URL(nextParam, request.url));
       }
 
-      // Default role-based dashboard destination
-      if (isStaffOrOwner) {
-        return NextResponse.redirect(new URL('/admin', request.url));
-      } else {
-        return NextResponse.redirect(new URL('/account', request.url));
-      }
+      return NextResponse.redirect(new URL(isStaffOrOwner ? '/admin' : '/account', request.url));
     }
   }
 
-  // Propagate tenant and user claims downstream via headers
+  // Forward tenant and user metadata via headers
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-tenant-slug', tenantSlug);
   requestHeaders.set('x-tenant-host', hostWithoutPort);
@@ -141,7 +135,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except internal nextjs static assets and image files
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

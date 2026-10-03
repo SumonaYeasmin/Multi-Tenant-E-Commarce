@@ -127,7 +127,7 @@ export class AuthService {
         });
 
         const tenantId = user.tenantMemberships?.[0]?.tenantId;
-        const payload = { sub: user.id, email: user.email, role: user.role, tenantId };
+        const payload = { sub: user.id, email: user.email, name: user.name || 'User', role: user.role, tenantId };
         const { accessToken, refreshToken } = generateTokens(
             this.jwtService,
             this.configService,

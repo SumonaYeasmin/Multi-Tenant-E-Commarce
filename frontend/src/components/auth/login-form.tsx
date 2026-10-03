@@ -29,8 +29,8 @@ function LoginFormContent() {
     if (mode === 'email') {
       if (!/^\S+@\S+\.\S+$/.test(email)) er.email = 'Enter a valid email';
       if (password.length < 6) er.password = 'Password must be at least 6 characters';
-    } else if (!/^01\d{9}$/.test(phone.replace(/\D/g, ''))) {
-      er.phone = 'Enter an 11-digit mobile number';
+    } else {
+      er.phone = 'Mobile SMS login is coming soon. Please sign in with email and password.';
     }
 
     setErrors(er);
@@ -38,10 +38,6 @@ function LoginFormContent() {
 
     setLoading(true);
     try {
-      if (mode === 'phone') {
-        router.push(`/verify?type=phone&to=${encodeURIComponent(phone)}&next=${encodeURIComponent(next || '/')}`);
-        return;
-      }
 
       const res = await authService.login({ email, password });
 
@@ -162,7 +158,7 @@ function LoginFormContent() {
         size="lg"
         fullWidth
         type="button"
-        onClick={() => router.push(next || '/')}
+        onClick={() => setErrors({ email: 'Google Sign-in is not configured yet. Please sign in with email.' })}
       >
         <span className="font-bold text-[#4285F4] mr-2">G</span> Continue with Google
       </Button>

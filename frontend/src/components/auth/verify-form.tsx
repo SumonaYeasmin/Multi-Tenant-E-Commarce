@@ -61,12 +61,7 @@ function VerifyFormContent() {
 
     try {
       if (type === 'phone') {
-        if (code === '000000') {
-          setError('That code is incorrect. 2 attempts left.');
-          return;
-        }
-        await new Promise((r) => setTimeout(r, 600));
-        router.push(next || '/account');
+        setError('SMS verification is not configured yet. Please sign in or verify using email.');
         return;
       }
 
