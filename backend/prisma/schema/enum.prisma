@@ -1,18 +1,152 @@
 enum UserRole {
-    ADMIN
-    USER
-    ORGANIZER
+  OWNER
+  CUSTOMER
 }
 
 enum UserStatus {
-    PENDING_VERIFICATION
-    ACTIVE
-    INACTIVE
-    BLOCK
-    SUSPEND
+  PENDING_VERIFICATION
+  ACTIVE
+  INACTIVE
+  BLOCK
+  SUSPEND
 }
 
 enum OtpType {
-    ACCOUNT_VERIFY
-    PASSWORD_RESET
+  ACCOUNT_VERIFY
+  PASSWORD_RESET
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum TenantPlan {
+  FREE
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum TenantMemberRole {
+  OWNER
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+enum CollectionType {
+  MANUAL
+  RULE
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  PROCESSING
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  FAILED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+  PARTIALLY_PAID
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  BKASH
+  NAGAD
+  SSLCOMMERZ
+  STRIPE
+  COD
+}
+
+enum OrderChannel {
+  ONLINE
+  MANUAL
+}
+
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  IN_TRANSIT
+  RECEIVED
+  REFUNDED
+  EXCHANGED
+}
+
+enum ReturnResolution {
+  REFUND
+  STORE_CREDIT
+  EXCHANGE
+}
+
+enum ReviewStatus {
+  PUBLISHED
+  PENDING
+  HIDDEN
+  REJECTED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+enum DiscountMethod {
+  CODE
+  AUTOMATIC
+}
+
+enum DiscountStatus {
+  ACTIVE
+  SCHEDULED
+  EXPIRED
+}
+
+enum CustomerSegment {
+  VIP
+  LOYAL
+  NEW
+  AT_RISK
+  WHOLESALE
+}
+
+enum StockMovementReason {
+  RECEIVED
+  ORDER
+  CORRECTION
+  DAMAGED
+  LOST_STOLEN
+  PHYSICAL_COUNT
+  RETURN
 }

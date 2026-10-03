@@ -136,7 +136,7 @@ export const adminNavItems: NavItem[] = [
     category: 'Online store',
   },
   {
-    title: 'SEO & redirects',
+    title: 'SEO',
     href: '/admin/seo',
     icon: 'Search',
     category: 'Online store',

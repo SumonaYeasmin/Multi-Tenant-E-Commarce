@@ -1,0 +1,84 @@
+model CmsPage {
+  id        String    @id @default(uuid())
+  tenantId  String
+  title     String
+  slug      String
+  content   String?   @db.Text
+  status    String    @default("published")
+  author    String?
+  publishAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, slug])
+  @@map("cms_pages")
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  tenantId    String
+  title       String
+  slug        String
+  excerpt     String?  @db.Text
+  content     String?  @db.Text
+  category    String?
+  readTime    String?
+  image       String?
+  author      String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, slug])
+  @@map("blog_posts")
+}
+
+model NavigationMenu {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  location  String
+  items     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("navigation_menus")
+}
+
+model FaqItem {
+  id        String   @id @default(uuid())
+  tenantId  String
+  category  String
+  question  String
+  answer    String   @db.Text
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("faq_items")
+}
+
+model MediaAsset {
+  id         String   @id @default(uuid())
+  tenantId   String
+  name       String
+  url        String
+  size       String?
+  dimensions String?
+  alt        String?
+  usedIn     Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("media_assets")
+}

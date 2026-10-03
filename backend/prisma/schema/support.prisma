@@ -1,0 +1,50 @@
+model SupportTicket {
+  id          String   @id @default(uuid())
+  tenantId    String
+  customerId  String?
+  orderNumber String?
+  subject     String
+  status      String   @default("open")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant   Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  messages TicketMessage[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id        String   @id @default(uuid())
+  ticketId  String
+  from      String // 'customer' | 'agent'
+  name      String
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  actor     String
+  action    String
+  resource  String
+  category  String
+  before    String?  @db.Text
+  after     String?  @db.Text
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, category])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}

@@ -1,0 +1,38 @@
+model MarketingCampaign {
+  id        String    @id @default(uuid())
+  tenantId  String
+  name      String
+  channel   String
+  status    String    @default("draft")
+  audience  String?
+  sentAt    DateTime?
+  openRate  Decimal?  @db.Decimal(5, 2)
+  clickRate Decimal?  @db.Decimal(5, 2)
+  revenue   Decimal   @default(0) @db.Decimal(12, 2)
+  utm       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+  @@map("marketing_campaigns")
+}
+
+model MarketingAutomation {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  trigger   String
+  channel   String
+  enabled   Boolean  @default(true)
+  recovered Int      @default(0)
+  revenue   Decimal  @default(0) @db.Decimal(12, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("marketing_automations")
+}

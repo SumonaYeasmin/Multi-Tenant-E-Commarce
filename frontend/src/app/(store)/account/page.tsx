@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRightIcon, WalletIcon, GiftIcon } from 'lucide-react';
+import { ArrowRightIcon, WalletIcon } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ export default function AccountDashboardPage() {
         </section>
       )}
 
-      <div className="mt-6 grid gap-6 md:grid-cols-3">
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
         <div className="rounded-lg border border-line bg-surface p-5">
           <p className="flex items-center gap-2 text-sm text-ink-muted">
             <WalletIcon className="h-4 w-4" aria-hidden /> Store credit
@@ -92,15 +92,6 @@ export default function AccountDashboardPage() {
           <p className="mt-1 text-xs text-ink-muted">
             Applied automatically at checkout if you choose
           </p>
-        </div>
-        <div className="rounded-lg border border-line bg-surface p-5">
-          <p className="flex items-center gap-2 text-sm text-ink-muted">
-            <GiftIcon className="h-4 w-4" aria-hidden /> Gift cards
-          </p>
-          <p className="mt-2 text-2xl font-semibold">৳0</p>
-          <button className="mt-1 text-xs font-medium underline cursor-pointer">
-            Redeem a gift card
-          </button>
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
           <p className="text-sm text-ink-muted">Default address</p>

@@ -1,0 +1,91 @@
+model Tenant {
+  id           String       @id @default(uuid())
+  name         String
+  slug         String       @unique
+  tagline      String?
+  domain       String?
+  customDomain String?      @unique
+  logo         String?
+  favicon      String?
+  status       TenantStatus @default(ACTIVE)
+  plan         TenantPlan   @default(GROWTH)
+  planState    String       @default("active") // 'active' | 'trial' | 'past_due' | 'suspended'
+
+  // Multi-Currency & Locale
+  currency         String @default("BDT")
+  currencySymbol   String @default("৳")
+  currencyPosition String @default("prefix") // 'prefix' | 'suffix'
+
+  // Storefront Customization & Theme (JSON format matching TenantTheme)
+  theme   Json?
+  modules Json?
+  contact Json?
+  socials Json?
+
+  // Store-wide Settings & Policies
+  settings            Json?
+  announcement        String?
+  announcementEnabled Boolean @default(false)
+
+  // Auditing & Soft Delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Core Store Relations
+  members               TenantMember[]
+  domains               TenantDomain[]
+  categories            Category[]
+  brands                Brand[]
+  collections           Collection[]
+  products              Product[]
+  orders                Order[]
+  returns               ReturnRequest[]
+  customers             CustomerProfile[]
+  reviews               Review[]
+  discounts             Discount[]
+  stockMovements        StockMovement[]
+  shippingZones         ShippingZone[]
+  carts                 Cart[]
+  wishlists             WishlistItem[]
+  cmsPages              CmsPage[]
+  blogPosts             BlogPost[]
+  menus                 NavigationMenu[]
+  faqs                  FaqItem[]
+  mediaAssets           MediaAsset[]
+  campaigns             MarketingCampaign[]
+  automations           MarketingAutomation[]
+  supportTickets        SupportTicket[]
+  auditLogs             AuditLog[]
+  apiKeys               ApiKey[]
+  webhooks              WebhookEndpoint[]
+  notificationTemplates NotificationTemplate[]
+  notificationLogs      NotificationLog[]
+
+  @@index([deletedAt])
+  @@map("tenants")
+}
+
+model TenantMember {
+  id           String           @id @default(uuid())
+  tenantId     String
+  userId       String
+  role         TenantMemberRole @default(STAFF)
+  customRole   String? // e.g. 'Store Manager', 'Customer Care', 'Content Editor'
+  status       String           @default("active") // 'active' | 'deactivated' | 'invited'
+  twoFactor    Boolean          @default(false)
+  lastActiveAt DateTime?
+  permissions  Json? // Granular module permission matrix (RBAC)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId, deletedAt])
+  @@map("tenant_members")
+}

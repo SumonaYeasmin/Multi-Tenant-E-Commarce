@@ -104,11 +104,6 @@ export const automations = [
   { id: 'au5', name: 'Birthday reward', trigger: 'Customer birthday', channel: 'SMS', enabled: false, recovered: 0, revenue: 0 }
 ];
 
-export const giftCards = [
-  { id: 'g1', code: '•••• 7K2P', initial: 5000, balance: 2150, customer: 'Ayesha Siddiqua', issued: '2026-08-10', status: 'active' },
-  { id: 'g2', code: '•••• 9XQ4', initial: 3000, balance: 3000, customer: 'Unassigned', issued: '2026-09-20', status: 'active' },
-  { id: 'g3', code: '•••• 1LMA', initial: 2000, balance: 0, customer: 'Tanvir Ahmed', issued: '2026-05-02', status: 'redeemed' }
-];
 
 export const auditLogs = [
   { id: 'l1', at: '2026-09-26T09:14:00', actor: 'Shahana Parvin', action: 'Changed role permissions', resource: 'Role · Store Manager', category: 'Security', before: 'payments: view', after: 'payments: view, refund' },
@@ -207,11 +202,6 @@ export const menus = [
   { id: 'mn3', name: 'Footer — Company', location: 'Footer', items: ['About', 'Journal', 'Careers', 'Wholesale'] }
 ];
 
-export const redirects = [
-  { id: 'rd1', from: '/collections/eid-2025', to: '/collections/eid-2026', type: 301, hits: 1240 },
-  { id: 'rd2', from: '/products/sage-panjabi-old', to: '/products/sage-cotton-panjabi', type: 301, hits: 318 },
-  { id: 'rd3', from: '/blog', to: '/journal', type: 308, hits: 92 }
-];
 
 export const domains = [
   { id: 'dm1', host: 'tanti.com.bd', primary: true, status: 'connected', ssl: 'active', sslExpires: '2026-12-20' },
@@ -268,25 +258,26 @@ export const reportCatalog: { group: string; items: { name: string; description:
   }
 ];
 
-export const locations = [
-  { id: 'loc1', name: 'Tejgaon Warehouse', type: 'Warehouse', address: 'Tejgaon I/A, Dhaka' },
-  { id: 'loc2', name: 'Dhanmondi 27 Store', type: 'Retail', address: 'Road 27, Dhanmondi' },
-  { id: 'loc3', name: 'Chattogram Hub', type: 'Warehouse', address: 'Agrabad C/A, Chattogram' }
-];
+export interface StockMovementItem {
+  id: string;
+  at: string;
+  sku: string;
+  product: string;
+  change: number;
+  stockAfter?: number;
+  reason: string;
+  by: string;
+  ref?: string;
+  note?: string;
+}
 
-export const stockMovements = [
-  { id: 'sm1', at: '2026-09-26T08:30:00', sku: 'TN-P03-SAG-L', product: 'Sage Cotton Panjabi', change: 24, reason: 'Received', location: 'Tejgaon Warehouse', by: 'Rahim Uddin', ref: 'PO-0412' },
-  { id: 'sm2', at: '2026-09-25T15:47:00', sku: 'TN-P10-OLI-M', product: 'Olive Linen Co-ord Set', change: -1, reason: 'Order', location: 'Tejgaon Warehouse', by: 'System', ref: 'TN-10496' },
-  { id: 'sm3', at: '2026-09-25T11:00:00', sku: 'TN-P01-IND-L', product: 'Indigo Block-Print Kurta Set', change: -2, reason: 'Damaged', location: 'Dhanmondi 27 Store', by: 'Mitu Akter', ref: '' },
-  { id: 'sm4', at: '2026-09-24T17:20:00', sku: 'TN-P04-WHI-41', product: 'Everyday Leather Sneakers', change: -6, reason: 'Transfer out', location: 'Tejgaon Warehouse', by: 'Rahim Uddin', ref: 'TR-088' },
-  { id: 'sm5', at: '2026-09-24T17:20:00', sku: 'TN-P04-WHI-41', product: 'Everyday Leather Sneakers', change: 6, reason: 'Transfer in', location: 'Chattogram Hub', by: 'Rahim Uddin', ref: 'TR-088' },
-  { id: 'sm6', at: '2026-09-23T10:00:00', sku: 'TN-P12-DUS-ONE', product: 'Hand-dyed Silk Dupatta', change: -1, reason: 'Physical count', location: 'Dhanmondi 27 Store', by: 'Mitu Akter', ref: 'CNT-19' }
-];
-
-export const transfers = [
-  { id: 'TR-089', from: 'Tejgaon Warehouse', to: 'Dhanmondi 27 Store', items: 18, status: 'in_transit', created: '2026-09-25' },
-  { id: 'TR-088', from: 'Tejgaon Warehouse', to: 'Chattogram Hub', items: 6, status: 'received', created: '2026-09-24' },
-  { id: 'PO-0413', from: 'Rupganj Weavers Co-op', to: 'Tejgaon Warehouse', items: 40, status: 'pending', created: '2026-09-23' }
+export const stockMovements: StockMovementItem[] = [
+  { id: 'sm1', at: '2026-09-26T08:30:00', sku: 'TN-P03-SAG-L', product: 'Sage Cotton Panjabi', change: 24, stockAfter: 36, reason: 'Received', by: 'Rahim Uddin', ref: 'PO-0412', note: 'Bulk shipment received from artisan workshop' },
+  { id: 'sm2', at: '2026-09-25T15:47:00', sku: 'TN-P10-OLI-M', product: 'Olive Linen Co-ord Set', change: -1, stockAfter: 2, reason: 'Order', by: 'System', ref: 'TN-10496', note: 'Customer order checkout' },
+  { id: 'sm3', at: '2026-09-25T11:00:00', sku: 'TN-P01-IND-L', product: 'Indigo Block-Print Kurta Set', change: -2, stockAfter: 0, reason: 'Damaged', by: 'Mitu Akter', ref: '', note: 'Defective stitching found during QC' },
+  { id: 'sm4', at: '2026-09-24T17:20:00', sku: 'TN-P04-WHI-41', product: 'Everyday Leather Sneakers', change: -6, stockAfter: 12, reason: 'Correction', by: 'Rahim Uddin', ref: 'COR-088', note: 'Inventory reconciliation adjustment' },
+  { id: 'sm5', at: '2026-09-24T17:20:00', sku: 'TN-P04-WHI-41', product: 'Everyday Leather Sneakers', change: 6, stockAfter: 18, reason: 'Received', by: 'Rahim Uddin', ref: 'PO-088', note: 'Stock delivery confirmation' },
+  { id: 'sm6', at: '2026-09-23T10:00:00', sku: 'TN-P12-DUS-ONE', product: 'Hand-dyed Silk Dupatta', change: -1, stockAfter: 4, reason: 'Physical count', by: 'Mitu Akter', ref: 'CNT-19', note: 'Physical cycle count mismatch correction' }
 ];
 
 export const abandonedCheckouts = [
@@ -306,12 +297,11 @@ export const entitlements = [
   { feature: 'Products', used: 142, limit: 500 },
   { feature: 'Staff accounts', used: 6, limit: 10 },
   { feature: 'Storage', used: 3.4, limit: 10, unit: 'GB' },
-  { feature: 'Marketing emails / month', used: 28400, limit: 50000 },
-  { feature: 'Locations', used: 3, limit: 5 }
+  { feature: 'Marketing emails / month', used: 28400, limit: 50000 }
 ];
 
 export const planFeatures = [
-  { name: 'Multiple warehouses', included: true },
+  { name: 'Automated stock tracking', included: true },
   { name: 'Custom domain & SSL', included: true },
   { name: 'Advanced reports & exports', included: true },
   { name: 'API access & webhooks', included: true },
