@@ -1,16 +1,14 @@
 import type { UserInfo } from '@/types/user';
 
-export const mockUsers: Record<string, UserInfo> = {
-  admin: {
-    id: 'u-admin-1',
-    name: 'Shahana Parvin',
-    email: 'shahana@tanti.com.bd',
-    role: 'OWNER',
-    initials: 'SP',
-    title: 'Owner',
-  },
+export const fallbackUser: UserInfo = {
+  id: 'u-owner-1',
+  name: 'Store Owner',
+  email: 'owner@store.com',
+  role: 'OWNER',
+  initials: 'SO',
+  title: 'Owner',
 };
 
 export async function getUserInfo(): Promise<UserInfo> {
-  return mockUsers.admin;
+  return fallbackUser;
 }

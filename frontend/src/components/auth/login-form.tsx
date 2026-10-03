@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { cn } from '@/lib/utils';
+import { authService } from '@/services/auth';
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/';
+  const next = searchParams.get('next') ?? '';
 
   const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
@@ -20,7 +21,6 @@ function LoginFormContent() {
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [attempts, setAttempts] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,50 +39,38 @@ function LoginFormContent() {
     setLoading(true);
     try {
       if (mode === 'phone') {
-        router.push(`/verify?type=phone&to=${encodeURIComponent(phone)}&next=${encodeURIComponent(next)}`);
+        router.push(`/verify?type=phone&to=${encodeURIComponent(phone)}&next=${encodeURIComponent(next || '/')}`);
         return;
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-      const res = await fetch(`${apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await authService.login({ email, password });
 
-      const data = await res.json();
+      // Determine destination according to RBAC role
+      const user = res.data?.user;
+      const role = (user?.role || authService.getUserRole() || '').toUpperCase();
+      const isOwnerOrAdmin = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(role);
 
-      if (!res.ok) {
-        // If account is not verified yet, backend sent OTP -> redirect to verify
-        if (typeof data.message === 'string' && data.message.toLowerCase().includes('not verified')) {
-          router.push(`/verify?type=otp&to=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}`);
-          return;
+      let targetUrl = isOwnerOrAdmin ? '/admin' : '/account';
+
+      if (next && !next.startsWith('/login') && !next.startsWith('/register')) {
+        // Only allow redirection to admin routes if user has admin privileges
+        if (next.startsWith('/admin')) {
+          targetUrl = isOwnerOrAdmin ? next : '/account';
+        } else {
+          targetUrl = next;
         }
+      }
 
-        const errMsg = Array.isArray(data.message)
-          ? data.message.join(', ')
-          : data.message || 'Invalid email or password';
-        setErrors({ password: errMsg });
+      // Hard redirect to clear router cache and trigger server proxy with fresh cookies
+      window.location.href = targetUrl;
+    } catch (err: any) {
+      const errMsg = err?.message || 'Invalid email or password';
+      // If account is unverified, redirect user to OTP verification
+      if (typeof errMsg === 'string' && errMsg.toLowerCase().includes('not verified')) {
+        router.push(`/verify?type=otp&to=${encodeURIComponent(email)}&next=${encodeURIComponent(next || '/')}`);
         return;
       }
-
-      // Save tokens and user info
-      if (data.data?.accessToken) {
-        localStorage.setItem('accessToken', data.data.accessToken);
-        if (data.data.refreshToken) {
-          localStorage.setItem('refreshToken', data.data.refreshToken);
-        }
-        if (data.data.user) {
-          localStorage.setItem('user', JSON.stringify(data.data.user));
-        }
-      }
-
-      // Redirect to next destination (default: /)
-      router.push(next);
-    } catch (err) {
-      setErrors({ password: 'Unable to connect to server. Please check backend connection.' });
+      setErrors({ password: errMsg });
     } finally {
       setLoading(false);
     }
@@ -100,7 +88,7 @@ function LoginFormContent() {
             aria-selected={mode === m}
             onClick={() => setMode(m)}
             className={cn(
-              'rounded py-1.5 font-medium transition-all',
+              'rounded py-1.5 font-medium transition-all cursor-pointer',
               mode === m ? 'bg-surface text-ink shadow-sm' : 'text-ink-muted hover:text-ink'
             )}
           >
@@ -174,14 +162,14 @@ function LoginFormContent() {
         size="lg"
         fullWidth
         type="button"
-        onClick={() => router.push(next)}
+        onClick={() => router.push(next || '/')}
       >
         <span className="font-bold text-[#4285F4] mr-2">G</span> Continue with Google
       </Button>
 
       <p className="mt-4 text-center text-xs text-ink-muted">
         <Link
-          href={next === '/' ? '/checkout' : next}
+          href={next || '/checkout'}
           className="hover:text-ink underline"
         >
           Continue as guest
