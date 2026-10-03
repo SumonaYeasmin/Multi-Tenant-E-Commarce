@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { StorageService } from '../../../shared/storage/storage.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
@@ -10,11 +11,14 @@ import {
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(CategoryService.name);
 
-  /**
-   * Helper to generate a URL-friendly slug from string
-   */
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService,
+  ) {}
+
+  // Helper to generate a URL-friendly slug from string
   private generateSlug(text: string): string {
     return text
       .toLowerCase()
@@ -23,19 +27,19 @@ export class CategoryService {
       .replace(/(^-|-$)+/g, '');
   }
 
-  /**
-   * Create a new category or subcategory
-   */
-  async create(dto: CreateCategoryDto, tenantId?: string) {
-    const targetTenantId = dto.tenantId || tenantId;
-
-    if (!targetTenantId) {
-      throw new ConflictException('Tenant ID is required to create a category.');
+  // Create a new category or subcategory with image upload and rollback
+  async create(
+    dto: CreateCategoryDto,
+    file?: Express.Multer.File,
+    tenantId?: string,
+  ) {
+    if (!tenantId) {
+      throw new ConflictException('Tenant could not be resolved from authenticated user token.');
     }
 
     // Verify tenant exists
     const tenant = await this.prisma.tenant.findUnique({
-      where: { id: targetTenantId },
+      where: { id: tenantId },
     });
     if (!tenant) {
       throw new NotFoundException('Tenant');
@@ -50,7 +54,7 @@ export class CategoryService {
     const existingSlug = await this.prisma.category.findUnique({
       where: {
         tenantId_slug: {
-          tenantId: targetTenantId,
+          tenantId,
           slug,
         },
       },
@@ -72,7 +76,7 @@ export class CategoryService {
             { id: dto.parentId },
             { slug: dto.parentId },
           ],
-          tenantId: targetTenantId,
+          tenantId,
           deletedAt: null,
         },
       });
@@ -86,7 +90,7 @@ export class CategoryService {
       // Check for duplicate subcategory name under the same parent
       const duplicateChild = await this.prisma.category.findFirst({
         where: {
-          tenantId: targetTenantId,
+          tenantId,
           parentId: resolvedParentId,
           name: dto.name,
           deletedAt: null,
@@ -100,47 +104,72 @@ export class CategoryService {
       }
     }
 
-    // Create the category in the database
-    const category = await this.prisma.category.create({
-      data: {
-        tenantId: targetTenantId,
-        name: dto.name,
-        slug,
-        description: dto.description,
-        image: dto.image,
-        seoTitle: dto.seoTitle,
-        seoDescription: dto.seoDescription,
-        status: dto.status ?? 'published',
-        isActive: dto.isActive ?? true,
-        showInNav: dto.showInNav ?? true,
-        order: dto.order ?? 0,
-        parentId: resolvedParentId,
-      },
-      include: {
-        parent: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
+    let uploadedImageUrl: string | null = null;
+    if (file) {
+      const uploadResult = await this.storageService.uploadFile(file, {
+        folder: 'categories',
+      });
+      uploadedImageUrl = uploadResult.secureUrl;
+    }
+
+    try {
+      // Create the category in the database
+      const category = await this.prisma.category.create({
+        data: {
+          tenantId,
+          name: dto.name,
+          slug,
+          description: dto.description,
+          image: uploadedImageUrl || dto.image,
+          seoTitle: dto.seoTitle,
+          seoDescription: dto.seoDescription,
+          status: dto.status ?? 'published',
+          isActive: dto.isActive ?? true,
+          showInNav: dto.showInNav ?? true,
+          order: dto.order ?? 0,
+          parentId: resolvedParentId,
+        },
+        include: {
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    return ResponseHelper.created(category, 'Category created successfully');
+      return ResponseHelper.created(category, 'Category created successfully');
+    } catch (error) {
+      if (uploadedImageUrl) {
+        await this.storageService.deleteFile(uploadedImageUrl).catch((delErr) => {
+          this.logger.error(
+            `Rollback failed for uploaded category image: ${uploadedImageUrl}`,
+            delErr,
+          );
+        });
+      }
+      throw error;
+    }
   }
 
-  /**
-   * Update an existing category or subcategory
-   */
-  async update(idOrSlug: string, dto: UpdateCategoryDto, tenantId?: string) {
-    const targetTenantId = dto.tenantId || tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+  // Update an existing category or subcategory with optional image upload and rollback
+  async update(
+    idOrSlug: string,
+    dto: UpdateCategoryDto,
+    file?: Express.Multer.File,
+    tenantId?: string,
+  ) {
+    if (!tenantId) {
+      throw new ConflictException('Tenant could not be resolved from authenticated user token.');
+    }
 
     // Find existing category
     const category = await this.prisma.category.findFirst({
       where: {
         OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        tenantId,
         deletedAt: null,
       },
     });
@@ -200,56 +229,88 @@ export class CategoryService {
       }
     }
 
-    // Update in database
-    const updatedCategory = await this.prisma.category.update({
-      where: { id: category.id },
-      data: {
-        name: dto.name ?? undefined,
-        slug: slug !== category.slug ? slug : undefined,
-        description: dto.description !== undefined ? dto.description : undefined,
-        image: dto.image !== undefined ? dto.image : undefined,
-        seoTitle: dto.seoTitle !== undefined ? dto.seoTitle : undefined,
-        seoDescription: dto.seoDescription !== undefined ? dto.seoDescription : undefined,
-        status: dto.status !== undefined ? dto.status : undefined,
-        isActive: dto.isActive !== undefined ? dto.isActive : undefined,
-        showInNav: dto.showInNav !== undefined ? dto.showInNav : undefined,
-        order: dto.order !== undefined ? dto.order : undefined,
-        parentId: resolvedParentId !== undefined ? resolvedParentId : undefined,
-      },
-      include: {
-        parent: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-        children: {
-          where: { deletedAt: null },
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-        _count: {
-          select: { products: true, children: true },
-        },
-      },
-    });
+    let uploadedImageUrl: string | null = null;
+    if (file) {
+      const uploadResult = await this.storageService.uploadFile(file, {
+        folder: 'categories',
+      });
+      uploadedImageUrl = uploadResult.secureUrl;
+    }
 
-    return ResponseHelper.success(updatedCategory, 'Category updated successfully');
+    const oldImage = category.image;
+
+    try {
+      // Update in database
+      const updatedCategory = await this.prisma.category.update({
+        where: { id: category.id },
+        data: {
+          name: dto.name ?? undefined,
+          slug: slug !== category.slug ? slug : undefined,
+          description: dto.description !== undefined ? dto.description : undefined,
+          image: uploadedImageUrl !== null ? uploadedImageUrl : (dto.image !== undefined ? dto.image : undefined),
+          seoTitle: dto.seoTitle !== undefined ? dto.seoTitle : undefined,
+          seoDescription: dto.seoDescription !== undefined ? dto.seoDescription : undefined,
+          status: dto.status !== undefined ? dto.status : undefined,
+          isActive: dto.isActive !== undefined ? dto.isActive : undefined,
+          showInNav: dto.showInNav !== undefined ? dto.showInNav : undefined,
+          order: dto.order !== undefined ? dto.order : undefined,
+          parentId: resolvedParentId !== undefined ? resolvedParentId : undefined,
+        },
+        include: {
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+          children: {
+            where: { deletedAt: null },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+          _count: {
+            select: { products: true, children: true },
+          },
+        },
+      });
+
+      // If new image was uploaded and there was an old image, delete the old image
+      if (uploadedImageUrl && oldImage && oldImage !== uploadedImageUrl) {
+        await this.storageService.deleteFile(oldImage).catch((delErr) => {
+          this.logger.warn(
+            `Failed to delete old category image from storage: ${oldImage}`,
+            delErr,
+          );
+        });
+      }
+
+      return ResponseHelper.success(updatedCategory, 'Category updated successfully');
+    } catch (error) {
+      if (uploadedImageUrl) {
+        await this.storageService.deleteFile(uploadedImageUrl).catch((delErr) => {
+          this.logger.error(
+            `Rollback failed for uploaded category image: ${uploadedImageUrl}`,
+            delErr,
+          );
+        });
+      }
+      throw error;
+    }
   }
 
-  /**
-   * Get all categories for a tenant
-   */
+  // Get all categories for a tenant
   async findAll(tenantId?: string) {
-    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    if (!tenantId) {
+      throw new ConflictException('Tenant could not be resolved from authenticated user token.');
+    }
 
     const categories = await this.prisma.category.findMany({
       where: {
-        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        tenantId,
         deletedAt: null,
       },
       include: {
@@ -279,16 +340,16 @@ export class CategoryService {
     return ResponseHelper.success(categories, 'Categories retrieved successfully');
   }
 
-  /**
-   * Get single category details by ID or Slug
-   */
+  // Get single category details by ID or Slug
   async findOne(idOrSlug: string, tenantId?: string) {
-    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    if (!tenantId) {
+      throw new ConflictException('Tenant could not be resolved from authenticated user token.');
+    }
 
     const category = await this.prisma.category.findFirst({
       where: {
         OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        tenantId,
         deletedAt: null,
       },
       include: {
@@ -316,16 +377,16 @@ export class CategoryService {
     return ResponseHelper.success(category, 'Category details retrieved successfully');
   }
 
-  /**
-   * Delete a category (soft delete, cascade to child categories)
-   */
+  // Delete a category (soft delete, cascade to child categories) and cleanup image
   async remove(idOrSlug: string, tenantId?: string) {
-    const targetTenantId = tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    if (!tenantId) {
+      throw new ConflictException('Tenant could not be resolved from authenticated user token.');
+    }
 
     const category = await this.prisma.category.findFirst({
       where: {
         OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        tenantId,
         deletedAt: null,
       },
       include: {
@@ -355,6 +416,11 @@ export class CategoryService {
         data: { deletedAt: now },
       }),
     ]);
+
+    // Cleanup image from storage if exists
+    if (category.image) {
+      await this.storageService.deleteFile(category.image).catch(() => {});
+    }
 
     return ResponseHelper.success(null, 'Category deleted successfully');
   }

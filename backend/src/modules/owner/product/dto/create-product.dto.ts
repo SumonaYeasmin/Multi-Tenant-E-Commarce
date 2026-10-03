@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -238,6 +238,11 @@ export class CreateProductDto {
     default: false,
     description: 'Whether product is open for pre-orders',
   })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
   @IsBoolean()
   @IsOptional()
   preorder?: boolean;
@@ -247,6 +252,11 @@ export class CreateProductDto {
     required: false,
     default: false,
     description: 'Display "New" arrival badge',
+  })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
   })
   @IsBoolean()
   @IsOptional()
@@ -258,6 +268,11 @@ export class CreateProductDto {
     default: false,
     description: 'Display "Bestseller" badge',
   })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
   @IsBoolean()
   @IsOptional()
   isBestseller?: boolean;
@@ -266,6 +281,17 @@ export class CreateProductDto {
     example: ['Eid 2026', 'Handloom', 'Cotton'],
     required: false,
     description: 'Product search and filter tags',
+  })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+    return value;
   })
   @IsArray()
   @IsString({ each: true })
@@ -276,6 +302,16 @@ export class CreateProductDto {
     example: { Fabric: '100% Organic Cotton', Fit: 'Regular', Care: 'Hand wash cold' },
     required: false,
     description: 'Key-value technical specifications or attributes',
+  })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
   })
   @IsObject()
   @IsOptional()
@@ -330,39 +366,52 @@ export class CreateProductDto {
     required: false,
     description: 'Array of collection IDs or slugs to assign product to',
   })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+    return value;
+  })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
   collectionIds?: string[];
 
   @ApiProperty({
-    type: [CreateProductImageDto],
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
     required: false,
-    description: 'Gallery images for the product',
+    description: 'Product image files to upload',
   })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateProductImageDto)
   @IsOptional()
-  images?: CreateProductImageDto[];
+  images?: any;
 
   @ApiProperty({
     type: [CreateProductVariantDto],
     required: false,
     description: 'Size and color variants with specific pricing and inventory',
   })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateProductVariantDto)
   @IsOptional()
   variants?: CreateProductVariantDto[];
-
-  @ApiProperty({
-    example: 'uuid-of-tenant',
-    required: false,
-    description: 'Tenant ID (can be extracted from authenticated user)',
-  })
-  @IsString()
-  @IsOptional()
-  tenantId?: string;
 }

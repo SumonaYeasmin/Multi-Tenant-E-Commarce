@@ -106,9 +106,4 @@ export class QueryProductDto {
   @IsString()
   @IsOptional()
   sortOrder?: 'asc' | 'desc' = 'desc';
-
-  @ApiPropertyOptional({ description: 'Tenant ID' })
-  @IsString()
-  @IsOptional()
-  tenantId?: string;
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsInt,
@@ -35,12 +35,13 @@ export class CreateCategoryDto {
   description?: string;
 
   @ApiProperty({
-    example: 'https://example.com/images/clothing.jpg',
+    type: 'string',
+    format: 'binary',
     required: false,
+    description: 'Category image file to upload',
   })
-  @IsString()
   @IsOptional()
-  image?: string;
+  image?: any;
 
   @ApiProperty({
     example: 'Best Clothing Online Store',
@@ -72,6 +73,11 @@ export class CreateCategoryDto {
     required: false,
     default: true,
   })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
@@ -80,6 +86,11 @@ export class CreateCategoryDto {
     example: true,
     required: false,
     default: true,
+  })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
   })
   @IsBoolean()
   @IsOptional()
@@ -103,13 +114,4 @@ export class CreateCategoryDto {
   @IsString()
   @IsOptional()
   parentId?: string;
-
-  @ApiProperty({
-    example: 'uuid-of-tenant',
-    required: false,
-    description: 'Tenant ID (can be extracted from authenticated user)',
-  })
-  @IsString()
-  @IsOptional()
-  tenantId?: string;
 }

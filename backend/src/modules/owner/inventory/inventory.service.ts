@@ -5,32 +5,34 @@ import {
   InventoryStockFilter,
 } from './dto/query-inventory.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
-import { NotFoundException } from '../../../common/exceptions/business.exception';
+import {
+  ConflictException,
+  NotFoundException,
+} from '../../../common/exceptions/business.exception';
 
 @Injectable()
 export class InventoryService {
   constructor(private readonly prisma: PrismaService) { }
 
-  /**
-   * ধাপ ১: ইনভেন্টরির বর্তমান স্টক তালিকা এবং ড্যাশবোর্ড মেট্রিক্স (Overview) ফেচ করা
-   */
+  // Fetch inventory stock overview and dashboard metrics
   async getOverview(query?: QueryInventoryDto, tenantId?: string) {
-    const targetTenantId =
-      query?.tenantId || tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    if (!tenantId) {
+      throw new ConflictException('Tenant could not be resolved from authenticated user token.');
+    }
 
-    // ১. Tenant ভ্যালিডেশন
+    // 1. Tenant validation
     const tenant = await this.prisma.tenant.findUnique({
-      where: { id: targetTenantId },
+      where: { id: tenantId },
     });
     if (!tenant) {
       throw new NotFoundException('Tenant');
     }
 
-    // ২. ফিল্টারিং শর্ত তৈরি
+    // 2. Build where filter conditions
     const where: any = {
       deletedAt: null,
       product: {
-        tenantId: targetTenantId,
+        tenantId,
         deletedAt: null,
       },
     };
@@ -92,7 +94,7 @@ export class InventoryService {
           where: {
             deletedAt: null,
             product: {
-              tenantId: targetTenantId,
+              tenantId,
               deletedAt: null,
             },
           },

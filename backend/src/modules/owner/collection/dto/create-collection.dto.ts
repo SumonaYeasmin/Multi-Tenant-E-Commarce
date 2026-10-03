@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
@@ -38,13 +39,13 @@ export class CreateCollectionDto {
   description?: string;
 
   @ApiProperty({
-    example: 'https://example.com/images/eid-banner.jpg',
+    type: 'string',
+    format: 'binary',
     required: false,
-    description: 'Cover image or banner URL for the collection',
+    description: 'Collection cover image file to upload',
   })
-  @IsString()
   @IsOptional()
-  image?: string;
+  image?: any;
 
   @ApiProperty({
     example: 'Eid Collection 2026 | Tanti Fashion',
@@ -79,6 +80,16 @@ export class CreateCollectionDto {
     required: false,
     description: 'Automated rules for dynamic collections (JSON)',
   })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
   @IsOptional()
   rule?: any;
 
@@ -87,6 +98,11 @@ export class CreateCollectionDto {
     required: false,
     default: true,
     description: 'Whether the collection is publicly visible',
+  })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
   })
   @IsBoolean()
   @IsOptional()
@@ -97,6 +113,11 @@ export class CreateCollectionDto {
     required: false,
     default: false,
     description: 'Whether to highlight in featured sections on home page',
+  })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
   })
   @IsBoolean()
   @IsOptional()
@@ -110,6 +131,7 @@ export class CreateCollectionDto {
   })
   @IsInt()
   @IsOptional()
+  @Type(() => Number)
   order?: number;
 
   @ApiProperty({
@@ -129,13 +151,4 @@ export class CreateCollectionDto {
   @IsDateString()
   @IsOptional()
   endsAt?: string;
-
-  @ApiProperty({
-    example: 'uuid-of-tenant',
-    required: false,
-    description: 'Tenant ID',
-  })
-  @IsString()
-  @IsOptional()
-  tenantId?: string;
 }

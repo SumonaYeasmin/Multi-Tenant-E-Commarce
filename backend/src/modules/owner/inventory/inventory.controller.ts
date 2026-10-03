@@ -4,18 +4,27 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { QueryInventoryDto } from './dto/query-inventory.dto';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { UserRole } from '../../../../prisma/generated/client';
 
 @ApiTags('(Owner) Inventory')
-@Controller('inventory')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.OWNER)
+@Controller('owner/inventory')
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
@@ -27,6 +36,14 @@ export class InventoryController {
   @ApiResponse({
     status: 200,
     description: 'Inventory overview retrieved successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
   })
   @ApiResponse({
     status: 404,
