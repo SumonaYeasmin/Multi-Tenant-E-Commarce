@@ -1,7 +1,27 @@
-// Authentication session storage manager using secure HTTP Cookies exclusively (No localStorage duplication)
+// Session storage manager using access_token and refresh_token cookies
 import { getCookie, setCookie, deleteCookie } from '@/utils/cookies';
-import type { StoredUser, UserRole } from '@/types';
+import type { StoredUser, UserRole, JwtPayload } from '@/types';
 
+// Pure TypeScript JWT payload parser
+export function parseJwtPayload(token: string): JwtPayload | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+// Persist tokens in cookies exclusively
 export function setAuthSession(session: {
   accessToken: string;
   refreshToken?: string;
@@ -9,43 +29,22 @@ export function setAuthSession(session: {
 }) {
   if (typeof window === 'undefined') return;
 
-  const { accessToken, refreshToken, user } = session;
+  const { accessToken, refreshToken } = session;
 
-  // Save tokens exclusively in Cookies for unified server proxy, SSR, and client access
-  setCookie('auth_token', accessToken, 30);
+  setCookie('access_token', accessToken, 30);
 
   if (refreshToken) {
     setCookie('refresh_token', refreshToken, 30);
   }
 
-  if (user) {
-    const role: UserRole = user.role || 'CUSTOMER';
-    setCookie('auth_role', role, 30);
-    setCookie('auth_user', JSON.stringify(user), 30);
-  }
-
-  // Purge any stale or legacy localStorage entries for maximum security
-  try {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('auth_role');
-    localStorage.removeItem('auth_user');
-    localStorage.removeItem('user');
-  } catch {}
-}
-
-export function clearAuthSession() {
-  if (typeof window === 'undefined') return;
-
-  // Clear all auth cookies
+  // Remove any legacy cookies and localStorage entries
   deleteCookie('auth_token');
-  deleteCookie('refresh_token');
   deleteCookie('auth_role');
   deleteCookie('auth_user');
 
-  // Purge any legacy localStorage keys
   try {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -55,48 +54,78 @@ export function clearAuthSession() {
   } catch {}
 }
 
-export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return getCookie('auth_token');
+// Clear all authentication cookies
+export function clearAuthSession() {
+  if (typeof window === 'undefined') return;
+
+  deleteCookie('access_token');
+  deleteCookie('refresh_token');
+  deleteCookie('auth_token');
+  deleteCookie('auth_role');
+  deleteCookie('auth_user');
+
+  try {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('user');
+  } catch {}
 }
 
+// Read access token from cookie
+export function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return getCookie('access_token');
+}
+
+// Read refresh token from cookie
 export function getRefreshToken(): string | null {
   if (typeof window === 'undefined') return null;
   return getCookie('refresh_token');
 }
 
+// Extract user claims directly from access_token payload
 export function getAuthUser(): StoredUser | null {
   if (typeof window === 'undefined') return null;
-  try {
-    const raw = getCookie('auth_user');
-    return raw ? (JSON.parse(raw) as StoredUser) : null;
-  } catch {
-    return null;
-  }
+  const token = getAuthToken();
+  if (!token) return null;
+
+  const payload = parseJwtPayload(token);
+  if (!payload) return null;
+
+  const name = payload.name || payload.email?.split('@')[0] || 'User';
+
+  return {
+    id: payload.sub,
+    name,
+    email: payload.email,
+    role: payload.role || 'CUSTOMER',
+    tenantId: payload.tenantId,
+  };
 }
 
+// Extract user role directly from access_token payload
 export function getAuthRole(): UserRole | null {
   if (typeof window === 'undefined') return null;
-  const cookieRole = getCookie('auth_role') as UserRole | null;
-  if (cookieRole) return cookieRole;
-  const user = getAuthUser();
-  return (user?.role || null) as UserRole | null;
+  const token = getAuthToken();
+  if (!token) return null;
+  const payload = parseJwtPayload(token);
+  return payload?.role || null;
 }
 
+// Check if access_token exists and is not expired
 export function isAuthenticated(): boolean {
   const token = getAuthToken();
   if (!token) return false;
 
-  // Verify JWT expiration claim client-side
-  try {
-    const parts = token.split('.');
-    if (parts.length === 3) {
-      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-      if (payload.exp && Date.now() >= payload.exp * 1000) {
-        return false;
-      }
-    }
-  } catch {
+  const payload = parseJwtPayload(token);
+  if (!payload) return false;
+
+  if (payload.exp && Date.now() >= payload.exp * 1000) {
     return false;
   }
 

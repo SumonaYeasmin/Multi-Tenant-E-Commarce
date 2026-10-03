@@ -53,6 +53,7 @@ export interface AuthSessionData extends AuthTokens {
 export interface JwtPayload {
   sub: string;
   email: string;
+  name?: string;
   role: UserRole;
   tenantId?: string;
   iat?: number;
