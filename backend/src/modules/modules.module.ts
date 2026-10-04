@@ -5,6 +5,7 @@ import { BrandModule } from './owner/brand/brand.module';
 import { CollectionModule } from './owner/collection/collection.module';
 import { ProductModule } from './owner/product/product.module';
 import { InventoryModule } from './owner/inventory/inventory.module';
+import { CartModule } from './customer/cart/cart.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { InventoryModule } from './owner/inventory/inventory.module';
     CollectionModule,
     ProductModule,
     InventoryModule,
+    CartModule,
   ],
 })
 export class ModulesModule { }
