@@ -124,7 +124,7 @@ export function StoreHeader() {
             </button>
 
             <Link
-              href="/account/wishlist"
+              href="/wishlist"
               className="relative p-2 text-ink hover:text-clay cursor-pointer transition-colors"
               aria-label={`Wishlist (${wishlist.length} items)`}
             >
