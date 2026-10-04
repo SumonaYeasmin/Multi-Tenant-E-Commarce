@@ -27,6 +27,7 @@ import {
   categoryService,
   productService,
   cartService,
+  wishlistService,
   type CategoryResponseData,
 } from '@/services';
 
@@ -266,6 +267,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       isMounted = false;
     };
   }, []);
+
+  // Fetch real wishlist from server if user is logged in
+  useEffect(() => {
+    let isMounted = true;
+    if (user?.id) {
+      wishlistService
+        .getWishlist()
+        .then((res) => {
+          if (!isMounted) return;
+          if (res?.data && Array.isArray(res.data)) {
+            const dbWishlistIds = res.data
+              .map((item) => item.product?.id)
+              .filter(Boolean) as string[];
+            if (dbWishlistIds.length > 0) {
+              setWishlist(dbWishlistIds);
+            }
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load wishlist from backend:', err);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
   const [addresses, setAddresses] = useState<Address[]>(currentUserAddresses);
   const [storeCredit] = useState(450);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
@@ -433,6 +460,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const toggleWishlist = useCallback(
+    (productId: string) => {
+      // 1. Optimistic UI update
+      setWishlist((prev) =>
+        prev.includes(productId)
+          ? prev.filter((x) => x !== productId)
+          : [...prev, productId]
+      );
+
+      // 2. If authenticated, persist to backend database
+      if (user?.id) {
+        wishlistService.toggleWishlist(productId).catch((err) => {
+          console.error('Failed to sync wishlist with server:', err);
+          toast.error('Failed to update wishlist');
+          // Rollback on failure
+          setWishlist((prev) =>
+            prev.includes(productId)
+              ? prev.filter((x) => x !== productId)
+              : [...prev, productId]
+          );
+        });
+      }
+    },
+    [user?.id]
+  );
+
   const value = useMemo<StoreContextValue>(
     () => ({
       isStoreLoading,
@@ -462,7 +515,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       removeFromCart,
       toggleSaveForLater,
       clearCart: () => setCart((prev) => prev.filter((i) => i.savedForLater)),
-      toggleWishlist: (id) => setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])),
+      toggleWishlist,
       toggleCompare: (id) =>
         setCompare((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 4 ? prev : [...prev, id])),
       trackView: (id) => setRecentlyViewed((prev) => [id, ...prev.filter((x) => x !== id)].slice(0, 8)),
@@ -802,7 +855,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       toggleCustomerStatus: (id) =>
         setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, status: c.status === 'active' ? 'inactive' : 'active' } : c)))
     }),
-    [isStoreLoading, products, categories, orders, returns, reviews, customers, cart, wishlist, compare, recentlyViewed, user, addresses, storeCredit, miniCartOpen, quickViewId, compareOpen, searchOpen, addToCart, updateQty, removeFromCart, toggleSaveForLater, patchOrder, adjustStock]
+    [isStoreLoading, products, categories, orders, returns, reviews, customers, cart, wishlist, compare, recentlyViewed, user, addresses, storeCredit, miniCartOpen, quickViewId, compareOpen, searchOpen, addToCart, updateQty, removeFromCart, toggleSaveForLater, toggleWishlist, patchOrder, adjustStock]
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
