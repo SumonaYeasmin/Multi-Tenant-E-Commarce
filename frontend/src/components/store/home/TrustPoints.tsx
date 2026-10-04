@@ -1,7 +1,7 @@
 import React from 'react';
 import { trustPoints } from '@/data/content';
 
-export function TrustPointsSection() {
+export function TrustPoints() {
   return (
     <section
       className="mt-24 border-y border-line bg-surface"
@@ -18,3 +18,6 @@ export function TrustPointsSection() {
     </section>
   );
 }
+
+// Alias for backward-compatibility
+export const TrustPointsSection = TrustPoints;

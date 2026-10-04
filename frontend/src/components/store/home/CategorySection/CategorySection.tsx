@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SectionHeading } from '@/components/store/SectionHeading';
+import { SectionHeading } from '@/components/store/shared/SectionHeading';
 import { useStore } from '@/contexts/StoreContext';
 import { categoryService, type CategoryResponseData } from '@/services';
 import { CategoryGrid } from './CategoryGrid';

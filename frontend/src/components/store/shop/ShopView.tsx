@@ -12,12 +12,12 @@ import {
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { brands, collections } from '@/data/products';
-import { ProductCard } from '@/components/store/ProductCard';
+import { ProductCard } from '@/components/store/product/ProductCard';
 import {
   ShopFilters,
   emptyFilters,
   type FilterState,
-} from '@/components/store/ShopFilters';
+} from './ShopFilters';
 import { Drawer } from '@/components/ui/Drawer';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/EmptyState';

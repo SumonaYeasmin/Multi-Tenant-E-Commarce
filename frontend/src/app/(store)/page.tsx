@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { useStore } from '@/contexts/StoreContext';
-import { CategorySection } from '@/components/store/categories';
 import {
   HeroBanner,
-  BestsellersSection,
+  CategorySection,
+  Bestsellers,
   SummerLinenSpotlight,
-  NewArrivalsSection,
-  TrustPointsSection,
-  TestimonialsSection,
-  RecommendedSection,
+  NewArrivals,
+  TrustPoints,
+  Testimonials,
+  Recommended,
 } from '@/components/store/home';
 
 export default function HomePage() {
@@ -25,22 +25,22 @@ export default function HomePage() {
       <CategorySection />
 
       {/* 3. Bestsellers Products */}
-      <BestsellersSection products={products} />
+      <Bestsellers products={products} />
 
       {/* 4. Summer Linen Spotlight */}
       <SummerLinenSpotlight />
 
       {/* 5. New Arrivals */}
-      <NewArrivalsSection products={products} />
+      <NewArrivals products={products} />
 
       {/* 6. Why Tanti Trust Points */}
-      <TrustPointsSection />
+      <TrustPoints />
 
       {/* 7. Customer Testimonials */}
-      <TestimonialsSection />
+      <Testimonials />
 
       {/* 8. Picked For You (Browsing History Based) */}
-      <RecommendedSection products={products} recentlyViewed={recentlyViewed} />
+      <Recommended products={products} recentlyViewed={recentlyViewed} />
     </div>
   );
 }

@@ -1,21 +1,21 @@
 'use client';
 
 import React from 'react';
-import { SectionHeading } from '@/components/store/SectionHeading';
-import { ProductCard } from '@/components/store/ProductCard';
+import { SectionHeading } from '@/components/store/shared/SectionHeading';
+import { ProductCard } from '@/components/store/product/ProductCard';
 import { Product } from '@/types';
 
-export interface RecommendedSectionProps {
+export interface RecommendedProps {
   products: Product[];
   recentlyViewed: string[];
   limit?: number;
 }
 
-export function RecommendedSection({
+export function Recommended({
   products,
   recentlyViewed,
   limit = 4,
-}: RecommendedSectionProps) {
+}: RecommendedProps) {
   if (!recentlyViewed.length) return null;
 
   const live = products.filter((p) => p.status === 'published');
@@ -49,3 +49,6 @@ export function RecommendedSection({
     </section>
   );
 }
+
+// Alias for backward-compatibility
+export const RecommendedSection = Recommended;

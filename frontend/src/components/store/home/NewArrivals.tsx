@@ -1,19 +1,19 @@
 'use client';
 
 import React from 'react';
-import { SectionHeading } from '@/components/store/SectionHeading';
-import { ProductCard } from '@/components/store/ProductCard';
+import { SectionHeading } from '@/components/store/shared/SectionHeading';
+import { ProductCard } from '@/components/store/product/ProductCard';
 import { Product } from '@/types';
 
-export interface NewArrivalsSectionProps {
+export interface NewArrivalsProps {
   products: Product[];
   limit?: number;
 }
 
-export function NewArrivalsSection({
+export function NewArrivals({
   products,
   limit = 4,
-}: NewArrivalsSectionProps) {
+}: NewArrivalsProps) {
   const live = products.filter((p) => p.status === 'published');
   const newArrivals = [...live].filter((p) => p.isNew).slice(0, limit);
 
@@ -37,3 +37,6 @@ export function NewArrivalsSection({
     </section>
   );
 }
+
+// Alias for backward-compatibility
+export const NewArrivalsSection = NewArrivals;

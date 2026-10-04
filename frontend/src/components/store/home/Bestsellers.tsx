@@ -1,19 +1,19 @@
 'use client';
 
 import React from 'react';
-import { SectionHeading } from '@/components/store/SectionHeading';
-import { ProductCard } from '@/components/store/ProductCard';
+import { SectionHeading } from '@/components/store/shared/SectionHeading';
+import { ProductCard } from '@/components/store/product/ProductCard';
 import { Product } from '@/types';
 
-export interface BestsellersSectionProps {
+export interface BestsellersProps {
   products: Product[];
   limit?: number;
 }
 
-export function BestsellersSection({
+export function Bestsellers({
   products,
   limit = 4,
-}: BestsellersSectionProps) {
+}: BestsellersProps) {
   const live = products.filter((p) => p.status === 'published');
   const bestsellers = [...live].sort((a, b) => b.sold - a.sold).slice(0, limit);
 
@@ -37,3 +37,6 @@ export function BestsellersSection({
     </section>
   );
 }
+
+// Alias for backward-compatibility
+export const BestsellersSection = Bestsellers;

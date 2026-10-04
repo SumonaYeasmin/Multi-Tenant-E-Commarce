@@ -1,7 +1,7 @@
 import React from 'react';
 import { testimonials } from '@/data/content';
 
-export function TestimonialsSection() {
+export function Testimonials() {
   return (
     <section
       className="mx-auto mt-24 max-w-7xl px-4 sm:px-6 lg:px-8"
@@ -26,3 +26,6 @@ export function TestimonialsSection() {
     </section>
   );
 }
+
+// Alias for backward-compatibility
+export const TestimonialsSection = Testimonials;
