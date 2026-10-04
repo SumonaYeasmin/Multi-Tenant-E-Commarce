@@ -22,7 +22,12 @@ import type {
 import { variantPrice } from '../utils/pricing';
 import { images } from '../data/images';
 import { authService } from '@/services/auth';
-import { categoryService, productService, type CategoryResponseData } from '@/services';
+import {
+  categoryService,
+  productService,
+  cartService,
+  type CategoryResponseData,
+} from '@/services';
 
 interface User {
   id: string;
@@ -107,7 +112,6 @@ export interface StoreContextValue {
 
 const StoreContext = createContext<StoreContextValue | null>(null);
 
-
 function load<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
   try {
@@ -115,6 +119,35 @@ function load<T>(key: string, fallback: T): T {
     return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
+  }
+}
+
+function loadCart(): CartItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem('tanti.cart');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    // Filter out old seed/mock items that start with 'p0' or 'p1'
+    return parsed.filter(
+      (item: CartItem) => item?.productId && !item.productId.match(/^p0[0-9]|^p1[0-9]/)
+    );
+  } catch {
+    return [];
+  }
+}
+
+function loadWishlist(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem('tanti.wishlist');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((id: string) => typeof id === 'string' && !id.match(/^p0[0-9]|^p1[0-9]/));
+  } catch {
+    return [];
   }
 }
 
@@ -128,15 +161,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [returns, setReturns] = useState<ReturnRequest[]>(seedReturns);
   const [reviews, setReviews] = useState<Review[]>(seedReviews);
   const [customers, setCustomers] = useState<Customer[]>(seedCustomers);
-  const [cart, setCart] = useState<CartItem[]>(() =>
-    load('tanti.cart', [
-      { key: 'p03-0-l', productId: 'p03', variantId: 'p03-0-l', qty: 1 },
-      { key: 'p08-0-one-size', productId: 'p08', variantId: 'p08-0-one-size', qty: 1 }
-    ])
-  );
-  const [wishlist, setWishlist] = useState<string[]>(() => load('tanti.wishlist', ['p02', 'p05', 'p11']));
+  const [cart, setCart] = useState<CartItem[]>(() => loadCart());
+  const [wishlist, setWishlist] = useState<string[]>(() => loadWishlist());
   const [compare, setCompare] = useState<string[]>([]);
-  const [recentlyViewed, setRecentlyViewed] = useState<string[]>(['p10', 'p06']);
+  const [recentlyViewed, setRecentlyViewed] = useState<string[]>([]);
   const [categories, setCategories] = useState<CategoryItemData[]>(() =>
     load('tanti.categories', seedCategories as CategoryItemData[])
   );
@@ -224,6 +252,31 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       isMounted = false;
     };
   }, []);
+  // Fetch cart from backend database on mount
+  useEffect(() => {
+    let isMounted = true;
+    async function syncCartFromDatabase() {
+      try {
+        const res = await cartService.getCart();
+        if (isMounted && res?.data && Array.isArray(res.data.items)) {
+          const dbCartItems: CartItem[] = res.data.items.map((item) => ({
+            key: `${item.variantId}-${item.id}`,
+            productId: item.productId,
+            variantId: item.variantId,
+            qty: item.qty,
+            savedForLater: item.savedForLater,
+          }));
+          setCart(dbCartItems);
+        }
+      } catch (err) {
+        console.error('Failed to sync cart from database:', err);
+      }
+    }
+    syncCartFromDatabase();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const [addresses, setAddresses] = useState<Address[]>(currentUserAddresses);
   const [storeCredit] = useState(450);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
@@ -275,6 +328,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (existing) return prev.map((i) => (i === existing ? { ...i, qty: i.qty + qty } : i));
       return [...prev, { key: `${variantId}-${Date.now()}`, productId, variantId, qty }];
     });
+
+    // Persist in backend database Cart and CartItem table
+    cartService
+      .addToCart({ productId, variantId, qty })
+      .catch((err) => console.error('Failed to persist cart in backend:', err));
   }, []);
 
   const value = useMemo<StoreContextValue>(
@@ -590,7 +648,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             });
         });
       },
-      addSubcategory: (categoryKey, subcategoryName) => {
+      addSubcategory: (categoryKey: string, subcategoryName: string) => {
         const clean = subcategoryName.trim();
         if (!clean) return;
         setCategories((prev) =>
@@ -601,26 +659,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           })
         );
       },
-      removeSubcategory: (categoryKey, subcategoryName) => {
+      removeSubcategory: (categoryKey: string, subcategoryName: string) => {
+        const clean = subcategoryName.trim();
         setCategories((prev) =>
           prev.map((c) => {
             if (c.key !== categoryKey) return c;
             return {
               ...c,
-              subcategories: c.subcategories.filter((s) => s !== subcategoryName),
+              subcategories: c.subcategories.filter((s) => s !== clean),
             };
           })
         );
         setProducts((prev) =>
           prev.map((p) => {
-            if (p.category === categoryKey && p.subcategory === subcategoryName) {
+            if (p.category === categoryKey && p.subcategory === clean) {
               return { ...p, subcategory: '' };
             }
             return p;
           })
         );
       },
-      renameSubcategory: (categoryKey, oldName, newName) => {
+      renameSubcategory: (categoryKey: string, oldName: string, newName: string) => {
         const clean = newName.trim();
         if (!clean) return;
         setCategories((prev) =>

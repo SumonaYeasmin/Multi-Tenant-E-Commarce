@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   Get,
   Headers,
   HttpCode,
   HttpStatus,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -13,6 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { CartService } from './cart.service';
 import { QueryCartDto } from './dto/query-cart.dto';
+import { AddToCartDto } from './dto/add-to-cart.dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 
 @ApiTags('(Customer) Cart')
@@ -36,6 +39,27 @@ export class CartController {
   ) {
     return this.cartService.getCart(
       query,
+      user?.id || user?.sub,
+      sessionHeader,
+    );
+  }
+
+  @Post('items')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Add product variant to cart and persist in database',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Item added to cart successfully',
+  })
+  async addToCart(
+    @Body() dto: AddToCartDto,
+    @Headers('x-session-token') sessionHeader?: string,
+    @CurrentUser() user?: any,
+  ) {
+    return this.cartService.addToCart(
+      dto,
       user?.id || user?.sub,
       sessionHeader,
     );

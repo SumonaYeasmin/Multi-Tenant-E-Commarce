@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QueryCartDto } from './dto/query-cart.dto';
+import { AddToCartDto } from './dto/add-to-cart.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 
 @Injectable()
@@ -170,6 +171,70 @@ export class CartService {
     return ResponseHelper.success(
       result,
       'Cart retrieved successfully',
+    );
+  }
+
+  /**
+   * ধাপ ১.৩: কার্টে প্রোডাক্ট/ভ্যারিয়েন্ট যোগ করা (Add to Cart)
+   */
+  async addToCart(
+    dto: AddToCartDto,
+    customerId?: string,
+    sessionTokenHeader?: string,
+  ) {
+    let targetTenantId = dto.tenantId;
+    if (!targetTenantId) {
+      const activeTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = activeTenant?.id || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    }
+
+    const activeSessionToken = dto.sessionToken || sessionTokenHeader;
+
+    // ১. কার্ট নিশ্চিত করা
+    const cart = await this.getOrCreateCart(
+      targetTenantId,
+      customerId,
+      activeSessionToken,
+    );
+
+    // ২. বিদ্যমান আইটেম খোঁজা
+    const existingItem = await this.prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        productId: dto.productId,
+        variantId: dto.variantId,
+        savedForLater: false,
+      },
+    });
+
+    const addQty = Math.max(1, dto.qty || 1);
+
+    if (existingItem) {
+      await this.prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          qty: existingItem.qty + addQty,
+        },
+      });
+    } else {
+      await this.prisma.cartItem.create({
+        data: {
+          cartId: cart.id,
+          productId: dto.productId,
+          variantId: dto.variantId,
+          qty: addQty,
+        },
+      });
+    }
+
+    // আপডেটেড কার্ট ডাটা রিটার্ন
+    return this.getCart(
+      { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
+      customerId,
+      activeSessionToken,
     );
   }
 }
