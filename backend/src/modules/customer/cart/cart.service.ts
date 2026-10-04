@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QueryCartDto } from './dto/query-cart.dto';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 
 @Injectable()
@@ -235,6 +236,123 @@ export class CartService {
       { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
       customerId,
       activeSessionToken,
+    );
+  }
+
+  /**
+   * ধাপ ১.৪: কার্ট আইটেমের কোয়ান্টিটি আপডেট করা (Update Quantity & SavedForLater)
+   */
+  async updateCartItemQuantity(
+    itemIdOrVariantId: string,
+    dto: UpdateCartItemDto,
+    customerId?: string,
+    sessionTokenHeader?: string,
+  ) {
+    let targetTenantId = dto.tenantId;
+    if (!targetTenantId) {
+      const activeTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = activeTenant?.id || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    }
+
+    const activeSessionToken = dto.sessionToken || sessionTokenHeader;
+
+    // ১. কার্ট নিশ্চিত করা
+    const cart = await this.getOrCreateCart(
+      targetTenantId,
+      customerId,
+      activeSessionToken,
+    );
+
+    // ২. কার্টের মধ্যে আইটেমটি খোঁজা (CartItem ID অথবা Variant ID দিয়ে)
+    const existingItem = await this.prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        OR: [
+          { id: itemIdOrVariantId },
+          { variantId: itemIdOrVariantId },
+        ],
+      },
+    });
+
+    if (!existingItem) {
+      throw new NotFoundException('Cart item not found');
+    }
+
+    const newQty = dto.qty !== undefined ? Math.max(0, dto.qty) : existingItem.qty;
+
+    // ৩. কোয়ান্টিটি ০ হলে আইটেম ডিলিট করা, অন্যথায় আপডেট করা
+    if (newQty === 0) {
+      await this.prisma.cartItem.delete({
+        where: { id: existingItem.id },
+      });
+    } else {
+      await this.prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          qty: newQty,
+          savedForLater:
+            dto.savedForLater !== undefined
+              ? dto.savedForLater
+              : existingItem.savedForLater,
+        },
+      });
+    }
+
+    // ৪. সর্বশেষ ফ্রেশ কার্ট ডাটা রিটার্ন করা
+    return this.getCart(
+      { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
+      customerId,
+      activeSessionToken,
+    );
+  }
+
+  /**
+   * ধাপ ১.৫: কার্ট থেকে আইটেম রিমুভ করা (Remove from Cart)
+   */
+  async removeFromCart(
+    itemIdOrVariantId: string,
+    customerId?: string,
+    sessionTokenHeader?: string,
+    tenantId?: string,
+  ) {
+    let targetTenantId = tenantId;
+    if (!targetTenantId) {
+      const activeTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = activeTenant?.id || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    }
+
+    const cart = await this.getOrCreateCart(
+      targetTenantId,
+      customerId,
+      sessionTokenHeader,
+    );
+
+    const existingItem = await this.prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        OR: [
+          { id: itemIdOrVariantId },
+          { variantId: itemIdOrVariantId },
+        ],
+      },
+    });
+
+    if (existingItem) {
+      await this.prisma.cartItem.delete({
+        where: { id: existingItem.id },
+      });
+    }
+
+    return this.getCart(
+      { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
+      customerId,
+      sessionTokenHeader,
     );
   }
 }

@@ -104,4 +104,41 @@ export const cartService = {
       },
     );
   },
+
+  /**
+   * Update item quantity or savedForLater status
+   */
+  async updateQuantity(
+    itemIdOrVariantId: string,
+    qty?: number,
+    savedForLater?: boolean,
+  ): Promise<ApiResponse<BackendCartResponse>> {
+    const sessionToken = getOrCreateSessionToken();
+    return await apiClient.patch<ApiResponse<BackendCartResponse>>(
+      `/cart/items/${itemIdOrVariantId}`,
+      {
+        qty,
+        savedForLater,
+        sessionToken,
+      },
+      {
+        'x-session-token': sessionToken,
+      },
+    );
+  },
+
+  /**
+   * Remove item completely from cart
+   */
+  async removeItem(
+    itemIdOrVariantId: string,
+  ): Promise<ApiResponse<BackendCartResponse>> {
+    const sessionToken = getOrCreateSessionToken();
+    return await apiClient.delete<ApiResponse<BackendCartResponse>>(
+      `/cart/items/${itemIdOrVariantId}`,
+      {
+        'x-session-token': sessionToken,
+      },
+    );
+  },
 };
