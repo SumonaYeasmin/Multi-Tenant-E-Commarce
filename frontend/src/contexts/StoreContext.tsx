@@ -51,6 +51,7 @@ export interface PlaceOrderInput {
 }
 
 export interface StoreContextValue {
+  isStoreLoading: boolean;
   products: Product[];
   orders: Order[];
   returns: ReturnRequest[];
@@ -154,6 +155,7 @@ function loadWishlist(): string[] {
 const now = () => new Date().toISOString();
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
+  const [isStoreLoading, setIsStoreLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>(() =>
     load('tanti.products', seedProducts)
   );
@@ -197,17 +199,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Fetch real categories from database and sync to state
+  // Fetch real categories, products, and cart together on mount
   useEffect(() => {
     let isMounted = true;
-    async function syncCategories() {
+    async function initializeStore() {
       try {
-        const res = await categoryService.getCategories();
-        if (isMounted && res?.data && res.data.length > 0) {
-          const parentCategories = res.data.filter(
+        const [catRes, prodRes, cartRes] = await Promise.allSettled([
+          categoryService.getCategories(),
+          productService.getProducts(),
+          cartService.getCart(),
+        ]);
+
+        if (!isMounted) return;
+
+        // 1. Process Categories
+        if (catRes.status === 'fulfilled' && catRes.value?.data && catRes.value.data.length > 0) {
+          const parentCategories = catRes.value.data.filter(
             (c: CategoryResponseData) => !c.parentId && c.isActive !== false
           );
-          const targetList = parentCategories.length > 0 ? parentCategories : res.data;
+          const targetList = parentCategories.length > 0 ? parentCategories : catRes.value.data;
 
           const mapped: CategoryItemData[] = targetList.map((c: CategoryResponseData) => {
             const childrenNames = (c.children || []).map((ch: any) => ch.name);
@@ -224,42 +234,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             setCategories(mapped);
           }
         }
-      } catch (err) {
-        console.error('Failed to sync categories to StoreContext:', err);
-      }
-    }
-    syncCategories();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
-  // Fetch real products from database and sync to state
-  useEffect(() => {
-    let isMounted = true;
-    async function syncProducts() {
-      try {
-        const prods = await productService.getProducts();
-        if (isMounted && prods && prods.length > 0) {
-          setProducts(prods);
+        // 2. Process Products
+        if (prodRes.status === 'fulfilled' && prodRes.value && prodRes.value.length > 0) {
+          setProducts(prodRes.value);
         }
-      } catch (err) {
-        console.error('Failed to sync products to StoreContext:', err);
-      }
-    }
-    syncProducts();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-  // Fetch cart from backend database on mount
-  useEffect(() => {
-    let isMounted = true;
-    async function syncCartFromDatabase() {
-      try {
-        const res = await cartService.getCart();
-        if (isMounted && res?.data && Array.isArray(res.data.items)) {
-          const dbCartItems: CartItem[] = res.data.items.map((item) => ({
+
+        // 3. Process Cart
+        if (cartRes.status === 'fulfilled' && cartRes.value?.data && Array.isArray(cartRes.value.data.items)) {
+          const dbCartItems: CartItem[] = cartRes.value.data.items.map((item: any) => ({
             key: `${item.variantId}-${item.id}`,
             productId: item.productId,
             variantId: item.variantId,
@@ -269,10 +252,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           setCart(dbCartItems);
         }
       } catch (err) {
-        console.error('Failed to sync cart from database:', err);
+        console.error('Failed to initialize store data:', err);
+      } finally {
+        if (isMounted) {
+          setIsStoreLoading(false);
+        }
       }
     }
-    syncCartFromDatabase();
+
+    initializeStore();
     return () => {
       isMounted = false;
     };
@@ -337,6 +325,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<StoreContextValue>(
     () => ({
+      isStoreLoading,
       products,
       orders,
       returns,
@@ -703,7 +692,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       toggleCustomerStatus: (id) =>
         setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, status: c.status === 'active' ? 'inactive' : 'active' } : c)))
     }),
-    [products, categories, orders, returns, reviews, customers, cart, wishlist, compare, recentlyViewed, user, addresses, storeCredit, miniCartOpen, quickViewId, compareOpen, searchOpen, addToCart, patchOrder, adjustStock]
+    [isStoreLoading, products, categories, orders, returns, reviews, customers, cart, wishlist, compare, recentlyViewed, user, addresses, storeCredit, miniCartOpen, quickViewId, compareOpen, searchOpen, addToCart, patchOrder, adjustStock]
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
