@@ -61,8 +61,8 @@ export default function AdminProductsPage() {
     loadData();
   }, [loadData]);
 
-  // Use live products if loaded, fallback to context products
-  const products = liveProducts.length > 0 ? liveProducts : storeProducts;
+  // Always use live products from database
+  const products = liveProducts;
 
   // Process Category List for Filter Dropdown
   const categoryFilterOptions = useMemo(() => {
@@ -70,7 +70,7 @@ export default function AdminProductsPage() {
       const parents = dbCategories.filter((c) => !c.parentId);
       return parents.map((c) => ({ key: c.slug || c.id, name: c.name }));
     }
-    return seedCategories.map((c) => ({ key: c.key, name: c.name }));
+    return [];
   }, [dbCategories]);
 
   const rows = useMemo(
