@@ -1,8 +1,10 @@
 import {
   Injectable,
+  NotFoundException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { AddToWishlistDto } from './dto/add-to-wishlist.dto';
 import { QueryWishlistDto } from './dto/query-wishlist.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 
@@ -187,5 +189,105 @@ export class WishlistService {
       meta,
       'Wishlist items retrieved successfully',
     );
+  }
+
+  /**
+   * উইশলিস্টে প্রোডাক্ট যুক্ত বা রিমুভ করা (Toggle Wishlist Item)
+   */
+  async toggleWishlist(
+    userIdOrCustomerId: string,
+    dto: AddToWishlistDto,
+  ) {
+    const targetTenantId =
+      dto.tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const customerId = await this.resolveCustomerId(
+      userIdOrCustomerId,
+      targetTenantId,
+    );
+
+    if (!customerId) {
+      throw new NotFoundException('Customer profile not found for this user');
+    }
+
+    // প্রোডাক্টটি ডাটাবেজে সক্রিয় কি না চেক করা
+    const product = await this.prisma.product.findFirst({
+      where: {
+        id: dto.productId,
+        tenantId: targetTenantId,
+        deletedAt: null,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found or unavailable');
+    }
+
+    // পূর্বে উইশলিস্টে আছে কি না চেক
+    const existing = await this.prisma.wishlistItem.findUnique({
+      where: {
+        customerId_productId: {
+          customerId,
+          productId: dto.productId,
+        },
+      },
+    });
+
+    if (existing) {
+      // থাকলে ডাটাবেজ থেকে রিমুভ (Delete) করা
+      await this.prisma.wishlistItem.delete({
+        where: { id: existing.id },
+      });
+
+      return ResponseHelper.success(
+        { wished: false, productId: dto.productId },
+        'Removed from wishlist',
+      );
+    }
+
+    // না থাকলে ডাটাবেজে যুক্ত (Insert) করা
+    const created = await this.prisma.wishlistItem.create({
+      data: {
+        tenantId: targetTenantId,
+        customerId,
+        productId: dto.productId,
+      },
+    });
+
+    return ResponseHelper.created(
+      { wished: true, productId: dto.productId, wishlistItemId: created.id },
+      'Added to wishlist',
+    );
+  }
+
+  /**
+   * উইশলিস্ট থেকে নির্দিষ্ট আইটেম মুছে ফেলা (Remove Item)
+   */
+  async removeFromWishlist(
+    userIdOrCustomerId: string,
+    productId: string,
+    tenantId?: string,
+  ) {
+    const targetTenantId =
+      tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const customerId = await this.resolveCustomerId(
+      userIdOrCustomerId,
+      targetTenantId,
+    );
+
+    if (!customerId) {
+      throw new NotFoundException('Customer profile not found');
+    }
+
+    await this.prisma.wishlistItem.deleteMany({
+      where: {
+        customerId,
+        productId,
+        tenantId: targetTenantId,
+      },
+    });
+
+    return ResponseHelper.noContent('Item removed from wishlist');
   }
 }
