@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AddToWishlistDto } from './dto/add-to-wishlist.dto';
 import { QueryWishlistDto } from './dto/query-wishlist.dto';
+import { SyncWishlistDto } from './dto/sync-wishlist.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 
 @Injectable()
@@ -289,5 +290,75 @@ export class WishlistService {
     });
 
     return ResponseHelper.noContent('Item removed from wishlist');
+  }
+
+  /**
+   * গেস্ট উইশলিস্ট প্রোডাক্টগুলো লগইন করা কাস্টমারের সাথে সিঙ্ক ও মার্জ করা (Sync Guest Wishlist)
+   */
+  async syncWishlist(
+    userIdOrCustomerId: string,
+    dto: SyncWishlistDto,
+  ) {
+    const targetTenantId =
+      dto.tenantId || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+
+    const customerId = await this.resolveCustomerId(
+      userIdOrCustomerId,
+      targetTenantId,
+    );
+
+    if (!customerId) {
+      throw new NotFoundException('Customer profile not found for this user');
+    }
+
+    const requestedIds = Array.isArray(dto.productIds)
+      ? Array.from(new Set(dto.productIds.filter(Boolean)))
+      : [];
+
+    if (requestedIds.length > 0) {
+      // ১. আগে থেকেই কাস্টমারের ডাটাবেজে কোন কোন প্রোডাক্ট আছে তা দেখা
+      const existingItems = await this.prisma.wishlistItem.findMany({
+        where: {
+          customerId,
+          tenantId: targetTenantId,
+        },
+        select: { productId: true },
+      });
+      const existingProductIds = new Set(existingItems.map((i) => i.productId));
+
+      // ২. শুধুমাত্র যে প্রোডাক্টগুলো এখনো ডাটাবেজে নেই, সেগুলো ফিল্টার করা
+      const newProductIds = requestedIds.filter((id) => !existingProductIds.has(id));
+
+      // ৩. প্রোডাক্টগুলো ডাটাবেজে সক্রিয় কি না চেক করা
+      if (newProductIds.length > 0) {
+        const validProducts = await this.prisma.product.findMany({
+          where: {
+            id: { in: newProductIds },
+            tenantId: targetTenantId,
+            deletedAt: null,
+          },
+          select: { id: true },
+        });
+
+        const validProductIds = validProducts.map((p) => p.id);
+
+        if (validProductIds.length > 0) {
+          await this.prisma.wishlistItem.createMany({
+            data: validProductIds.map((productId) => ({
+              tenantId: targetTenantId,
+              customerId,
+              productId,
+            })),
+            skipDuplicates: true,
+          });
+        }
+      }
+    }
+
+    // ৪. সম্পূর্ণ মার্জ হওয়া উইশলিস্ট রিটার্ন করা
+    return this.getWishlist(userIdOrCustomerId, {
+      tenantId: targetTenantId,
+      limit: 100,
+    });
   }
 }

@@ -91,4 +91,17 @@ export const wishlistService = {
     const endpoint = tenantId ? `/wishlist/${productId}?tenantId=${tenantId}` : `/wishlist/${productId}`;
     return await apiClient.delete<ApiResponse<null>>(endpoint);
   },
+
+  /**
+   * Sync and merge guest wishlist product IDs with user's backend database wishlist upon login
+   */
+  async syncWishlist(
+    productIds: string[],
+    tenantId?: string,
+  ): Promise<ApiResponse<WishlistItemResponse[]>> {
+    return await apiClient.post<ApiResponse<WishlistItemResponse[]>>('/wishlist/sync', {
+      productIds,
+      tenantId,
+    });
+  },
 };

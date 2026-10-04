@@ -19,6 +19,7 @@ import {
 import { WishlistService } from './wishlist.service';
 import { AddToWishlistDto } from './dto/add-to-wishlist.dto';
 import { QueryWishlistDto } from './dto/query-wishlist.dto';
+import { SyncWishlistDto } from './dto/sync-wishlist.dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 
 @ApiTags('(Customer) Wishlist')
@@ -65,6 +66,26 @@ export class WishlistController {
       throw new UnauthorizedException('Authentication required to manage wishlist');
     }
     return this.wishlistService.toggleWishlist(userId, dto);
+  }
+
+  @Post('sync')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Sync and merge guest wishlist items into user database wishlist upon login',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Guest wishlist items synchronized successfully',
+  })
+  async syncWishlist(
+    @Body() dto: SyncWishlistDto,
+    @CurrentUser() user?: any,
+  ) {
+    const userId = user?.id || user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('Authentication required to sync wishlist');
+    }
+    return this.wishlistService.syncWishlist(userId, dto);
   }
 
   @Delete(':productId')
