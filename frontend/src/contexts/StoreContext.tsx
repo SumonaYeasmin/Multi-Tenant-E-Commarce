@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { products as seedProducts, categories as seedCategories } from '../data/products';
 import { orders as seedOrders, returns as seedReturns } from '../data/orders';
 import { reviews as seedReviews } from '../data/reviews';
@@ -320,7 +321,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     // Persist in backend database Cart and CartItem table
     cartService
       .addToCart({ productId, variantId, qty })
-      .catch((err) => console.error('Failed to persist cart in backend:', err));
+      .catch((err: any) => {
+        console.error('Failed to persist cart in backend:', err);
+        const errorMsg =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Could not add item to bag. Please check stock.';
+        toast.error(errorMsg);
+
+        // Re-sync cart from database to revert optimistic addition if failed
+        cartService
+          .getCart()
+          .then((res) => {
+            if (res?.data?.items) {
+              setCart(
+                res.data.items.map((item) => ({
+                  key: `${item.variantId}-${item.id}`,
+                  productId: item.productId,
+                  variantId: item.variantId,
+                  qty: item.qty,
+                  savedForLater: item.savedForLater,
+                }))
+              );
+            }
+          })
+          .catch(() => {});
+      });
   }, []);
 
   const updateQty = useCallback((key: string, qty: number) => {
@@ -338,7 +364,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (targetVariantId) {
       cartService
         .updateQuantity(targetVariantId, validQty)
-        .catch((err) => console.error('Failed to sync updated quantity to backend:', err));
+        .catch((err: any) => {
+          console.error('Failed to sync updated quantity to backend:', err);
+          const errorMsg =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Requested quantity exceeds available stock.';
+          toast.error(errorMsg);
+
+          // Revert to database state if out of stock
+          cartService
+            .getCart()
+            .then((res) => {
+              if (res?.data?.items) {
+                setCart(
+                  res.data.items.map((item) => ({
+                    key: `${item.variantId}-${item.id}`,
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    qty: item.qty,
+                    savedForLater: item.savedForLater,
+                  }))
+                );
+              }
+            })
+            .catch(() => {});
+        });
     }
   }, []);
 

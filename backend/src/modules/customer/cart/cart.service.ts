@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QueryCartDto } from './dto/query-cart.dto';
 import { AddToCartDto } from './dto/add-to-cart.dto';
@@ -176,7 +180,7 @@ export class CartService {
   }
 
   /**
-   * ধাপ ১.৩: কার্টে প্রোডাক্ট/ভ্যারিয়েন্ট যোগ করা (Add to Cart)
+   * ধাপ ১.৩: কার্টে প্রোডাক্ট/ভ্যারিয়েন্ট যোগ করা (Add to Cart with Stock Validation)
    */
   async addToCart(
     dto: AddToCartDto,
@@ -194,14 +198,31 @@ export class CartService {
 
     const activeSessionToken = dto.sessionToken || sessionTokenHeader;
 
-    // ১. কার্ট নিশ্চিত করা
+    // ১. ভ্যারিয়েন্ট ও রিয়েল-টাইম স্টক চেক করা
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: dto.variantId },
+      include: { product: true },
+    });
+
+    if (!variant || !variant.enabled) {
+      throw new NotFoundException('Selected product variant is not available');
+    }
+
+    const isPreorder = variant.product?.preorder || false;
+    const availableStock = Math.max(0, variant.stock - variant.reserved);
+
+    if (!isPreorder && availableStock <= 0) {
+      throw new BadRequestException('This product is currently out of stock');
+    }
+
+    // ২. কার্ট নিশ্চিত করা
     const cart = await this.getOrCreateCart(
       targetTenantId,
       customerId,
       activeSessionToken,
     );
 
-    // ২. বিদ্যমান আইটেম খোঁজা
+    // ৩. বিদ্যমান আইটেম খোঁজা
     const existingItem = await this.prisma.cartItem.findFirst({
       where: {
         cartId: cart.id,
@@ -212,12 +233,26 @@ export class CartService {
     });
 
     const addQty = Math.max(1, dto.qty || 1);
+    const totalRequestedQty = (existingItem?.qty || 0) + addQty;
+
+    // ৪. স্টক সীমার বেশি যোগ করা আটকাতে ভ্যালিডেশন
+    if (!isPreorder && totalRequestedQty > availableStock) {
+      const alreadyInCart = existingItem?.qty || 0;
+      if (alreadyInCart > 0) {
+        throw new BadRequestException(
+          `Cannot add ${addQty} more. Only ${availableStock} item${availableStock > 1 ? 's' : ''} available in stock (${alreadyInCart} already in your bag).`,
+        );
+      }
+      throw new BadRequestException(
+        `Only ${availableStock} item${availableStock > 1 ? 's' : ''} available in stock.`,
+      );
+    }
 
     if (existingItem) {
       await this.prisma.cartItem.update({
         where: { id: existingItem.id },
         data: {
-          qty: existingItem.qty + addQty,
+          qty: totalRequestedQty,
         },
       });
     } else {
@@ -240,7 +275,7 @@ export class CartService {
   }
 
   /**
-   * ধাপ ১.৪: কার্ট আইটেমের কোয়ান্টিটি আপডেট করা (Update Quantity & SavedForLater)
+   * ধাপ ১.৪: কার্ট আইটেমের কোয়ান্টিটি আপডেট করা (Update Quantity with Stock Validation)
    */
   async updateCartItemQuantity(
     itemIdOrVariantId: string,
@@ -275,6 +310,10 @@ export class CartService {
           { variantId: itemIdOrVariantId },
         ],
       },
+      include: {
+        variant: true,
+        product: true,
+      },
     });
 
     if (!existingItem) {
@@ -283,12 +322,24 @@ export class CartService {
 
     const newQty = dto.qty !== undefined ? Math.max(0, dto.qty) : existingItem.qty;
 
-    // ৩. কোয়ান্টিটি ০ হলে আইটেম ডিলিট করা, অন্যথায় আপডেট করা
+    // ৩. কোয়ান্টিটি ০ হলে আইটেম ডিলিট করা, অন্যথায় স্টক চেক ও আপডেট করা
     if (newQty === 0) {
       await this.prisma.cartItem.delete({
         where: { id: existingItem.id },
       });
     } else {
+      const isPreorder = existingItem.product?.preorder || false;
+      const availableStock = Math.max(
+        0,
+        (existingItem.variant?.stock ?? 0) - (existingItem.variant?.reserved ?? 0),
+      );
+
+      if (!isPreorder && newQty > availableStock) {
+        throw new BadRequestException(
+          `Cannot update quantity to ${newQty}. Only ${availableStock} item${availableStock > 1 ? 's' : ''} available in stock.`,
+        );
+      }
+
       await this.prisma.cartItem.update({
         where: { id: existingItem.id },
         data: {
