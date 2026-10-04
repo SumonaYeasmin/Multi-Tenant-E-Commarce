@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export interface CategoryCardProps {
@@ -15,6 +15,12 @@ const DEFAULT_IMAGE =
 export function CategoryCard({ slug, id, name, image, blurb }: CategoryCardProps) {
   const [imgSrc, setImgSrc] = useState(image || DEFAULT_IMAGE);
   const href = `/category/${slug || id}`;
+
+  useEffect(() => {
+    if (image) {
+      setImgSrc(image);
+    }
+  }, [image]);
 
   return (
     <Link

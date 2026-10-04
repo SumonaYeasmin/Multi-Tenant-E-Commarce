@@ -20,8 +20,9 @@ import type {
   TimelineEvent
 } from '../types/commerce';
 import { variantPrice } from '../utils/pricing';
-
+import { images } from '../data/images';
 import { authService } from '@/services/auth';
+import { categoryService, type CategoryResponseData } from '@/services';
 
 interface User {
   id: string;
@@ -166,6 +167,43 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         role: stored.role,
       });
     }
+  }, []);
+
+  // Fetch real categories from database and sync to state
+  useEffect(() => {
+    let isMounted = true;
+    async function syncCategories() {
+      try {
+        const res = await categoryService.getCategories();
+        if (isMounted && res?.data && res.data.length > 0) {
+          const parentCategories = res.data.filter(
+            (c: CategoryResponseData) => !c.parentId && c.isActive !== false
+          );
+          const targetList = parentCategories.length > 0 ? parentCategories : res.data;
+
+          const mapped: CategoryItemData[] = targetList.map((c: CategoryResponseData) => {
+            const childrenNames = (c.children || []).map((ch: any) => ch.name);
+            return {
+              key: c.slug || c.id,
+              name: c.name,
+              image: c.image || images.kurta,
+              blurb: c.description || `${c.name} collection`,
+              subcategories: childrenNames,
+            };
+          });
+
+          if (mapped.length > 0) {
+            setCategories(mapped);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync categories to StoreContext:', err);
+      }
+    }
+    syncCategories();
+    return () => {
+      isMounted = false;
+    };
   }, []);
   const [addresses, setAddresses] = useState<Address[]>(currentUserAddresses);
   const [storeCredit] = useState(450);
