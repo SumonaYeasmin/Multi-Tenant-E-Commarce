@@ -25,9 +25,11 @@ import { searchProducts } from '@/utils/search';
 import { productPrice, productStock } from '@/utils/pricing';
 import { collectionService } from '@/services/collection-service';
 import { brandService } from '@/services/brand-service';
+import { categoryService } from '@/services/category-service';
 import { images } from '@/data/images';
 import type { CollectionItem } from '@/types/collection';
 import type { BrandItem } from '@/types/brand';
+import type { CategoryItemData } from '@/types/commerce';
 import { cn } from '@/utils/cn';
 
 type Sort =
@@ -72,10 +74,33 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
     setVisible(PAGE_SIZE);
   }, [pathname, q, searchParams]);
 
+  const [dbCategory, setDbCategory] = useState<CategoryItemData | null>(null);
   const [dbCollection, setDbCollection] = useState<CollectionItem | null>(null);
   const [dbBrand, setDbBrand] = useState<BrandItem | null>(null);
 
   useEffect(() => {
+    if (mode === 'category' && slug) {
+      categoryService
+        .getCategoryBySlugOrId(slug)
+        .then((res) => {
+          if (res?.data) {
+            const d = res.data;
+            setDbCategory({
+              key: d.slug || d.id,
+              name: d.name,
+              image: d.image || images.kurta,
+              blurb: d.description || '',
+              subcategories: (d.children || []).map((ch: any) => ch.name),
+              seoTitle: d.seoTitle || undefined,
+              seoDescription: d.seoDescription || undefined,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load category details from backend:', err);
+        });
+    }
+
     if (mode === 'collection' && slug) {
       collectionService
         .getCollectionBySlugOrId(slug)
@@ -129,7 +154,9 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
   }, [mode, slug]);
 
   const category =
-    mode === 'category' ? categories.find((c) => c.key === slug) : undefined;
+    mode === 'category'
+      ? dbCategory || categories.find((c) => c.key === slug)
+      : undefined;
   const collection: CollectionItem | undefined =
     mode === 'collection'
       ? dbCollection || (collections as CollectionItem[]).find((c) => c.slug === slug)

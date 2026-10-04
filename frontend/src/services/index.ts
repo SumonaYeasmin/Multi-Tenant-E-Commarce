@@ -12,3 +12,4 @@ export * from './category-service';
 export * from './brand-service';
 export * from './collection-service';
 export * from './inventory-service';
+export * from './cart-service';
