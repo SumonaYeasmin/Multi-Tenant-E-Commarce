@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QueryCartDto } from './dto/query-cart.dto';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 
 @Injectable()
@@ -175,10 +180,106 @@ export class CartService {
   }
 
   /**
-   * ধাপ ১.৩: কার্টে প্রোডাক্ট/ভ্যারিয়েন্ট যোগ করা (Add to Cart)
+   * ধাপ ১.৩: কার্টে প্রোডাক্ট/ভ্যারিয়েন্ট যোগ করা (Add to Cart with Stock Validation)
    */
   async addToCart(
     dto: AddToCartDto,
+    customerId?: string,
+    sessionTokenHeader?: string,
+  ) {
+    let targetTenantId = dto.tenantId;
+    if (!targetTenantId) {
+      const activeTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = activeTenant?.id || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    }
+
+    const activeSessionToken = dto.sessionToken || sessionTokenHeader;
+
+    // ১. ভ্যারিয়েন্ট ও রিয়েল-টাইম স্টক চেক করা
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: dto.variantId },
+      include: { product: true },
+    });
+
+    if (!variant || !variant.enabled) {
+      throw new NotFoundException('Selected product variant is not available');
+    }
+
+    const isPreorder = variant.product?.preorder || false;
+    const availableStock = Math.max(0, variant.stock - variant.reserved);
+
+    if (!isPreorder && availableStock <= 0) {
+      throw new BadRequestException('This product is currently out of stock');
+    }
+
+    // ২. কার্ট নিশ্চিত করা
+    const cart = await this.getOrCreateCart(
+      targetTenantId,
+      customerId,
+      activeSessionToken,
+    );
+
+    // ৩. বিদ্যমান আইটেম খোঁজা
+    const existingItem = await this.prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        productId: dto.productId,
+        variantId: dto.variantId,
+        savedForLater: false,
+      },
+    });
+
+    const addQty = Math.max(1, dto.qty || 1);
+    const totalRequestedQty = (existingItem?.qty || 0) + addQty;
+
+    // ৪. স্টক সীমার বেশি যোগ করা আটকাতে ভ্যালিডেশন
+    if (!isPreorder && totalRequestedQty > availableStock) {
+      const alreadyInCart = existingItem?.qty || 0;
+      if (alreadyInCart > 0) {
+        throw new BadRequestException(
+          `Cannot add ${addQty} more. Only ${availableStock} item${availableStock > 1 ? 's' : ''} available in stock (${alreadyInCart} already in your bag).`,
+        );
+      }
+      throw new BadRequestException(
+        `Only ${availableStock} item${availableStock > 1 ? 's' : ''} available in stock.`,
+      );
+    }
+
+    if (existingItem) {
+      await this.prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          qty: totalRequestedQty,
+        },
+      });
+    } else {
+      await this.prisma.cartItem.create({
+        data: {
+          cartId: cart.id,
+          productId: dto.productId,
+          variantId: dto.variantId,
+          qty: addQty,
+        },
+      });
+    }
+
+    // আপডেটেড কার্ট ডাটা রিটার্ন
+    return this.getCart(
+      { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
+      customerId,
+      activeSessionToken,
+    );
+  }
+
+  /**
+   * ধাপ ১.৪: কার্ট আইটেমের কোয়ান্টিটি আপডেট করা (Update Quantity with Stock Validation)
+   */
+  async updateCartItemQuantity(
+    itemIdOrVariantId: string,
+    dto: UpdateCartItemDto,
     customerId?: string,
     sessionTokenHeader?: string,
   ) {
@@ -200,41 +301,109 @@ export class CartService {
       activeSessionToken,
     );
 
-    // ২. বিদ্যমান আইটেম খোঁজা
+    // ২. কার্টের মধ্যে আইটেমটি খোঁজা (CartItem ID অথবা Variant ID দিয়ে)
     const existingItem = await this.prisma.cartItem.findFirst({
       where: {
         cartId: cart.id,
-        productId: dto.productId,
-        variantId: dto.variantId,
-        savedForLater: false,
+        OR: [
+          { id: itemIdOrVariantId },
+          { variantId: itemIdOrVariantId },
+        ],
+      },
+      include: {
+        variant: true,
+        product: true,
       },
     });
 
-    const addQty = Math.max(1, dto.qty || 1);
+    if (!existingItem) {
+      throw new NotFoundException('Cart item not found');
+    }
 
-    if (existingItem) {
+    const newQty = dto.qty !== undefined ? Math.max(0, dto.qty) : existingItem.qty;
+
+    // ৩. কোয়ান্টিটি ০ হলে আইটেম ডিলিট করা, অন্যথায় স্টক চেক ও আপডেট করা
+    if (newQty === 0) {
+      await this.prisma.cartItem.delete({
+        where: { id: existingItem.id },
+      });
+    } else {
+      const isPreorder = existingItem.product?.preorder || false;
+      const availableStock = Math.max(
+        0,
+        (existingItem.variant?.stock ?? 0) - (existingItem.variant?.reserved ?? 0),
+      );
+
+      if (!isPreorder && newQty > availableStock) {
+        throw new BadRequestException(
+          `Cannot update quantity to ${newQty}. Only ${availableStock} item${availableStock > 1 ? 's' : ''} available in stock.`,
+        );
+      }
+
       await this.prisma.cartItem.update({
         where: { id: existingItem.id },
         data: {
-          qty: existingItem.qty + addQty,
-        },
-      });
-    } else {
-      await this.prisma.cartItem.create({
-        data: {
-          cartId: cart.id,
-          productId: dto.productId,
-          variantId: dto.variantId,
-          qty: addQty,
+          qty: newQty,
+          savedForLater:
+            dto.savedForLater !== undefined
+              ? dto.savedForLater
+              : existingItem.savedForLater,
         },
       });
     }
 
-    // আপডেটেড কার্ট ডাটা রিটার্ন
+    // ৪. সর্বশেষ ফ্রেশ কার্ট ডাটা রিটার্ন করা
     return this.getCart(
       { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
       customerId,
       activeSessionToken,
+    );
+  }
+
+  /**
+   * ধাপ ১.৫: কার্ট থেকে আইটেম রিমুভ করা (Remove from Cart)
+   */
+  async removeFromCart(
+    itemIdOrVariantId: string,
+    customerId?: string,
+    sessionTokenHeader?: string,
+    tenantId?: string,
+  ) {
+    let targetTenantId = tenantId;
+    if (!targetTenantId) {
+      const activeTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = activeTenant?.id || 'e0f8bdb1-da0a-4907-9d82-08ef1be77ac2';
+    }
+
+    const cart = await this.getOrCreateCart(
+      targetTenantId,
+      customerId,
+      sessionTokenHeader,
+    );
+
+    const existingItem = await this.prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        OR: [
+          { id: itemIdOrVariantId },
+          { variantId: itemIdOrVariantId },
+        ],
+      },
+    });
+
+    if (existingItem) {
+      await this.prisma.cartItem.delete({
+        where: { id: existingItem.id },
+      });
+    }
+
+    return this.getCart(
+      { tenantId: targetTenantId, sessionToken: cart.sessionToken || undefined },
+      customerId,
+      sessionTokenHeader,
     );
   }
 }

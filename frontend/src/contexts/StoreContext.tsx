@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { products as seedProducts, categories as seedCategories } from '../data/products';
 import { orders as seedOrders, returns as seedReturns } from '../data/orders';
 import { reviews as seedReviews } from '../data/reviews';
@@ -320,7 +321,116 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     // Persist in backend database Cart and CartItem table
     cartService
       .addToCart({ productId, variantId, qty })
-      .catch((err) => console.error('Failed to persist cart in backend:', err));
+      .catch((err: any) => {
+        console.error('Failed to persist cart in backend:', err);
+        const errorMsg =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Could not add item to bag. Please check stock.';
+        toast.error(errorMsg);
+
+        // Re-sync cart from database to revert optimistic addition if failed
+        cartService
+          .getCart()
+          .then((res) => {
+            if (res?.data?.items) {
+              setCart(
+                res.data.items.map((item) => ({
+                  key: `${item.variantId}-${item.id}`,
+                  productId: item.productId,
+                  variantId: item.variantId,
+                  qty: item.qty,
+                  savedForLater: item.savedForLater,
+                }))
+              );
+            }
+          })
+          .catch(() => {});
+      });
+  }, []);
+
+  const updateQty = useCallback((key: string, qty: number) => {
+    const validQty = Math.max(1, qty);
+    let targetVariantId: string | undefined;
+
+    setCart((prev) => {
+      const item = prev.find((i) => i.key === key);
+      if (item) {
+        targetVariantId = item.variantId;
+      }
+      return prev.map((i) => (i.key === key ? { ...i, qty: validQty } : i));
+    });
+
+    if (targetVariantId) {
+      cartService
+        .updateQuantity(targetVariantId, validQty)
+        .catch((err: any) => {
+          console.error('Failed to sync updated quantity to backend:', err);
+          const errorMsg =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Requested quantity exceeds available stock.';
+          toast.error(errorMsg);
+
+          // Revert to database state if out of stock
+          cartService
+            .getCart()
+            .then((res) => {
+              if (res?.data?.items) {
+                setCart(
+                  res.data.items.map((item) => ({
+                    key: `${item.variantId}-${item.id}`,
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    qty: item.qty,
+                    savedForLater: item.savedForLater,
+                  }))
+                );
+              }
+            })
+            .catch(() => {});
+        });
+    }
+  }, []);
+
+  const removeFromCart = useCallback((key: string) => {
+    let targetVariantId: string | undefined;
+
+    setCart((prev) => {
+      const item = prev.find((i) => i.key === key);
+      if (item) {
+        targetVariantId = item.variantId;
+      }
+      return prev.filter((i) => i.key !== key);
+    });
+
+    if (targetVariantId) {
+      cartService
+        .removeItem(targetVariantId)
+        .catch((err) => console.error('Failed to sync item removal to backend:', err));
+    }
+  }, []);
+
+  const toggleSaveForLater = useCallback((key: string) => {
+    let targetVariantId: string | undefined;
+    let nextSavedState = false;
+
+    setCart((prev) => {
+      const item = prev.find((i) => i.key === key);
+      if (item) {
+        targetVariantId = item.variantId;
+        nextSavedState = !item.savedForLater;
+      }
+      return prev.map((i) =>
+        i.key === key ? { ...i, savedForLater: !i.savedForLater } : i
+      );
+    });
+
+    if (targetVariantId) {
+      cartService
+        .updateQuantity(targetVariantId, undefined, nextSavedState)
+        .catch((err) => console.error('Failed to sync savedForLater to backend:', err));
+    }
   }, []);
 
   const value = useMemo<StoreContextValue>(
@@ -347,10 +457,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setCompareOpen,
       setSearchOpen,
       addToCart,
-      updateQty: (key, qty) => setCart((prev) => prev.map((i) => (i.key === key ? { ...i, qty: Math.max(1, qty) } : i))),
+      updateQty,
       changeVariant: (key, variantId) => setCart((prev) => prev.map((i) => (i.key === key ? { ...i, variantId } : i))),
-      removeFromCart: (key) => setCart((prev) => prev.filter((i) => i.key !== key)),
-      toggleSaveForLater: (key) => setCart((prev) => prev.map((i) => (i.key === key ? { ...i, savedForLater: !i.savedForLater } : i))),
+      removeFromCart,
+      toggleSaveForLater,
       clearCart: () => setCart((prev) => prev.filter((i) => i.savedForLater)),
       toggleWishlist: (id) => setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])),
       toggleCompare: (id) =>
@@ -692,7 +802,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       toggleCustomerStatus: (id) =>
         setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, status: c.status === 'active' ? 'inactive' : 'active' } : c)))
     }),
-    [isStoreLoading, products, categories, orders, returns, reviews, customers, cart, wishlist, compare, recentlyViewed, user, addresses, storeCredit, miniCartOpen, quickViewId, compareOpen, searchOpen, addToCart, patchOrder, adjustStock]
+    [isStoreLoading, products, categories, orders, returns, reviews, customers, cart, wishlist, compare, recentlyViewed, user, addresses, storeCredit, miniCartOpen, quickViewId, compareOpen, searchOpen, addToCart, updateQty, removeFromCart, toggleSaveForLater, patchOrder, adjustStock]
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
