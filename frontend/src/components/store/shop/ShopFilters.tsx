@@ -28,7 +28,7 @@ export const emptyFilters: FilterState = {
   minRating: 0,
 };
 
-interface ShopFiltersProps {
+export interface ShopFiltersProps {
   value: FilterState;
   onChange: (f: FilterState) => void;
   facets: {
