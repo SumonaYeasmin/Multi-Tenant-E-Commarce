@@ -36,6 +36,8 @@ export interface ShopFiltersProps {
     brands: { key: string; count: number }[];
     sizes: string[];
     colors: { name: string; hex: string }[];
+    inStockCount?: number;
+    onSaleCount?: number;
   };
   hideCategory?: boolean;
 }
@@ -217,14 +219,32 @@ export function ShopFilters({
           <Checkbox
             checked={value.inStock}
             onChange={(v) => set({ inStock: v })}
-            label="In stock only"
-            className="cursor-pointer text-ink"
+            label={
+              <span className="flex w-full justify-between gap-3 text-ink">
+                <span>In stock only</span>
+                {facets.inStockCount !== undefined && (
+                  <span className="text-ink-muted tabular-nums">
+                    {facets.inStockCount}
+                  </span>
+                )}
+              </span>
+            }
+            className="w-full [&>span:last-child]:flex-1 cursor-pointer"
           />
           <Checkbox
             checked={value.onSale}
             onChange={(v) => set({ onSale: v })}
-            label="On sale"
-            className="cursor-pointer text-ink"
+            label={
+              <span className="flex w-full justify-between gap-3 text-ink">
+                <span>On sale</span>
+                {facets.onSaleCount !== undefined && (
+                  <span className="text-ink-muted tabular-nums">
+                    {facets.onSaleCount}
+                  </span>
+                )}
+              </span>
+            }
+            className="w-full [&>span:last-child]:flex-1 cursor-pointer"
           />
         </div>
       </Group>

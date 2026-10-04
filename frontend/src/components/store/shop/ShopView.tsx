@@ -218,6 +218,13 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
     const sizes = Array.from(new Set(base.flatMap((p) => p.sizes))).filter(
       (s) => !['Free size', 'One size'].includes(s)
     );
+    const inStockCount = base.filter(
+      (p) => productStock(p) > 0 || p.preorder
+    ).length;
+    const onSaleCount = base.filter(
+      (p) => !!p.salePrice && p.salePrice < p.price
+    ).length;
+
     return {
       categories: categories
         .filter((c) => cats.has(c.key))
@@ -229,6 +236,8 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
       brands: Array.from(brs.entries()).map(([key, n]) => ({ key, count: n })),
       sizes,
       colors: Array.from(colors.entries()).map(([name, hex]) => ({ name, hex })),
+      inStockCount,
+      onSaleCount,
     };
   }, [base, categories]);
 
@@ -250,8 +259,8 @@ export function ShopView({ mode = 'shop', slug }: ShopViewProps) {
         return false;
       if (filters.minPrice && price < Number(filters.minPrice)) return false;
       if (filters.maxPrice && price > Number(filters.maxPrice)) return false;
-      if (filters.inStock && productStock(p) === 0) return false;
-      if (filters.onSale && !p.salePrice) return false;
+      if (filters.inStock && productStock(p) === 0 && !p.preorder) return false;
+      if (filters.onSale && (!p.salePrice || p.salePrice >= p.price)) return false;
       if (filters.minRating && p.rating < filters.minRating) return false;
       return true;
     });
