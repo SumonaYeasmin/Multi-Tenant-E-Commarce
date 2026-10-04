@@ -6,7 +6,7 @@ import { ArrowRightIcon, WalletIcon } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/button';
-import { OrderProgress } from '@/components/store/OrderProgress';
+import { OrderProgress } from '@/components/store/shared';
 import { orderStatusMeta, returnStatusMeta } from '@/utils/status';
 import { formatBDT, formatDate } from '@/utils/format';
 
@@ -29,8 +29,10 @@ export default function AccountDashboardPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl">Hi, {user?.name.split(' ')[0]}</h1>
-      <p className="mt-1 text-sm text-ink-muted">Member since February 2025 · VIP</p>
+      <h1 className="font-display text-3xl">
+        Hi, {user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'Customer'}
+      </h1>
+      <p className="mt-1 text-sm text-ink-muted">Welcome to your account overview</p>
 
       {activeOrder ? (
         <section
