@@ -22,7 +22,7 @@ import type {
 import { variantPrice } from '../utils/pricing';
 import { images } from '../data/images';
 import { authService } from '@/services/auth';
-import { categoryService, type CategoryResponseData } from '@/services';
+import { categoryService, productService, type CategoryResponseData } from '@/services';
 
 interface User {
   id: string;
@@ -201,6 +201,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     }
     syncCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Fetch real products from database and sync to state
+  useEffect(() => {
+    let isMounted = true;
+    async function syncProducts() {
+      try {
+        const prods = await productService.getProducts();
+        if (isMounted && prods && prods.length > 0) {
+          setProducts(prods);
+        }
+      } catch (err) {
+        console.error('Failed to sync products to StoreContext:', err);
+      }
+    }
+    syncProducts();
     return () => {
       isMounted = false;
     };
