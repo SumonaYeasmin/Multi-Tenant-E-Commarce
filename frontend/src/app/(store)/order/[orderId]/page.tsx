@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useState } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -8,6 +8,7 @@ import {
   XCircleIcon,
   ClockIcon,
   PackageIcon,
+  Loader2Icon,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { paymentMethods } from '@/data/shipping';
@@ -16,7 +17,8 @@ import { PaymentMark } from '@/components/ui/PaymentMark';
 import { formatBDT } from '@/utils/format';
 import { paymentMethodLabel } from '@/utils/status';
 import { cn } from '@/utils/cn';
-import type { PaymentMethod } from '@/types/commerce';
+import type { PaymentMethod, Order } from '@/types/commerce';
+import { orderService, mapBackendOrderToFrontend } from '@/services/order-service';
 
 interface OrderConfirmationPageProps {
   params: Promise<{ orderId: string }>;
@@ -26,8 +28,39 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
   const { orderId } = use(params);
   const router = useRouter();
   const { orders, retryPayment, user } = useStore();
-  const order = orders.find((o) => o.id === orderId || o.number === orderId);
+
+  const matchedOrder = orders.find((o) => o.id === orderId || o.number === orderId);
+  const [dbOrder, setDbOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(!matchedOrder);
+
+  useEffect(() => {
+    if (!matchedOrder && orderId) {
+      setIsLoading(true);
+      orderService
+        .getOrderDetail(orderId)
+        .then((res) => {
+          if (res?.data) {
+            setDbOrder(mapBackendOrderToFrontend(res.data));
+          }
+        })
+        .catch((err) => {
+          console.warn('Could not fetch order from backend:', err);
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [matchedOrder, orderId]);
+
+  const order = matchedOrder || dbOrder;
   const [method, setMethod] = useState<PaymentMethod | null>(null);
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <Loader2Icon className="mx-auto h-8 w-8 animate-spin text-clay" />
+        <p className="mt-3 text-sm text-ink-muted">Loading order confirmation...</p>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -50,7 +83,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
   const retry = () => {
     retryPayment(order.id, chosen);
     if (chosen === 'cod') return;
-    router.push(`/pay/${order.id}`);
+    router.push(`/pay/${order.number || order.id}`);
   };
 
   return (

@@ -45,6 +45,73 @@ export interface CreateOrderPayload {
   tenantId?: string;
 }
 
+// Helper to transform backend order response to frontend Order interface
+export function mapBackendOrderToFrontend(item: any): Order {
+  return {
+    id: item.id,
+    number: item.number,
+    customerId: item.customerId || '',
+    customerName: item.customerName || '',
+    email: item.email || '',
+    phone: item.phone || '',
+    createdAt: item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString(),
+    items: (item.items || []).map((i: any) => ({
+      productId: i.productId,
+      variantId: i.variantId || '',
+      title: i.title,
+      image: i.image || '',
+      color: i.color || '',
+      size: i.size || '',
+      sku: i.sku || '',
+      price: Number(i.price) || 0,
+      qty: Number(i.qty) || 1,
+    })),
+    subtotal: Number(item.subtotal) || 0,
+    discount: Number(item.discount) || 0,
+    shipping: Number(item.shipping) || 0,
+    tax: Number(item.tax) || 0,
+    total: Number(item.total) || 0,
+    refunded: Number(item.refunded) || 0,
+    couponCode: item.couponCode || undefined,
+    paymentMethod: (item.paymentMethod?.toLowerCase() || 'cod') as any,
+    paymentStatus: (item.paymentStatus?.toLowerCase() || 'pending') as any,
+    status: (item.status?.toLowerCase() || 'confirmed') as any,
+    fulfillmentStatus: (item.fulfillmentStatus?.toLowerCase() || 'unfulfilled') as any,
+    shippingAddress: item.shippingAddress
+      ? {
+          id: item.shippingAddress.id || `addr-${item.id}`,
+          label: 'Delivery Address',
+          name: item.shippingAddress.name,
+          phone: item.shippingAddress.phone,
+          line1: item.shippingAddress.line1,
+          area: item.shippingAddress.area,
+          district: item.shippingAddress.district,
+        }
+      : { id: `addr-${item.id}`, label: 'Delivery Address', name: '', phone: '', line1: '', area: '', district: '' },
+    shippingMethod: item.shippingMethod || 'standard',
+    courier: item.courier || undefined,
+    tracking: item.trackingNumber || undefined,
+    timeline: (item.timeline || []).map((t: any) => ({
+      at: t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString(),
+      label: t.label,
+      by: t.by || undefined,
+      note: t.note || undefined,
+    })),
+    attempts: (item.attempts || []).map((a: any) => ({
+      id: a.id,
+      method: (a.method?.toLowerCase() || 'cod') as any,
+      amount: Number(a.amount) || 0,
+      status: (a.status?.toLowerCase() || 'pending') as any,
+      ref: a.gatewayRef || '',
+      at: a.createdAt ? new Date(a.createdAt).toISOString() : new Date().toISOString(),
+    })),
+    notes: [],
+    channel: (item.channel?.toLowerCase() === 'manual' ? 'manual' : 'online') as 'online' | 'manual',
+    codCollected: !!item.codCollected,
+    customerNote: item.customerNote || undefined,
+  };
+}
+
 export const orderService = {
   // 1. Send new order payload from checkout page to backend API
   async createOrder(payload: CreateOrderPayload): Promise<ApiResponse<Order>> {
