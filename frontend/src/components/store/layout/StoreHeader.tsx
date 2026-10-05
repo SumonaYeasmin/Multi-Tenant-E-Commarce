@@ -17,15 +17,22 @@ import {
 import { useStore } from '@/contexts/StoreContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { announcement } from '@/data/content';
-import { collections } from '@/data/products';
 import { Drawer } from '@/components/ui/Drawer';
 import { cn } from '@/utils/cn';
 
 export function StoreHeader() {
   const pathname = usePathname();
   const { tenant } = useTenant();
-  const { cart, wishlist, user, logout, setMiniCartOpen, setSearchOpen, categories } =
-    useStore();
+  const {
+    cart,
+    wishlist,
+    user,
+    logout,
+    setMiniCartOpen,
+    setSearchOpen,
+    categories,
+    collections,
+  } = useStore();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -73,7 +80,7 @@ export function StoreHeader() {
             >
               All Products
             </Link>
-            {categories.slice(0, 5).map((cat) => (
+            {categories.slice(0, 4).map((cat) => (
               <div
                 key={cat.key}
                 className="relative"
@@ -92,7 +99,7 @@ export function StoreHeader() {
                   {cat.name}
                 </Link>
 
-                {/* Dropdown Menu */}
+                {/* Category Dropdown Menu */}
                 <AnimatePresence>
                   {openMenu === cat.key && cat.subcategories.length > 0 && (
                     <motion.div
@@ -118,6 +125,45 @@ export function StoreHeader() {
                 </AnimatePresence>
               </div>
             ))}
+
+            {/* Collections Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setOpenMenu('collections')}
+              onMouseLeave={() => setOpenMenu(null)}
+            >
+              <Link
+                href="/collections"
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-clay py-2 inline-block',
+                  pathname.startsWith('/collections') ? 'text-clay' : 'text-ink'
+                )}
+              >
+                Collections
+              </Link>
+
+              <AnimatePresence>
+                {openMenu === 'collections' && collections.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full w-52 rounded-md border border-line bg-surface p-2 shadow-pop"
+                  >
+                    {collections.map((col) => (
+                      <Link
+                        key={col.slug}
+                        href={`/collections/${col.slug}`}
+                        className="block rounded px-3 py-2 text-xs font-medium text-ink-soft hover:bg-subtle hover:text-ink transition-colors"
+                      >
+                        {col.name}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
           {/* Actions: Search, Wishlist, Account/Dashboard, Cart */}

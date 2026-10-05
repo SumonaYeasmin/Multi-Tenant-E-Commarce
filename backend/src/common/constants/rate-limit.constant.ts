@@ -1,15 +1,15 @@
-const isDev = process.env.NODE_ENV !== 'production';
+const isProd = process.env.NODE_ENV === 'production';
 
 export const RATE_LIMIT = {
   GLOBAL: {
     name: 'default',
     ttl: 60_000,
-    limit: isDev ? 1000 : 300,
+    limit: isProd ? 300 : 5000,
   },
   AUTH: {
     name: 'auth',
     ttl: 15 * 60_000,
-    limit: isDev ? 100 : 20,
+    limit: isProd ? 30 : 500,
   },
   REGISTER: {
     name: 'register',

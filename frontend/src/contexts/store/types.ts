@@ -12,6 +12,7 @@ import type {
   Review,
   TimelineEvent,
 } from '@/types/commerce';
+import type { CollectionItem } from '@/types/collection';
 
 export interface User {
   id: string;
@@ -90,6 +91,7 @@ export interface StoreContextValue {
   updateReview: (id: string, patch: Partial<Review>) => void;
   addReview: (r: Omit<Review, 'id' | 'date' | 'status' | 'helpful'>) => void;
   categories: CategoryItemData[];
+  collections: CollectionItem[];
   addCategory: (c: CategoryItemData) => void;
   saveCategory: (key: string, patch: Partial<CategoryItemData>) => void;
   deleteCategory: (key: string) => void;
