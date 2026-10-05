@@ -30,6 +30,10 @@ export function StoreHeader() {
     .filter((i) => !i.savedForLater)
     .reduce((s, i) => s + i.qty, 0);
 
+  const isStaffOrOwner = user && ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes((user.role || '').toUpperCase());
+  const dashboardHref = user ? (isStaffOrOwner ? '/admin' : '/account') : '/login';
+  const dashboardLabel = user ? (isStaffOrOwner ? 'Admin Dashboard' : 'My Account') : 'Sign In';
+
   return (
     <header className="sticky top-0 z-30 bg-canvas/95 backdrop-blur-md border-b border-line">
       {/* Announcement Bar */}
@@ -137,9 +141,10 @@ export function StoreHeader() {
             </Link>
 
             <Link
-              href={user ? '/account' : '/login'}
+              href={dashboardHref}
               className="p-2 text-ink hover:text-clay cursor-pointer transition-colors"
-              aria-label="Account"
+              aria-label={dashboardLabel}
+              title={dashboardLabel}
             >
               <UserIcon className="h-5 w-5" />
             </Link>
@@ -207,6 +212,17 @@ export function StoreHeader() {
                 {col.name}
               </Link>
             ))}
+          </div>
+
+          <div className="border-t border-line pt-4 space-y-2">
+            <Link
+              href={dashboardHref}
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-between text-sm font-medium text-ink hover:text-clay py-1"
+            >
+              <span>{dashboardLabel}</span>
+              <ChevronRightIcon className="h-4 w-4 text-ink-muted" />
+            </Link>
           </div>
         </div>
       </Drawer>

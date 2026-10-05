@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -17,6 +17,7 @@ import {
   LogOutIcon,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
+import { authService } from '@/services/auth';
 import { cn } from '@/utils/cn';
 
 const nav = [
@@ -36,6 +37,14 @@ export function AccountLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useStore();
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    const role = (user?.role || authService.getUserRole() || '').toUpperCase();
+    const isStaffOrOwner = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(role);
+    if (isStaffOrOwner) {
+      window.location.href = '/admin';
+    }
+  }, [user]);
 
   if (!user) {
     return (
