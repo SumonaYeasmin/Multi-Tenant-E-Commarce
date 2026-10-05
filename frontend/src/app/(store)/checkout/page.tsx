@@ -15,7 +15,6 @@ import {
   AddressSection,
   DeliveryMethodSection,
   PaymentSection,
-  OrderNoteSection,
   OrderSummarySection,
   type NewAddressFormData,
 } from '@/components/store/checkout';
@@ -45,12 +44,6 @@ export default function CheckoutPage() {
   const [shippingId, setShippingId] = useState('standard');
   const [payment, setPayment] = useState<PaymentMethod>('bkash');
   const [useCredit, setUseCredit] = useState(false);
-  const [note, setNote] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('tanti.note') ?? '';
-    }
-    return '';
-  });
   const [consent, setConsent] = useState(false);
   const [code, setCode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -278,14 +271,12 @@ export default function CheckoutPage() {
       paymentMethod: payment,
       discount: totals.discount + totals.credit,
       couponCode: coupon?.code,
-      customerNote: note || undefined,
       subtotal,
       total: totals.total,
     });
 
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('tanti.coupon');
-      sessionStorage.removeItem('tanti.note');
     }
     router.replace(payment === 'cod' ? `/order/${order.id}` : `/pay/${order.id}`);
   };
@@ -349,9 +340,6 @@ export default function CheckoutPage() {
             payment={payment}
             onSelectPayment={setPayment}
           />
-
-          {/* Optional Order Note */}
-          <OrderNoteSection note={note} onChange={setNote} />
         </div>
 
         {/* Sidebar: Order Summary & Place Order */}
