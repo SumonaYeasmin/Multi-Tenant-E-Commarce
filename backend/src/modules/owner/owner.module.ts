@@ -4,6 +4,7 @@ import { BrandModule } from './brand/brand.module';
 import { CollectionModule } from './collection/collection.module';
 import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { ThemeModule } from './theme/theme.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { InventoryModule } from './inventory/inventory.module';
     CollectionModule,
     ProductModule,
     InventoryModule,
+    ThemeModule,
   ],
   exports: [
     CategoryModule,
@@ -19,6 +21,7 @@ import { InventoryModule } from './inventory/inventory.module';
     CollectionModule,
     ProductModule,
     InventoryModule,
+    ThemeModule,
   ],
 })
 export class OwnerModule {}
