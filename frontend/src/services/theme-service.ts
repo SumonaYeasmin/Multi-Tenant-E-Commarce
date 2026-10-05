@@ -1,6 +1,6 @@
 import { apiClient } from './api-client';
 import type { ApiResponse } from '@/types';
-import type { TenantTheme, ThemePreset, ThemeSection } from '@/types/theme';
+import type { TenantTheme, ThemeSection } from '@/types/theme';
 
 export interface ThemeCollectionResponse {
   themes?: TenantTheme[];
@@ -35,22 +35,22 @@ export interface PublishThemePayload {
 }
 
 export const themeService = {
-  // Get all theme collection (active theme, drafts, presets)
+  // Get all theme collection (active liveTheme + all themes list)
   async getThemeData(): Promise<ApiResponse<ThemeCollectionResponse>> {
     return await apiClient.get<ApiResponse<ThemeCollectionResponse>>('/owner/theme');
   },
 
-  // Get active live theme for storefront or preview
+  // Get active live theme for storefront (public, no auth required)
   async getLiveTheme(): Promise<ApiResponse<TenantTheme>> {
     return await apiClient.get<ApiResponse<TenantTheme>>('/owner/theme/live');
   },
 
-  // Get single theme
+  // Get single theme with full version history (admin)
   async getThemeById(id: string): Promise<ApiResponse<TenantTheme>> {
     return await apiClient.get<ApiResponse<TenantTheme>>(`/owner/theme/${id}`);
   },
 
-  // Update theme tokens & settings (Save Draft)
+  // Save draft changes to design tokens & brand settings
   async updateTheme(
     id: string,
     payload: UpdateThemePayload
@@ -61,7 +61,7 @@ export const themeService = {
     );
   },
 
-  // Publish theme live to storefront
+  // Publish theme live to storefront (creates version snapshot)
   async publishTheme(
     id: string,
     payload?: PublishThemePayload
@@ -72,18 +72,18 @@ export const themeService = {
     );
   },
 
-  // Batch reorder sections
+  // Batch reorder sections and/or toggle visibility — PATCH (not PUT)
   async reorderSections(
     themeId: string,
     payload: ReorderSectionsPayload
   ): Promise<ApiResponse<ThemeSection[]>> {
-    return await apiClient.put<ApiResponse<ThemeSection[]>>(
+    return await apiClient.patch<ApiResponse<ThemeSection[]>>(
       `/owner/theme/${themeId}/sections/reorder`,
       payload
     );
   },
 
-  // Restore past version snapshot
+  // Restore theme tokens & sections from a past version snapshot
   async restoreVersion(
     themeId: string,
     versionId: string

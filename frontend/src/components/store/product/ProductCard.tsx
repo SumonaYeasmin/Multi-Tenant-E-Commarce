@@ -49,17 +49,32 @@ export function ProductCard({
       )}
     >
       <div className="relative overflow-hidden rounded-md bg-subtle">
-        <Link href={`/products/${product.slug}`} aria-label={product.title}>
+        <Link href={`/products/${product.slug}`} aria-label={product.title} className="block relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.images[0]}
             alt={product.title}
             loading="lazy"
+            data-product-card-img
             className={cn(
-              'aspect-[3/4] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]',
-              stock === 'out' && 'opacity-70'
+              'aspect-[3/4] w-full object-cover transition-all duration-300 ease-out group-hover:scale-[1.03]',
+              stock === 'out' && 'opacity-70',
+              product.images[1] && 'group-hover:opacity-0'
             )}
           />
+          {product.images[1] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.images[1]}
+              alt={`${product.title} alternative view`}
+              loading="lazy"
+              data-product-card-img
+              className={cn(
+                'absolute inset-0 aspect-[3/4] w-full h-full object-cover opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-[1.03]',
+                stock === 'out' && 'opacity-70'
+              )}
+            />
+          )}
         </Link>
         {flag && (
           <span

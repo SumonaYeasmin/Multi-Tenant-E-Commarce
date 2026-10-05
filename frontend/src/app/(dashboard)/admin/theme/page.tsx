@@ -19,42 +19,8 @@ import {
 import { cn } from '@/utils/cn';
 import type { TenantTheme, ThemeSection, ThemeVersion } from '@/types/theme';
 
-// Standard Default Fallback in case of network latency
-const FALLBACK_SECTIONS: ThemeSection[] = [
-  { id: 'sec-hero', sectionType: 'HERO_BANNER', label: 'Hero banner', orderIndex: 0, isVisible: true },
-  { id: 'sec-categories', sectionType: 'CATEGORY_GRID', label: 'Shop by category', orderIndex: 1, isVisible: true },
-  { id: 'sec-bestsellers', sectionType: 'BESTSELLERS', label: 'Best sellers', orderIndex: 2, isVisible: true },
-  { id: 'sec-spotlight', sectionType: 'SUMMER_SPOTLIGHT', label: 'Spotlight banner', orderIndex: 3, isVisible: true },
-  { id: 'sec-new-arrivals', sectionType: 'NEW_ARRIVALS', label: 'New arrivals', orderIndex: 4, isVisible: true },
-  { id: 'sec-trust-points', sectionType: 'TRUST_POINTS', label: 'Brand trust points', orderIndex: 5, isVisible: true },
-  { id: 'sec-testimonials', sectionType: 'TESTIMONIALS', label: 'Customer reviews', orderIndex: 6, isVisible: true },
-  { id: 'sec-recommended', sectionType: 'RECOMMENDED', label: 'Recommended products', orderIndex: 7, isVisible: true },
-];
-
-const FALLBACK_THEME: TenantTheme = {
-  id: 'theme-live-default',
-  tenantId: 'tanti-demo',
-  name: 'Store Theme',
-  status: 'PUBLISHED',
-  isLive: true,
-  primaryColor: '#B5562F',
-  secondaryColor: '#2E3A67',
-  accentColor: '#5C6B4E',
-  canvasColor: '#F7F4EF',
-  surfaceColor: '#FFFFFF',
-  inkColor: '#1C1A17',
-  fontHeading: 'Fraunces',
-  fontBody: 'Inter',
-  borderRadius: '0.5rem',
-  cardStyle: 'portrait-hover',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  sections: FALLBACK_SECTIONS,
-  versions: [],
-};
-
 export default function AdminThemePage() {
-  const [theme, setTheme] = useState<TenantTheme>(FALLBACK_THEME);
+  const [theme, setTheme] = useState<TenantTheme | null>(null);
   const [activeTab, setActiveTab] = useState<'sections' | 'styling'>('sections');
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -62,19 +28,18 @@ export default function AdminThemePage() {
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [dirty, setDirty] = useState<boolean>(false);
 
-  // 1. Fetch live and draft theme data from backend
+  // ─── Load theme data (single API call) ───────────────────────────────────────
+  // GET /owner/theme → { liveTheme (with sections + versions), themes[] }
+  // liveTheme already includes versions (last 10), enough for the UI.
   const loadThemeData = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await themeService.getThemeData();
-      if (res.success && res.data) {
-        const activeTheme = res.data.liveTheme || (res.data.themes && res.data.themes[0]);
-        if (activeTheme) {
-          setTheme(activeTheme);
-        }
+      if (res.success && res.data?.liveTheme) {
+        setTheme(res.data.liveTheme);
       }
     } catch {
-      // Fallback is already initialized in state
+      toast.error('Failed to load theme data from server.');
     } finally {
       setIsLoading(false);
       setDirty(false);
@@ -85,90 +50,89 @@ export default function AdminThemePage() {
     loadThemeData();
   }, [loadThemeData]);
 
-  // Update theme tokens locally and flag dirty
+  // ─── Local state update (no API call) ────────────────────────────────────────
   const handleThemeChange = (fields: Partial<TenantTheme>) => {
-    setTheme((prev) => ({ ...prev, ...fields }));
+    if (!theme) return;
+    setTheme((prev) => (prev ? { ...prev, ...fields } : null));
     setDirty(true);
   };
 
-  // Reorder sections & sync with backend
-  const handleReorderSections = async (newSections: ThemeSection[]) => {
-    const updated = newSections.map((s, idx) => ({ ...s, orderIndex: idx }));
-    setTheme((prev) => ({ ...prev, sections: updated }));
-    setDirty(true);
-
+  // ─── Internal save helper (no isSaving state — used inside other handlers) ───
+  // Returns true on success, false on failure.
+  const persistDraft = async (t: TenantTheme): Promise<boolean> => {
     try {
-      await themeService.reorderSections(theme.id, {
-        sections: updated.map((s) => ({
-          id: s.id,
-          orderIndex: s.orderIndex,
-          isVisible: s.isVisible,
-        })),
+      const res = await themeService.updateTheme(t.id, {
+        name: t.name,
+        primaryColor: t.primaryColor,
+        secondaryColor: t.secondaryColor,
+        accentColor: t.accentColor,
+        canvasColor: t.canvasColor,
+        surfaceColor: t.surfaceColor,
+        inkColor: t.inkColor,
+        fontHeading: t.fontHeading,
+        fontBody: t.fontBody,
+        borderRadius: t.borderRadius,
+        cardStyle: t.cardStyle,
+        customCss: t.customCss,
       });
+      if (res.success && res.data) {
+        // Explicitly preserve versions — PATCH response doesn't include them
+        setTheme((prev) =>
+          prev ? { ...prev, ...res.data, versions: prev.versions } : null
+        );
+      }
+      return true;
     } catch {
-      // Revert or keep local state
+      return false;
     }
   };
 
-  // Toggle section visibility & sync with backend
-  const handleToggleVisibility = async (secId: string) => {
-    const updated = theme.sections.map((s) =>
-      s.id === secId ? { ...s, isVisible: !s.isVisible } : s
-    );
-    setTheme((prev) => ({ ...prev, sections: updated }));
-    setDirty(true);
-
-    try {
-      await themeService.reorderSections(theme.id, {
-        sections: updated.map((s) => ({
-          id: s.id,
-          orderIndex: s.orderIndex,
-          isVisible: s.isVisible,
-        })),
-      });
-    } catch {
-      // Silent error handling for smooth UX
-    }
-  };
-
-  // Save Draft (PATCH /owner/theme/:id)
+  // ─── Save Draft button handler ────────────────────────────────────────────────
   const handleSaveDraft = async () => {
+    if (!theme) return;
     try {
       setIsSaving(true);
-      const res = await themeService.updateTheme(theme.id, {
-        name: theme.name,
-        primaryColor: theme.primaryColor,
-        secondaryColor: theme.secondaryColor,
-        accentColor: theme.accentColor,
-        canvasColor: theme.canvasColor,
-        surfaceColor: theme.surfaceColor,
-        inkColor: theme.inkColor,
-        fontHeading: theme.fontHeading,
-        fontBody: theme.fontBody,
-        borderRadius: theme.borderRadius,
-        cardStyle: theme.cardStyle,
-        customCss: theme.customCss,
-      });
-
-      if (res.success && res.data) {
-        setTheme(res.data);
+      const ok = await persistDraft(theme);
+      if (ok) {
+        setDirty(false);
+        toast.success('Draft saved.');
+      } else {
+        toast.error('Failed to save draft. Please try again.');
       }
-      setDirty(false);
-      toast.success('Draft saved successfully');
-    } catch {
-      toast.error('Failed to save draft. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Publish Live (POST /owner/theme/:id/publish)
+  // ─── Publish ─────────────────────────────────────────────────────────────────
+  // Auto-saves dirty changes first (under isPublishing state, no isSaving clash),
+  // then publishes and re-fetches the full theme to pick up the new version entry.
   const handlePublish = async () => {
+    if (!theme) return;
     try {
       setIsPublishing(true);
+
+      // Save unsaved token changes before publishing (no separate isSaving toggle)
+      if (dirty) {
+        const ok = await persistDraft(theme);
+        if (!ok) {
+          toast.error('Could not save changes before publishing. Please try again.');
+          return;
+        }
+        setDirty(false);
+      }
+
       const res = await themeService.publishTheme(theme.id);
       if (res.success && res.data) {
-        setTheme(res.data);
+        // Re-fetch to get the newly created version history entry
+        const detailRes = await themeService.getThemeById(res.data.id);
+        const finalTheme = detailRes.success && detailRes.data
+          ? detailRes.data
+          : { ...res.data, versions: theme.versions };
+        setTheme(finalTheme);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('tanti-theme-published', { detail: finalTheme }));
+        }
       }
       setDirty(false);
       toast.success('Theme published live to storefront!');
@@ -179,13 +143,62 @@ export default function AdminThemePage() {
     }
   };
 
-  // Restore snapshot version (POST /owner/theme/:id/restore/:versionId)
+  // ─── Reorder sections → optimistic + immediate backend sync ──────────────────
+  const handleReorderSections = async (newSections: ThemeSection[]) => {
+    if (!theme) return;
+    const updated = newSections.map((s, idx) => ({ ...s, orderIndex: idx }));
+    setTheme((prev) => (prev ? { ...prev, sections: updated } : null));
+    setDirty(true);
+    try {
+      await themeService.reorderSections(theme.id, {
+        sections: updated.map((s) => ({
+          id: s.id,
+          orderIndex: s.orderIndex,
+          isVisible: s.isVisible,
+        })),
+      });
+    } catch {
+      toast.error('Failed to save section order.');
+    }
+  };
+
+  // ─── Toggle section visibility → optimistic + immediate backend sync ──────────
+  const handleToggleVisibility = async (secId: string) => {
+    if (!theme) return;
+    const updated = theme.sections.map((s) =>
+      s.id === secId ? { ...s, isVisible: !s.isVisible } : s
+    );
+    setTheme((prev) => (prev ? { ...prev, sections: updated } : null));
+    setDirty(true);
+    try {
+      await themeService.reorderSections(theme.id, {
+        sections: updated.map((s) => ({
+          id: s.id,
+          orderIndex: s.orderIndex,
+          isVisible: s.isVisible,
+        })),
+      });
+    } catch {
+      toast.error('Failed to update section visibility.');
+    }
+  };
+
+  // ─── Restore version snapshot ─────────────────────────────────────────────────
   const handleRestore = async (ver: ThemeVersion) => {
+    if (!theme) return;
     try {
       setIsSaving(true);
       const res = await themeService.restoreVersion(theme.id, ver.id);
       if (res.success && res.data) {
-        setTheme(res.data);
+        // Re-fetch to get updated version list after restore
+        const detailRes = await themeService.getThemeById(res.data.id);
+        const finalTheme = detailRes.success && detailRes.data
+          ? detailRes.data
+          : { ...res.data, versions: theme.versions };
+        setTheme(finalTheme);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('tanti-theme-published', { detail: finalTheme }));
+        }
       }
       setDirty(false);
       setHistoryOpen(false);
@@ -197,11 +210,29 @@ export default function AdminThemePage() {
     }
   };
 
+  // ─── States ───────────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <ModuleGate module="theme">
         <div className="flex min-h-[60vh] w-full flex-col items-center justify-center">
           <LoadingSpinner size="lg" label="Loading theme settings..." />
+        </div>
+      </ModuleGate>
+    );
+  }
+
+  if (!theme) {
+    return (
+      <ModuleGate module="theme">
+        <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-3">
+          <p className="text-sm text-ink-muted">Unable to load store theme from database.</p>
+          <button
+            type="button"
+            onClick={loadThemeData}
+            className="rounded bg-ink px-4 py-2 text-xs font-semibold text-canvas hover:bg-ink/90 cursor-pointer"
+          >
+            Retry
+          </button>
         </div>
       </ModuleGate>
     );
@@ -238,7 +269,7 @@ export default function AdminThemePage() {
                 action="update"
                 variant="secondary"
                 size="sm"
-                disabled={!dirty || isSaving}
+                disabled={!dirty || isSaving || isPublishing}
                 onClick={handleSaveDraft}
               >
                 {isSaving ? 'Saving...' : 'Save draft'}
@@ -248,7 +279,7 @@ export default function AdminThemePage() {
                 module="theme"
                 action="publish"
                 size="sm"
-                disabled={isPublishing}
+                disabled={isPublishing || isSaving}
                 onClick={handlePublish}
               >
                 {isPublishing ? 'Publishing...' : 'Publish'}
@@ -257,11 +288,10 @@ export default function AdminThemePage() {
           }
         />
 
-        {/* 2-Column Responsive Layout */}
+        {/* 2-Column Layout */}
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-          {/* Left Column: Tabbed Clean Controls */}
+          {/* Left: Tabs */}
           <div className="space-y-4">
-            {/* Primary Segmented Tabs: Sections vs Brand Styling */}
             <div className="flex rounded-lg border border-line bg-surface p-1 shadow-xs">
               <button
                 type="button"
@@ -291,7 +321,6 @@ export default function AdminThemePage() {
               </button>
             </div>
 
-            {/* TAB 1: Landing Page Sections */}
             {activeTab === 'sections' && (
               <ThemeSectionsManager
                 sections={theme.sections}
@@ -300,20 +329,16 @@ export default function AdminThemePage() {
               />
             )}
 
-            {/* TAB 2: Brand Colors & Typography */}
             {activeTab === 'styling' && (
-              <BrandCustomizer
-                theme={theme}
-                onChange={handleThemeChange}
-              />
+              <BrandCustomizer theme={theme} onChange={handleThemeChange} />
             )}
           </div>
 
-          {/* Right Column: Live Storefront Preview */}
+          {/* Right: Live Preview */}
           <ThemePreviewCanvas theme={theme} />
         </div>
 
-        {/* Version History Side Drawer */}
+        {/* Version History Drawer */}
         <Drawer
           open={historyOpen}
           onClose={() => setHistoryOpen(false)}

@@ -1,14 +1,12 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,167 +18,102 @@ import {
 import { ThemeService } from '../services/theme.service';
 import { CreateThemeDto } from '../dto/create-theme.dto';
 import { UpdateThemeDto } from '../dto/update-theme.dto';
-import { ReorderSectionsDto } from '../dto/reorder-sections.dto';
-import { CreateSectionDto } from '../dto/create-section.dto';
-import { UpdateSectionDto } from '../dto/update-section.dto';
 import { PublishThemeDto } from '../dto/publish-theme.dto';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../../../common/guards/optional-jwt-auth.guard';
-import { RolesGuard } from '../../../../common/guards/roles.guard';
-import { Roles } from '../../../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
-import { UserRole } from '../../../../../prisma/generated/client';
 
 @ApiTags('(Owner) Theme')
 @Controller('owner/theme')
 export class ThemeController {
   constructor(private readonly themeService: ThemeService) {}
 
+  // GET /owner/theme - returns live theme and all themes for the owner tenant
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get current tenant theme, sections, and version history' })
+  @ApiOperation({ summary: 'Get current tenant themes and version history' })
   @ApiResponse({ status: 200, description: 'Theme data retrieved successfully' })
-  async findAll(@CurrentUser() user?: any) {
-    return this.themeService.findAll(user?.tenantId);
+  async findAll(@CurrentUser() user: any) {
+    return this.themeService.findAll(user.tenantId);
   }
 
+  // GET /owner/theme/live - public storefront endpoint for active live theme
   @Get('live')
   @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get currently active live theme for storefront' })
+  @ApiOperation({ summary: 'Get currently active live theme for the storefront (public)' })
   @ApiResponse({ status: 200, description: 'Live theme retrieved successfully' })
   async getLiveTheme(@CurrentUser() user?: any) {
-    return this.themeService.getLiveTheme(user?.tenantId);
+    const tenantId = user?.tenantId;
+    return this.themeService.getLiveTheme(tenantId);
   }
 
+  // GET /owner/theme/:id - returns single theme details by ID
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get single theme details' })
   @ApiResponse({ status: 200, description: 'Theme details retrieved successfully' })
-  async findOne(@Param('id') id: string, @CurrentUser() user?: any) {
-    return this.themeService.findOne(id, user?.tenantId);
+  async findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.themeService.findOne(id, user.tenantId);
   }
 
+  // POST /owner/theme - creates a new draft theme
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new draft theme' })
   @ApiResponse({ status: 201, description: 'Theme created successfully' })
-  async create(@Body() dto: CreateThemeDto, @CurrentUser() user?: any) {
-    return this.themeService.create(dto, user?.tenantId);
+  async create(@Body() dto: CreateThemeDto, @CurrentUser() user: any) {
+    return this.themeService.create(dto, user.tenantId);
   }
 
+  // PATCH /owner/theme/:id - saves draft changes to design tokens and brand settings
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update theme design tokens and brand settings (Save Draft)' })
   @ApiResponse({ status: 200, description: 'Theme draft saved successfully' })
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateThemeDto,
-    @CurrentUser() user?: any,
+    @CurrentUser() user: any,
   ) {
-    return this.themeService.update(id, dto, user?.tenantId);
+    return this.themeService.update(id, dto, user.tenantId);
   }
 
+  // POST /owner/theme/:id/publish - publishes theme draft live and creates version snapshot
   @Post(':id/publish')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Publish theme live to storefront' })
   @ApiResponse({ status: 200, description: 'Theme published successfully' })
   async publish(
     @Param('id') id: string,
     @Body() dto: PublishThemeDto,
-    @CurrentUser() user?: any,
+    @CurrentUser() user: any,
   ) {
-    return this.themeService.publish(id, dto, user?.tenantId, user);
+    return this.themeService.publish(id, dto, user.tenantId, user);
   }
 
-  @Put(':id/sections/reorder')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Batch reorder sections and toggle visibility' })
-  @ApiResponse({ status: 200, description: 'Sections reordered successfully' })
-  async reorderSections(
-    @Param('id') id: string,
-    @Body() dto: ReorderSectionsDto,
-    @CurrentUser() user?: any,
-  ) {
-    return this.themeService.reorderSections(id, dto, user?.tenantId);
-  }
-
-  @Post(':id/sections')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Add a new section to a theme' })
-  @ApiResponse({ status: 201, description: 'Section added successfully' })
-  async addSection(
-    @Param('id') id: string,
-    @Body() dto: CreateSectionDto,
-    @CurrentUser() user?: any,
-  ) {
-    return this.themeService.addSection(id, dto, user?.tenantId);
-  }
-
-  @Patch(':id/sections/:sectionId')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update a theme section' })
-  @ApiResponse({ status: 200, description: 'Section updated successfully' })
-  async updateSection(
-    @Param('id') id: string,
-    @Param('sectionId') sectionId: string,
-    @Body() dto: UpdateSectionDto,
-    @CurrentUser() user?: any,
-  ) {
-    return this.themeService.updateSection(id, sectionId, dto, user?.tenantId);
-  }
-
-  @Delete(':id/sections/:sectionId')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a theme section' })
-  @ApiResponse({ status: 200, description: 'Section removed successfully' })
-  async deleteSection(
-    @Param('id') id: string,
-    @Param('sectionId') sectionId: string,
-    @CurrentUser() user?: any,
-  ) {
-    return this.themeService.deleteSection(id, sectionId, user?.tenantId);
-  }
-
+  // POST /owner/theme/:id/restore/:versionId - restores theme tokens and sections from past version
   @Post(':id/restore/:versionId')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Restore theme tokens and layout from an earlier version snapshot' })
+  @ApiOperation({ summary: 'Restore theme from a past version snapshot' })
   @ApiResponse({ status: 200, description: 'Theme restored successfully' })
   async restoreVersion(
     @Param('id') id: string,
     @Param('versionId') versionId: string,
-    @CurrentUser() user?: any,
+    @CurrentUser() user: any,
   ) {
-    return this.themeService.restoreVersion(id, versionId, user?.tenantId);
+    return this.themeService.restoreVersion(id, versionId, user.tenantId);
   }
 }

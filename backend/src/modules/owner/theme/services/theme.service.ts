@@ -11,7 +11,7 @@ import { ReorderSectionsDto } from '../dto/reorder-sections.dto';
 import { CreateSectionDto } from '../dto/create-section.dto';
 import { UpdateSectionDto } from '../dto/update-section.dto';
 import { PublishThemeDto } from '../dto/publish-theme.dto';
-import { ThemeStatus } from '../../../../../prisma/generated/client';
+import { ThemeStatus, TenantStatus } from '../../../../../prisma/generated/client';
 import {
   DEFAULT_THEME_TOKENS,
   DEFAULT_LANDING_SECTIONS,
@@ -23,7 +23,30 @@ export class ThemeService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  // 1. Ensure tenant has an active live theme with standard landing page sections
+  // Validates that tenantId is present from current session
+  private requireTenantId(tenantId: string): string {
+    if (!tenantId) {
+      throw new ConflictException('Tenant ID could not be resolved from the current session.');
+    }
+    return tenantId;
+  }
+
+  // Resolves tenantId for public storefront endpoint
+  private async resolvePublicTenantId(tenantId?: string): Promise<string> {
+    if (tenantId) return tenantId;
+    const defaultTenant = await this.prisma.tenant.findFirst({
+      where: { deletedAt: null, status: TenantStatus.ACTIVE },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (!defaultTenant) {
+      throw new ConflictException('No active tenant found.');
+    }
+    return defaultTenant.id;
+  }
+
+  // ─── Internal helpers ────────────────────────────────────────────────────────
+
+  // Ensures tenant always has a live theme with default section layout
   async ensureTenantLiveTheme(tenantId: string) {
     let liveTheme = await this.prisma.tenantTheme.findFirst({
       where: { tenantId, isLive: true },
@@ -70,36 +93,82 @@ export class ThemeService {
     return liveTheme;
   }
 
-  // 2. Find all themes & current live theme for owner tenant
-  async findAll(tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant could not be resolved from authenticated session.');
-    }
+  // ─── Theme CRUD ──────────────────────────────────────────────────────────────
 
-    const liveTheme = await this.ensureTenantLiveTheme(tenantId);
+  // Returns live theme and all themes for owner tenant
+  async findAll(tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
+    const liveTheme = await this.ensureTenantLiveTheme(tid);
 
     const themes = await this.prisma.tenantTheme.findMany({
-      where: { tenantId },
+      where: { tenantId: tid },
       include: {
         _count: { select: { sections: true, versions: true } },
       },
       orderBy: [{ isLive: 'desc' }, { updatedAt: 'desc' }],
     });
 
-    return ResponseHelper.success({
-      liveTheme,
-      themes,
-    });
+    return ResponseHelper.success({ liveTheme, themes });
   }
 
-  // 3. Find single theme details
-  async findOne(id: string, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
+  // Gets currently live theme for storefront without version history
+  async getLiveTheme(tenantId?: string) {
+    const tid = await this.resolvePublicTenantId(tenantId);
+
+    // Ensure a live theme exists (creates default if none)
+    await this.ensureTenantLiveTheme(tid);
+
+    // Fetch only what the storefront needs — tokens + ordered sections, no versions
+    const liveTheme = await this.prisma.tenantTheme.findFirst({
+      where: { tenantId: tid, isLive: true },
+      select: {
+        id: true,
+        tenantId: true,
+        name: true,
+        status: true,
+        isLive: true,
+        primaryColor: true,
+        secondaryColor: true,
+        accentColor: true,
+        canvasColor: true,
+        surfaceColor: true,
+        inkColor: true,
+        fontHeading: true,
+        fontBody: true,
+        borderRadius: true,
+        cardStyle: true,
+        customCss: true,
+        publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        sections: {
+          where: { isVisible: true },
+          orderBy: { orderIndex: 'asc' },
+          select: {
+            id: true,
+            sectionType: true,
+            label: true,
+            orderIndex: true,
+            isVisible: true,
+            settings: true,
+          },
+        },
+      },
+    });
+
+    if (!liveTheme) {
+      throw new NotFoundException('TenantTheme');
     }
 
+    return ResponseHelper.success(liveTheme);
+  }
+
+  // Returns single theme by ID scoped to tenant
+  async findOne(id: string, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
+
     const theme = await this.prisma.tenantTheme.findFirst({
-      where: { id, tenantId },
+      where: { id, tenantId: tid },
       include: {
         sections: { orderBy: { orderIndex: 'asc' } },
         versions: { orderBy: { createdAt: 'desc' }, take: 20 },
@@ -113,25 +182,13 @@ export class ThemeService {
     return ResponseHelper.success(theme);
   }
 
-  // 4. Get current live theme for storefront or preview
-  async getLiveTheme(tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
-
-    const liveTheme = await this.ensureTenantLiveTheme(tenantId);
-    return ResponseHelper.success(liveTheme);
-  }
-
-  // 5. Create / Clone Theme
-  async create(dto: CreateThemeDto, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // Creates a new draft theme for tenant
+  async create(dto: CreateThemeDto, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
 
     const createdTheme = await this.prisma.tenantTheme.create({
       data: {
-        tenantId,
+        tenantId: tid,
         name: dto.name,
         status: ThemeStatus.DRAFT,
         isLive: false,
@@ -163,14 +220,12 @@ export class ThemeService {
     return ResponseHelper.created(createdTheme, 'Theme created successfully');
   }
 
-  // 6. Update Theme Tokens & Settings (Draft Save)
-  async update(id: string, dto: UpdateThemeDto, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // Saves draft changes to theme tokens and brand settings
+  async update(id: string, dto: UpdateThemeDto, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
 
     const theme = await this.prisma.tenantTheme.findFirst({
-      where: { id, tenantId },
+      where: { id, tenantId: tid },
     });
     if (!theme) {
       throw new NotFoundException('TenantTheme');
@@ -178,9 +233,7 @@ export class ThemeService {
 
     const updated = await this.prisma.tenantTheme.update({
       where: { id },
-      data: {
-        ...dto,
-      },
+      data: { ...dto },
       include: {
         sections: { orderBy: { orderIndex: 'asc' } },
       },
@@ -189,14 +242,12 @@ export class ThemeService {
     return ResponseHelper.success(updated, 'Theme draft saved successfully');
   }
 
-  // 7. Publish Theme
-  async publish(id: string, dto: PublishThemeDto, tenantId?: string, user?: any) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // Publishes theme draft live and snapshots version
+  async publish(id: string, dto: PublishThemeDto, tenantId: string, user?: any) {
+    const tid = this.requireTenantId(tenantId);
 
     const targetTheme = await this.prisma.tenantTheme.findFirst({
-      where: { id, tenantId },
+      where: { id, tenantId: tid },
       include: { sections: { orderBy: { orderIndex: 'asc' } } },
     });
 
@@ -207,7 +258,7 @@ export class ThemeService {
     return this.prisma.$transaction(async (tx) => {
       // 1. Demote any currently live themes for this tenant
       await tx.tenantTheme.updateMany({
-        where: { tenantId, isLive: true },
+        where: { tenantId: tid, isLive: true },
         data: { isLive: false },
       });
 
@@ -225,11 +276,9 @@ export class ThemeService {
       });
 
       // 3. Count past versions for numbering
-      const versionCount = await tx.themeVersion.count({
-        where: { themeId: id },
-      });
-
+      const versionCount = await tx.themeVersion.count({ where: { themeId: id } });
       const nextVersionTag = `v1.${versionCount + 1}`;
+
       const snapshotData = {
         tokens: {
           primaryColor: published.primaryColor,
@@ -260,7 +309,7 @@ export class ThemeService {
 
       // 5. Sync to Tenant.theme JSON column for backward compatibility
       await tx.tenant.update({
-        where: { id: tenantId },
+        where: { id: tid },
         data: {
           theme: {
             primaryColor: published.primaryColor,
@@ -276,14 +325,14 @@ export class ThemeService {
     });
   }
 
-  // 8. Reorder Sections in Batch
-  async reorderSections(themeId: string, dto: ReorderSectionsDto, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // ─── Section Management ───────────────────────────────────────────────────────
+
+  // Batch-reorders sections and toggles visibility
+  async reorderSections(themeId: string, dto: ReorderSectionsDto, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
 
     const theme = await this.prisma.tenantTheme.findFirst({
-      where: { id: themeId, tenantId },
+      where: { id: themeId, tenantId: tid },
     });
     if (!theme) {
       throw new NotFoundException('TenantTheme');
@@ -309,14 +358,12 @@ export class ThemeService {
     return ResponseHelper.success(updatedSections, 'Sections reordered successfully');
   }
 
-  // 9. Add Section
-  async addSection(themeId: string, dto: CreateSectionDto, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // Adds a new section to theme
+  async addSection(themeId: string, dto: CreateSectionDto, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
 
     const theme = await this.prisma.tenantTheme.findFirst({
-      where: { id: themeId, tenantId },
+      where: { id: themeId, tenantId: tid },
     });
     if (!theme) {
       throw new NotFoundException('TenantTheme');
@@ -337,14 +384,17 @@ export class ThemeService {
     return ResponseHelper.created(section, 'Section added to theme');
   }
 
-  // 10. Update Section
-  async updateSection(themeId: string, sectionId: string, dto: UpdateSectionDto, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // Updates a single theme section
+  async updateSection(
+    themeId: string,
+    sectionId: string,
+    dto: UpdateSectionDto,
+    tenantId: string,
+  ) {
+    const tid = this.requireTenantId(tenantId);
 
     const section = await this.prisma.themeSection.findFirst({
-      where: { id: sectionId, themeId, theme: { tenantId } },
+      where: { id: sectionId, themeId, theme: { tenantId: tid } },
     });
     if (!section) {
       throw new NotFoundException('ThemeSection');
@@ -358,14 +408,12 @@ export class ThemeService {
     return ResponseHelper.success(updated, 'Section updated successfully');
   }
 
-  // 11. Delete Section
-  async deleteSection(themeId: string, sectionId: string, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // Removes a section from theme permanently
+  async deleteSection(themeId: string, sectionId: string, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
 
     const section = await this.prisma.themeSection.findFirst({
-      where: { id: sectionId, themeId, theme: { tenantId } },
+      where: { id: sectionId, themeId, theme: { tenantId: tid } },
     });
     if (!section) {
       throw new NotFoundException('ThemeSection');
@@ -375,14 +423,14 @@ export class ThemeService {
     return ResponseHelper.noContent('Section removed successfully');
   }
 
-  // 12. Restore from snapshot version
-  async restoreVersion(themeId: string, versionId: string, tenantId?: string) {
-    if (!tenantId) {
-      throw new ConflictException('Tenant not resolved.');
-    }
+  // ─── Version History ──────────────────────────────────────────────────────────
+
+  // Restores theme tokens and section layout from past version snapshot
+  async restoreVersion(themeId: string, versionId: string, tenantId: string) {
+    const tid = this.requireTenantId(tenantId);
 
     const version = await this.prisma.themeVersion.findFirst({
-      where: { id: versionId, themeId, theme: { tenantId } },
+      where: { id: versionId, themeId, theme: { tenantId: tid } },
     });
     if (!version) {
       throw new NotFoundException('ThemeVersion');

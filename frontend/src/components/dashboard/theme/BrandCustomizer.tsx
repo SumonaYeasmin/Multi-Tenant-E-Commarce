@@ -5,19 +5,24 @@ import { Panel } from '@/components/dashboard/shared/Panel';
 import { Select } from '@/components/ui/Select';
 import type { TenantTheme } from '@/types/theme';
 
+// Values must match what gets stored in the DB and used in CSS (--font-display / --font-sans)
 const FONT_HEADING_OPTIONS = [
-  'Fraunces (Serif)',
-  'Playfair Display (Serif)',
-  'Plus Jakarta Sans (Modern)',
-  'Inter (Neutral Sans)',
+  { label: 'Fraunces (Serif)', value: 'Fraunces' },
+  { label: 'Playfair Display (Serif)', value: 'Playfair Display' },
+  { label: 'Plus Jakarta Sans (Modern)', value: 'Plus Jakarta Sans' },
+  { label: 'Inter (Neutral Sans)', value: 'Inter' },
 ];
 
-const FONT_BODY_OPTIONS = ['Inter', 'Plus Jakarta Sans', 'Geist'];
+const FONT_BODY_OPTIONS = [
+  { label: 'Inter', value: 'Inter' },
+  { label: 'Plus Jakarta Sans', value: 'Plus Jakarta Sans' },
+  { label: 'Geist', value: 'Geist' },
+];
 
 const CARD_STYLE_OPTIONS = [
-  'Portrait 3:4, hover second image',
-  'Square 1:1, minimal',
-  'Portrait with quick add',
+  { label: 'Portrait 3:4, hover second image', value: 'portrait-hover' },
+  { label: 'Square 1:1, minimal', value: 'square-minimal' },
+  { label: 'Portrait with quick add', value: 'portrait-quickadd' },
 ];
 
 const RADIUS_OPTIONS = [
@@ -42,6 +47,7 @@ export function BrandCustomizer({ theme, onChange }: BrandCustomizerProps) {
       <div className="space-y-4">
         {/* Brand Colors */}
         <div className="space-y-3">
+          {/* Primary Color */}
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-ink">Primary brand color</p>
@@ -63,6 +69,7 @@ export function BrandCustomizer({ theme, onChange }: BrandCustomizerProps) {
             </div>
           </div>
 
+          {/* Accent Color */}
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-ink">Accent color</p>
@@ -84,6 +91,7 @@ export function BrandCustomizer({ theme, onChange }: BrandCustomizerProps) {
             </div>
           </div>
 
+          {/* Canvas (Background) Color */}
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-ink">Background color</p>
@@ -100,6 +108,28 @@ export function BrandCustomizer({ theme, onChange }: BrandCustomizerProps) {
                 type="text"
                 value={theme.canvasColor}
                 onChange={(e) => onChange({ canvasColor: e.target.value })}
+                className="w-20 rounded border border-line bg-surface px-1.5 py-1 text-xs font-mono uppercase text-ink text-center"
+              />
+            </div>
+          </div>
+
+          {/* Ink (Text) Color */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-ink">Text color</p>
+              <p className="text-[11px] text-ink-muted">Primary text across storefront</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={theme.inkColor}
+                onChange={(e) => onChange({ inkColor: e.target.value })}
+                className="h-7 w-7 cursor-pointer rounded-full border border-line p-0 bg-transparent"
+              />
+              <input
+                type="text"
+                value={theme.inkColor}
+                onChange={(e) => onChange({ inkColor: e.target.value })}
                 className="w-20 rounded border border-line bg-surface px-1.5 py-1 text-xs font-mono uppercase text-ink text-center"
               />
             </div>
@@ -126,7 +156,7 @@ export function BrandCustomizer({ theme, onChange }: BrandCustomizerProps) {
             label="Corner radius"
             value={theme.borderRadius}
             onChange={(e) => onChange({ borderRadius: e.target.value })}
-            options={RADIUS_OPTIONS.map((r) => ({ label: r.label, value: r.value }))}
+            options={RADIUS_OPTIONS}
           />
 
           <Select
