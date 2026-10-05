@@ -5,32 +5,54 @@ import Link from 'next/link';
 import { ArrowRightIcon } from 'lucide-react';
 import { images } from '@/data/images';
 import { Button } from '@/components/ui/button';
+import { useStore } from '@/contexts/StoreContext';
 
 export function HeroBanner() {
+  const { collections } = useStore();
+
+  const heroCollection =
+    collections.find((c) => c.slug === 'eid-2026' || c.isFeatured) ||
+    collections[0];
+
+  const sideCollection =
+    collections.find(
+      (c) => c.slug !== heroCollection?.slug && (c.slug === 'heritage-weaves' || c.isFeatured)
+    ) || collections[1];
+
+  const heroTitle = heroCollection?.name || 'Eid Collection 2026';
+  const heroDescription = heroCollection?.description || 'Made for long days with family';
+  const heroImage = heroCollection?.image || images.hero;
+  const heroHref = heroCollection ? `/collections/${heroCollection.slug}` : '/collections/eid-2026';
+
+  const sideTitle = sideCollection?.name || 'Heritage Weaves';
+  const sideDescription = sideCollection?.description || 'Jamdani & Rajshahi silk';
+  const sideImage = sideCollection?.image || images.saree;
+  const sideHref = sideCollection ? `/collections/${sideCollection.slug}` : '/collections/heritage-weaves';
+
   return (
     <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Main Eid Banner */}
+        {/* Main Hero Banner */}
         <div className="relative overflow-hidden rounded-lg lg:col-span-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={images.hero}
-            alt="Eid 2026 Collection"
+            src={heroImage}
+            alt={heroTitle}
             className="h-[440px] w-full object-cover sm:h-[560px]"
           />
           <div className="absolute inset-0 bg-ink/25" aria-hidden />
           <div className="absolute inset-x-0 bottom-0 p-6 text-canvas sm:p-10">
             <p className="text-sm font-medium text-canvas/85">
-              Eid Collection 2026
+              {heroTitle}
             </p>
             <h1 className="mt-2 max-w-lg font-display text-4xl leading-[1.05] sm:text-6xl text-canvas">
-              Made for long days with family
+              {heroDescription}
             </h1>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button
                 size="lg"
                 className="bg-canvas text-ink hover:bg-canvas/90 cursor-pointer"
-                href="/collections/eid-2026"
+                href={heroHref}
               >
                 Shop the collection
               </Button>
@@ -49,19 +71,19 @@ export function HeroBanner() {
         {/* Side Banners */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <Link
-            href="/collections/heritage-weaves"
+            href={sideHref}
             className="group relative overflow-hidden rounded-lg block"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={images.saree}
-              alt="Heritage Weaves"
+              src={sideImage}
+              alt={sideTitle}
               className="h-64 w-full object-cover object-top transition-transform duration-300 ease-out group-hover:scale-[1.03] lg:h-[272px]"
             />
             <div className="absolute inset-0 bg-ink/20" aria-hidden />
             <div className="absolute bottom-0 p-5 text-canvas">
-              <p className="font-display text-2xl font-medium">Heritage Weaves</p>
-              <p className="mt-1 text-sm text-canvas/85">Jamdani & Rajshahi silk</p>
+              <p className="font-display text-2xl font-medium">{sideTitle}</p>
+              <p className="mt-1 text-sm text-canvas/85 line-clamp-1">{sideDescription}</p>
             </div>
           </Link>
 
