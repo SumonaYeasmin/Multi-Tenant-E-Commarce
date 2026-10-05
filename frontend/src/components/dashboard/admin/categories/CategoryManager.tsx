@@ -67,8 +67,14 @@ export function CategoryManager({ initialCategories = [], products = [] }: Categ
     if (categoriesFromDb !== null) {
       return categoriesFromDb;
     }
-    return initialCategories;
-  }, [categoriesFromDb, initialCategories]);
+    if (store?.categories && store.categories.length > 0) {
+      return store.categories;
+    }
+    if (initialCategories && initialCategories.length > 0) {
+      return initialCategories;
+    }
+    return [];
+  }, [categoriesFromDb, store?.categories, initialCategories]);
 
   const productsList =
     store?.products && store.products.length > 0 ? store.products : products;
@@ -161,7 +167,7 @@ export function CategoryManager({ initialCategories = [], products = [] }: Categ
         }
       />
 
-      {isLoading && categoriesList.length === 0 ? (
+      {isLoading && categoriesFromDb === null ? (
         <div className="flex h-64 items-center justify-center rounded-lg border border-line bg-surface">
           <div className="flex items-center gap-2 text-sm text-ink-muted">
             <Loader2 className="h-5 w-5 animate-spin text-clay" />
