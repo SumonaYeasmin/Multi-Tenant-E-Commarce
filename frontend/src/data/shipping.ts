@@ -820,24 +820,16 @@ export const FREE_SHIPPING_THRESHOLD = 2500;
 export const shippingMethods: ShippingMethod[] = [
   {
     id: 'standard',
-    name: 'Standard delivery',
-    description: 'Via Pathao / Steadfast',
+    name: 'Home delivery',
+    description: 'ঢাকার ভেতরে ৭০৳, ঢাকার বাইরে ১৫০৳',
     eta: '',
-    price: (d, sub) => (d === 'Dhaka' ? (sub >= FREE_SHIPPING_THRESHOLD ? 0 : 70) : 130),
+    price: (d) => (d === 'Dhaka' ? 70 : 150),
     available: () => true,
   },
   {
-    id: 'express',
-    name: 'Express (same / next day)',
-    description: 'Inside Dhaka city only',
-    eta: '',
-    price: () => 150,
-    available: (d) => d === 'Dhaka',
-  },
-  {
     id: 'pickup',
-    name: 'Store pickup — Dhanmondi 27',
-    description: 'Ready in 2 hours',
+    name: 'Store pickup',
+    description: 'সরাসরি দোকানে এসে পিকআপ (ফ্রি)',
     eta: '',
     price: () => 0,
     available: () => true,
@@ -846,7 +838,6 @@ export const shippingMethods: ShippingMethod[] = [
 
 export function deliveryEstimate(district: string, method = 'standard') {
   if (method === 'pickup') return 'Ready today';
-  if (method === 'express') return 'Today or tomorrow';
   return district === 'Dhaka' ? '1–2 days' : '3–5 days';
 }
 
