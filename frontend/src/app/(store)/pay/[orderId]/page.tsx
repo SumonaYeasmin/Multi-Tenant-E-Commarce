@@ -101,13 +101,13 @@ export default function PaymentGatewayPage({ params }: PaymentPageProps) {
     const target = order.number || order.id;
     if (result === 'cancel') {
       completePayment(order.id, 'cancel');
-      router.replace(`/order/${target}`);
+      router.replace(`/order-confirmation/${target}`);
       return;
     }
     setStep('verifying');
     await new Promise((r) => setTimeout(r, 1400));
     completePayment(order.id, result);
-    router.replace(`/order/${target}`);
+    router.replace(`/order-confirmation/${target}`);
   };
 
   const gatewayName =

@@ -279,7 +279,7 @@ export default function CheckoutPage() {
       sessionStorage.removeItem('tanti.coupon');
     }
     const targetId = order.number || order.id;
-    router.replace(payment === 'cod' ? `/order/${targetId}` : `/pay/${targetId}`);
+    router.replace(payment === 'cod' ? `/order-confirmation/${targetId}` : `/pay/${targetId}`);
   };
 
   return (

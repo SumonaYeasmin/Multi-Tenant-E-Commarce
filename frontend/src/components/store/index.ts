@@ -19,3 +19,9 @@ export * from './shop';
 // 💳 Checkout Components
 export * from './checkout';
 
+// 👤 Customer Account Components
+export * from './account';
+
+// 🎉 Order Confirmation Components
+export * from './order-confirmation';
+
