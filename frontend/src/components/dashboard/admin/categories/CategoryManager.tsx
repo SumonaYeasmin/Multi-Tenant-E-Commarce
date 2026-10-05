@@ -64,11 +64,17 @@ export function CategoryManager({ initialCategories = [], products = [] }: Categ
   }, [fetchCategories]);
 
   const categoriesList = useMemo(() => {
-    if (categoriesFromDb !== null) {
+    if (categoriesFromDb !== null && categoriesFromDb.length > 0) {
       return categoriesFromDb;
     }
-    return initialCategories;
-  }, [categoriesFromDb, initialCategories]);
+    if (store?.categories && store.categories.length > 0) {
+      return store.categories;
+    }
+    if (initialCategories && initialCategories.length > 0) {
+      return initialCategories;
+    }
+    return [];
+  }, [categoriesFromDb, store?.categories, initialCategories]);
 
   const productsList =
     store?.products && store.products.length > 0 ? store.products : products;
