@@ -103,6 +103,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
       // Orders, Returns & Reviews
       orders: ordersState.orders,
+      isOrdersLoading: ordersState.isOrdersLoading,
+      refreshOrders: ordersState.loadOrdersFromBackend,
       returns: ordersState.returns,
       reviews: ordersState.reviews,
       placeOrder: ordersState.placeOrder,
