@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
-import { DiscountController } from './discount.controller';
+import {
+  DiscountController,
+  StorefrontDiscountController,
+} from './discount.controller';
 import { DiscountService } from './discount.service';
 import { PrismaModule } from '../../../prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [DiscountController],
+  controllers: [DiscountController, StorefrontDiscountController],
   providers: [DiscountService],
   exports: [DiscountService],
 })
