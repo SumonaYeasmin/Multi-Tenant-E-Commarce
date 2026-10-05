@@ -63,6 +63,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       isStoreLoading: catalog.isStoreLoading,
       products: catalog.products,
       categories: catalog.categories,
+      collections: catalog.collections,
       saveProduct: catalog.saveProduct,
       adjustStock: catalog.adjustStock,
       addCategory: catalog.addCategory,
@@ -88,6 +89,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       // Auth & Customer
       user: auth.user,
       addresses: auth.addresses,
+      isAddressesLoading: auth.isAddressesLoading,
+      refreshAddresses: auth.loadAddressesFromBackend,
       storeCredit: auth.storeCredit,
       customers: auth.customers,
       login: auth.login,

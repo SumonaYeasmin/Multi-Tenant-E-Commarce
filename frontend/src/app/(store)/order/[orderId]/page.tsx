@@ -113,8 +113,10 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
             Thank you, {order.customerName.split(' ')[0]}
           </h1>
           <p className="mt-2 text-ink-soft">
-            Order <b>{order.number}</b> is confirmed. We’ve sent a confirmation to{' '}
-            {order.email} and an SMS to {order.phone}.
+            Order <b>{order.number}</b> is confirmed.{' '}
+            {order.email
+              ? `We’ve sent a confirmation to ${order.email} and an SMS to ${order.phone}.`
+              : `We’ve sent an SMS confirmation to ${order.phone}.`}
           </p>
         </div>
       )}
@@ -133,7 +135,9 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
             <p className="text-xs text-ink-muted">Delivery</p>
             <p className="mt-1 font-medium">{order.shippingMethod}</p>
             <p className="text-ink-soft">
-              {order.shippingAddress.district === 'Dhaka'
+              {order.shippingMethod?.toLowerCase().includes('pickup')
+                ? 'Ready today'
+                : order.shippingAddress.district === 'Dhaka'
                 ? 'Arrives in 1–2 days'
                 : 'Arrives in 3–5 days'}
             </p>

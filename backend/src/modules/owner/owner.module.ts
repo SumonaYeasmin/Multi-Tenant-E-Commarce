@@ -1,0 +1,30 @@
+import { Module } from '@nestjs/common';
+import { CategoryModule } from './category/category.module';
+import { BrandModule } from './brand/brand.module';
+import { CollectionModule } from './collection/collection.module';
+import { ProductModule } from './product/product.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { ThemeModule } from './theme/theme.module';
+import { DiscountModule } from './discount/discount.module';
+
+@Module({
+  imports: [
+    CategoryModule,
+    BrandModule,
+    CollectionModule,
+    ProductModule,
+    InventoryModule,
+    ThemeModule,
+    DiscountModule,
+  ],
+  exports: [
+    CategoryModule,
+    BrandModule,
+    CollectionModule,
+    ProductModule,
+    InventoryModule,
+    ThemeModule,
+    DiscountModule,
+  ],
+})
+export class OwnerModule {}

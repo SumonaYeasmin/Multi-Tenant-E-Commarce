@@ -27,7 +27,7 @@ import { Rating } from '@/components/ui/Rating';
 import { Input } from '@/components/ui/Input';
 import { available, discountPercent, variantPrice } from '@/utils/pricing';
 import { formatBDT } from '@/utils/format';
-import { cn } from '@/utils/cn';
+import { cn } from '@/lib/utils';
 
 const galleryPositions = [
   'object-center',
@@ -60,22 +60,88 @@ export function ProductDetailView({ slug }: { slug: string }) {
   const [district, setDistrict] = useState('Dhaka');
   const [openSection, setOpenSection] = useState<string | null>('details');
 
+  // Auto-initialize color & size on load
   useEffect(() => {
     if (!product) return;
-    setColor(product.colors[0]?.name || '');
-    setSize(product.sizes.length === 1 ? product.sizes[0] : null);
+
+    const initialColor = product.colors[0]?.name || '';
+    setColor(initialColor);
+
+    // Find available size for this color or default to first size
+    const matchingVariants = product.variants.filter(
+      (v) => v.color?.trim().toLowerCase() === initialColor.trim().toLowerCase()
+    );
+    const firstInStockSize =
+      matchingVariants.find((v) => available(v) > 0)?.size ||
+      matchingVariants[0]?.size ||
+      product.sizes[0] ||
+      null;
+
+    setSize(firstInStockSize);
+    setSizeError(false);
     setQty(1);
     setImage(0);
     trackView(product.id);
   }, [product, trackView]);
 
-  const variant = useMemo(
-    () =>
-      product && size
-        ? product.variants.find((v) => v.color === color && v.size === size)
-        : undefined,
-    [product, color, size]
-  );
+  // Robust variant resolution
+  const variant = useMemo(() => {
+    if (!product || !product.variants || product.variants.length === 0) return undefined;
+
+    if (size) {
+      // 1. Match both color and size (case-insensitive & trimmed)
+      const exact = product.variants.find(
+        (v) =>
+          v.color?.trim().toLowerCase() === color?.trim().toLowerCase() &&
+          v.size?.trim().toLowerCase() === size?.trim().toLowerCase()
+      );
+      if (exact) return exact;
+
+      // 2. Match size only
+      const bySize = product.variants.find(
+        (v) => v.size?.trim().toLowerCase() === size?.trim().toLowerCase()
+      );
+      if (bySize) return bySize;
+    }
+
+    // 3. Match color only
+    if (color) {
+      const byColor = product.variants.find(
+        (v) => v.color?.trim().toLowerCase() === color?.trim().toLowerCase()
+      );
+      if (byColor) return byColor;
+    }
+
+    // 4. Default to first variant
+    return product.variants[0];
+  }, [product, color, size]);
+
+  // Handle color change and keep size in sync
+  const handleColorChange = (newColor: string) => {
+    setColor(newColor);
+    setImage(0);
+    setSizeError(false);
+
+    if (product) {
+      const hasCurrentSize = product.variants.some(
+        (v) =>
+          v.color?.trim().toLowerCase() === newColor.trim().toLowerCase() &&
+          v.size?.trim().toLowerCase() === (size || '').trim().toLowerCase()
+      );
+
+      if (!hasCurrentSize) {
+        const matching = product.variants.filter(
+          (v) => v.color?.trim().toLowerCase() === newColor.trim().toLowerCase()
+        );
+        const newSize =
+          matching.find((v) => available(v) > 0)?.size ||
+          matching[0]?.size ||
+          product.sizes[0] ||
+          null;
+        setSize(newSize);
+      }
+    }
+  };
 
   if (!product) {
     return (
@@ -129,11 +195,14 @@ export function ProductDetailView({ slug }: { slug: string }) {
   const standard = shippingMethods[0];
 
   const add = () => {
-    if (!variant) {
+    const targetVariant = variant || product.variants[0];
+    if (!targetVariant) {
       setSizeError(true);
+      toast.error('Please select a size');
       return;
     }
-    addToCart(product.id, variant.id, qty);
+    setSizeError(false);
+    addToCart(product.id, targetVariant.id, qty);
     toast.success(`${product.title} added to bag`);
     setMiniCartOpen(true);
   };
@@ -338,10 +407,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               product={product}
               color={color}
               size={size}
-              onColor={(c) => {
-                setColor(c);
-                setImage(0);
-              }}
+              onColor={handleColorChange}
               onSize={(s) => {
                 setSize(s);
                 setSizeError(false);

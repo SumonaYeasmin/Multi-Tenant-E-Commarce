@@ -61,8 +61,8 @@ export default function AdminProductsPage() {
     loadData();
   }, [loadData]);
 
-  // Always use live products from database
-  const products = liveProducts;
+  // Prioritize live products from database, fallback to store products
+  const products = liveProducts.length > 0 ? liveProducts : storeProducts;
 
   // Process Category List for Filter Dropdown
   const categoryFilterOptions = useMemo(() => {
@@ -77,20 +77,36 @@ export default function AdminProductsPage() {
     () =>
       products.filter((p) => {
         const s = productStock(p);
-        return (
-          (tab === 'all' || p.status === tab) &&
-          (cat === 'all' || p.category === cat) &&
-          (stock === 'all' ||
-            (stock === 'out'
-              ? s === 0 && !p.preorder
-              : s > 0 && s <= LOW_STOCK_THRESHOLD * 2)) &&
-          (!q ||
-            `${p.title} ${p.variants?.map((v) => v.sku).join(' ') || ''} ${p.brand}`
-              .toLowerCase()
-              .includes(q.toLowerCase()))
-        );
+        const pCat = (p.category || '').toLowerCase();
+        const catFilter = cat.toLowerCase();
+
+        const matchesCat =
+          catFilter === 'all' ||
+          pCat === catFilter ||
+          categoryFilterOptions.some(
+            (c) =>
+              c.key.toLowerCase() === catFilter &&
+              (pCat === c.key.toLowerCase() || pCat === c.name.toLowerCase())
+          );
+
+        const matchesTab =
+          tab === 'all' || (p.status || '').toLowerCase() === tab.toLowerCase();
+
+        const matchesStock =
+          stock === 'all' ||
+          (stock === 'out'
+            ? s === 0 && !p.preorder
+            : s > 0 && s <= LOW_STOCK_THRESHOLD * 2);
+
+        const matchesSearch =
+          !q ||
+          `${p.title} ${p.variants?.map((v) => v.sku).join(' ') || ''} ${p.brand}`
+            .toLowerCase()
+            .includes(q.toLowerCase());
+
+        return matchesCat && matchesTab && matchesStock && matchesSearch;
       }),
-    [products, tab, cat, stock, q]
+    [products, tab, cat, stock, q, categoryFilterOptions]
   );
 
   const bulk = (status: ProductStatus) => {
