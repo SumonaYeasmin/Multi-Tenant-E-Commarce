@@ -2,13 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { CategoryItemData, Product } from '@/types/commerce';
-import { products as seedProducts, categories as seedCategories } from '@/data/products';
+import type { CollectionItem } from '@/types/collection';
+import {
+  products as seedProducts,
+  categories as seedCategories,
+  collections as seedCollections,
+} from '@/data/products';
 import { images } from '@/data/images';
 import {
   categoryService,
   productService,
   cartService,
+  collectionService,
   type CategoryResponseData,
+  type CollectionResponseData,
 } from '@/services';
 import { load } from './utils';
 
@@ -20,8 +27,11 @@ export function useStoreCatalog(onCartInitialized?: (cartItems: any[]) => void) 
   const [categories, setCategories] = useState<CategoryItemData[]>(() =>
     load('tanti.categories', seedCategories as CategoryItemData[])
   );
+  const [collections, setCollections] = useState<CollectionItem[]>(() =>
+    load('tanti.collections', seedCollections as CollectionItem[])
+  );
 
-  // Sync products and categories to localStorage
+  // Sync products, categories, and collections to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('tanti.products', JSON.stringify(products));
@@ -34,14 +44,21 @@ export function useStoreCatalog(onCartInitialized?: (cartItems: any[]) => void) 
     } catch {}
   }, [categories]);
 
-  // Fetch real categories, products, and cart together on mount
+  useEffect(() => {
+    try {
+      localStorage.setItem('tanti.collections', JSON.stringify(collections));
+    } catch {}
+  }, [collections]);
+
+  // Fetch real categories, products, collections, and cart together on mount
   useEffect(() => {
     let isMounted = true;
     async function initializeStore() {
       try {
-        const [catRes, prodRes, cartRes] = await Promise.allSettled([
+        const [catRes, prodRes, colRes, cartRes] = await Promise.allSettled([
           categoryService.getCategories(),
           productService.getProducts(),
+          collectionService.getCollections(),
           cartService.getCart(),
         ]);
 
@@ -75,7 +92,37 @@ export function useStoreCatalog(onCartInitialized?: (cartItems: any[]) => void) 
           setProducts(prodRes.value);
         }
 
-        // 3. Process Cart (if callback provided)
+        // 3. Process Collections from Database
+        if (colRes.status === 'fulfilled' && colRes.value?.data && colRes.value.data.length > 0) {
+          const activeCols = colRes.value.data.filter(
+            (c: CollectionResponseData) => c.isActive !== false
+          );
+          const mappedCols: CollectionItem[] = activeCols.map((c: CollectionResponseData) => ({
+            id: c.id,
+            slug: c.slug,
+            name: c.name,
+            description: c.description || '',
+            image: c.image || images.hero,
+            type: (c.type?.toLowerCase() === 'rule' ? 'rule' : 'manual') as any,
+            ruleDetails: c.rule || undefined,
+            rule:
+              c.rule && typeof c.rule === 'object'
+                ? `${c.rule.field || 'Tag'} ${c.rule.op || c.rule.condition || 'contains'} "${c.rule.value || ''}"`
+                : undefined,
+            isFeatured: c.isFeatured,
+            isActive: c.isActive,
+            seoTitle: c.seoTitle || undefined,
+            seoDescription: c.seoDescription || undefined,
+            startsAt: c.startsAt || undefined,
+            endsAt: c.endsAt || undefined,
+          }));
+
+          if (mappedCols.length > 0) {
+            setCollections(mappedCols);
+          }
+        }
+
+        // 4. Process Cart (if callback provided)
         if (
           cartRes.status === 'fulfilled' &&
           cartRes.value?.data &&
@@ -240,6 +287,8 @@ export function useStoreCatalog(onCartInitialized?: (cartItems: any[]) => void) 
     setProducts,
     categories,
     setCategories,
+    collections,
+    setCollections,
     saveProduct,
     adjustStock,
     addCategory,
