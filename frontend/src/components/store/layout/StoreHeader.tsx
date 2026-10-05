@@ -11,6 +11,8 @@ import {
   ShoppingBagIcon,
   UserIcon,
   ChevronRightIcon,
+  LogOutIcon,
+  ShieldCheckIcon,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useTenant } from '@/contexts/TenantContext';
@@ -22,13 +24,19 @@ import { cn } from '@/utils/cn';
 export function StoreHeader() {
   const pathname = usePathname();
   const { tenant } = useTenant();
-  const { cart, wishlist, user, setMiniCartOpen, setSearchOpen, categories } =
+  const { cart, wishlist, user, logout, setMiniCartOpen, setSearchOpen, categories } =
     useStore();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+
   const count = cart
     .filter((i) => !i.savedForLater)
     .reduce((s, i) => s + i.qty, 0);
+
+  // Direct 1-click destination based on authenticated user's role
+  const userRole = (user?.role || '').toUpperCase();
+  const isOwnerOrAdmin = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(userRole);
+  const dashboardHref = !user ? '/login' : (isOwnerOrAdmin ? '/admin' : '/account');
 
   return (
     <header className="sticky top-0 z-30 bg-canvas/95 backdrop-blur-md border-b border-line">
@@ -112,7 +120,7 @@ export function StoreHeader() {
             ))}
           </nav>
 
-          {/* Actions: Search, Wishlist, Account, Cart */}
+          {/* Actions: Search, Wishlist, Account/Dashboard, Cart */}
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -136,12 +144,17 @@ export function StoreHeader() {
               )}
             </Link>
 
+            {/* Direct 1-Click User / Dashboard Icon */}
             <Link
-              href={user ? '/account' : '/login'}
-              className="p-2 text-ink hover:text-clay cursor-pointer transition-colors"
-              aria-label="Account"
+              href={dashboardHref}
+              className="p-2 text-ink hover:text-clay cursor-pointer transition-colors relative"
+              aria-label={!user ? 'Sign in' : isOwnerOrAdmin ? 'Admin Dashboard' : 'My Account'}
+              title={!user ? 'Sign in' : isOwnerOrAdmin ? 'Admin Dashboard' : 'My Account'}
             >
               <UserIcon className="h-5 w-5" />
+              {isOwnerOrAdmin && (
+                <span className="absolute bottom-1 right-1 h-2 w-2 rounded-full bg-clay ring-2 ring-canvas" />
+              )}
             </Link>
 
             <button
@@ -168,6 +181,50 @@ export function StoreHeader() {
         title="Menu"
       >
         <div className="space-y-4 py-4">
+          {/* User Section in Mobile */}
+          {user ? (
+            <div className="rounded-lg border border-line bg-surface p-3 space-y-2">
+              <div>
+                <p className="text-sm font-semibold text-ink">{user.name}</p>
+                <p className="text-xs text-ink-muted">{user.email}</p>
+                {isOwnerOrAdmin && (
+                  <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-clay/10 text-clay uppercase tracking-wider">
+                    {user.role}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 pt-1">
+                <Link
+                  href={dashboardHref}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-semibold bg-ink text-canvas hover:bg-ink/90"
+                >
+                  {isOwnerOrAdmin ? <ShieldCheckIcon className="h-4 w-4 text-clay" /> : <UserIcon className="h-4 w-4" />}
+                  <span>{isOwnerOrAdmin ? 'Admin Dashboard' : 'My Account'}</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    logout();
+                    window.location.href = '/login';
+                  }}
+                  className="flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/10 text-left cursor-pointer"
+                >
+                  <LogOutIcon className="h-4 w-4" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setMobileOpen(false)}
+              className="block rounded-lg bg-ink px-4 py-2.5 text-center text-sm font-semibold text-canvas"
+            >
+              Sign In / Register
+            </Link>
+          )}
+
           <Link
             href="/shop"
             onClick={() => setMobileOpen(false)}

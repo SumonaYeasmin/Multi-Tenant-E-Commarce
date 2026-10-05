@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { wishlistService } from '@/services';
+import { getAuthToken } from '@/services/auth/auth.storage';
 import { loadWishlist } from './utils';
 import type { User } from './types';
 
@@ -20,8 +21,9 @@ export function useStoreWishlist(user: User | null) {
   // Handle guest-to-user wishlist sync & server hydration on login
   useEffect(() => {
     let isMounted = true;
+    const token = getAuthToken();
 
-    if (user?.id) {
+    if (user?.id && token) {
       // Prevent redundant sync calls for the same login session
       if (syncedUserIdRef.current === user.id) return;
       syncedUserIdRef.current = user.id;
