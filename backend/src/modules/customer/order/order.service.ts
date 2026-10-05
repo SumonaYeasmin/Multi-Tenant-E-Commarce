@@ -273,5 +273,54 @@ export class OrderService {
 
     return ResponseHelper.success(orders, 'Customer orders retrieved successfully');
   }
+
+  // Fetch details of a specific order by its order number
+  async getOrderByNumber(
+    orderNumber: string,
+    tenantId?: string,
+    userId?: string,
+  ) {
+    if (!orderNumber) {
+      throw new BadRequestException('Order number is required');
+    }
+
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+
+    // Step 1: Find the exact order using order number and tenant ID
+    // Step 2: Include items, delivery shipping address, timeline, and payment history
+    const order = await this.prisma.order.findUnique({
+      where: {
+        tenantId_number: {
+          tenantId: resolvedTenantId,
+          number: orderNumber,
+        },
+      },
+      include: {
+        shippingAddress: true,
+        items: true,
+        timeline: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        attempts: true,
+      },
+    });
+
+    if (!order || order.deletedAt) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    // Step 3: If authenticated customer, verify access permission
+    if (userId) {
+      const customerId = await this.resolveCustomerId(userId, resolvedTenantId);
+      if (customerId && order.customerId && order.customerId !== customerId) {
+        throw new NotFoundException(`Order #${orderNumber} not found`);
+      }
+    }
+
+    return ResponseHelper.success(order, 'Order details retrieved successfully');
+  }
 }
+
 
