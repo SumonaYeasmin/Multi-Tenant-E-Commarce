@@ -74,7 +74,9 @@ export interface StoreContextValue {
   saveAddress: (a: Address) => Promise<any> | void;
   deleteAddress: (id: string) => Promise<void> | void;
   setDefaultAddress: (id: string) => Promise<void> | void;
-  placeOrder: (input: PlaceOrderInput) => Order;
+  placeOrder: (input: PlaceOrderInput) => Promise<Order>;
+  isOrdersLoading?: boolean;
+  refreshOrders?: () => Promise<void>;
   completePayment: (orderId: string, result: 'success' | 'fail' | 'cancel') => void;
   retryPayment: (orderId: string, method: PaymentMethod) => void;
   setOrderStatus: (

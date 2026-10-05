@@ -258,8 +258,8 @@ export default function CheckoutPage() {
       }
     }
 
-    await new Promise((r) => setTimeout(r, 600));
-    const order = placeOrder({
+    await new Promise((r) => setTimeout(r, 400));
+    const order = await placeOrder({
       contact: {
         name: finalAddress.name,
         email: user?.email || '',
@@ -278,7 +278,8 @@ export default function CheckoutPage() {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('tanti.coupon');
     }
-    router.replace(payment === 'cod' ? `/order/${order.id}` : `/pay/${order.id}`);
+    const targetId = order.number || order.id;
+    router.replace(payment === 'cod' ? `/order/${targetId}` : `/pay/${targetId}`);
   };
 
   return (

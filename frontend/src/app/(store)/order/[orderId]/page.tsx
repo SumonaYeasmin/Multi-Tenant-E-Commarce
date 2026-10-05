@@ -26,7 +26,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
   const { orderId } = use(params);
   const router = useRouter();
   const { orders, retryPayment, user } = useStore();
-  const order = orders.find((o) => o.id === orderId);
+  const order = orders.find((o) => o.id === orderId || o.number === orderId);
   const [method, setMethod] = useState<PaymentMethod | null>(null);
 
   if (!order) {
