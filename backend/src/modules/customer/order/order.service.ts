@@ -1,0 +1,245 @@
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { CreateOrderDto } from './dto/create-order.dto';
+import {
+  FulfillmentStatus,
+  OrderChannel,
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+} from '../../../../prisma/generated/client';
+import { ResponseHelper } from '../../../common/helpers/response.helper';
+
+@Injectable()
+export class OrderService {
+  private readonly logger = new Logger(OrderService.name);
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  // Helper to resolve active tenant ID
+  private async resolveTenantId(tenantId?: string): Promise<string> {
+    if (tenantId && tenantId.length > 10) {
+      const exists = await this.prisma.tenant.findUnique({
+        where: { id: tenantId },
+      });
+      if (exists) return exists.id;
+    }
+
+    const defaultTenant = await this.prisma.tenant.findFirst({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!defaultTenant) {
+      throw new NotFoundException('Active store tenant not found');
+    }
+
+    return defaultTenant.id;
+  }
+
+  // Helper to resolve customer profile ID if user is authenticated
+  private async resolveCustomerId(
+    userIdOrCustomerId: string | null | undefined,
+    tenantId: string,
+  ): Promise<string | null> {
+    if (!userIdOrCustomerId) return null;
+
+    // Check direct CustomerProfile ID match
+    const profileById = await this.prisma.customerProfile.findFirst({
+      where: {
+        id: userIdOrCustomerId,
+        tenantId,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    if (profileById) return profileById.id;
+
+    // Check Auth User ID match
+    const profileByUserId = await this.prisma.customerProfile.findFirst({
+      where: {
+        userId: userIdOrCustomerId,
+        tenantId,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    if (profileByUserId) return profileByUserId.id;
+
+    return null;
+  }
+
+  // Helper to generate sequential unique order number
+  private async generateOrderNumber(tenantId: string): Promise<string> {
+    const totalOrders = await this.prisma.order.count({
+      where: { tenantId },
+    });
+    const nextSeq = 10500 + totalOrders;
+    return `TN-${nextSeq}`;
+  }
+
+  // Step-by-step order creation workflow
+  async createOrder(
+    tenantId: string | undefined,
+    userId: string | null | undefined,
+    dto: CreateOrderDto,
+  ) {
+    // Step 1: Resolve tenant and customer identities
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+    const resolvedCustomerId = await this.resolveCustomerId(userId, resolvedTenantId);
+
+    // Step 2: Extract recipient information with fallback to shippingAddress
+    const customerName = dto.customerName || dto.shippingAddress?.name;
+    const phone = dto.phone || dto.shippingAddress?.phone;
+    const email = dto.email || '';
+
+    if (!customerName) {
+      throw new BadRequestException('Recipient name is required');
+    }
+    if (!phone) {
+      throw new BadRequestException('Recipient contact phone number is required');
+    }
+    if (!dto.items || dto.items.length === 0) {
+      throw new BadRequestException('Order must contain at least one item');
+    }
+
+    // Step 3: Generate sequential unique order number
+    const orderNumber = await this.generateOrderNumber(resolvedTenantId);
+    const isCod = dto.paymentMethod === PaymentMethod.COD;
+
+    // Step 4: Execute database transaction for atomic order creation
+    const createdOrder = await this.prisma.$transaction(async (tx) => {
+      // 4.1: Create main order record with linked address, items, and timeline
+      const order = await tx.order.create({
+        data: {
+          tenantId: resolvedTenantId,
+          number: orderNumber,
+          customerId: resolvedCustomerId,
+          customerName,
+          email,
+          phone,
+          subtotal: dto.subtotal,
+          discount: dto.discount ?? 0,
+          shipping: dto.shippingCost,
+          tax: 0,
+          total: dto.total,
+          status: isCod
+            ? OrderStatus.CONFIRMED
+            : dto.paymentStatus === PaymentStatus.PAID
+            ? OrderStatus.CONFIRMED
+            : OrderStatus.PENDING_PAYMENT,
+          fulfillmentStatus: FulfillmentStatus.UNFULFILLED,
+          paymentStatus: dto.paymentStatus ?? PaymentStatus.PENDING,
+          paymentMethod: dto.paymentMethod,
+          couponCode: dto.couponCode,
+          channel: OrderChannel.ONLINE,
+          shippingMethod: dto.shippingMethod,
+          customerNote: dto.customerNote,
+
+          // Link delivery shipping address
+          shippingAddress: {
+            create: {
+              name: dto.shippingAddress.name,
+              phone: dto.shippingAddress.phone,
+              line1: dto.shippingAddress.line1,
+              area: dto.shippingAddress.area,
+              district: dto.shippingAddress.district,
+            },
+          },
+
+          // Link line items
+          items: {
+            create: dto.items.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              title: item.title,
+              image: item.image,
+              color: item.color,
+              size: item.size,
+              sku: item.sku,
+              price: item.price,
+              qty: item.qty,
+            })),
+          },
+
+          // Create initial audit timeline events
+          timeline: {
+            create: [
+              {
+                label: 'Order placed by customer',
+                by: 'Customer',
+              },
+              ...(isCod
+                ? [{ label: 'Order confirmed (Cash on delivery)', by: 'System' }]
+                : dto.paymentStatus === PaymentStatus.PAID
+                ? [{ label: 'Payment verified with gateway', by: 'System' }]
+                : []),
+            ],
+          },
+        },
+        include: {
+          shippingAddress: true,
+          items: true,
+          timeline: true,
+        },
+      });
+
+      // 4.2: Decrement inventory stock for each purchased variant
+      for (const item of dto.items) {
+        if (item.variantId) {
+          await tx.productVariant.updateMany({
+            where: {
+              id: item.variantId,
+              stock: { gte: item.qty },
+            },
+            data: {
+              stock: { decrement: item.qty },
+            },
+          });
+        }
+      }
+
+      // 4.3: Track coupon redemption if discount was applied
+      if (dto.couponCode && dto.discount && dto.discount > 0) {
+        const discountRecord = await tx.discount.findFirst({
+          where: {
+            tenantId: resolvedTenantId,
+            code: dto.couponCode.toUpperCase(),
+            deletedAt: null,
+          },
+        });
+
+        if (discountRecord) {
+          await tx.discountRedemption.create({
+            data: {
+              tenantId: resolvedTenantId,
+              discountId: discountRecord.id,
+              orderId: order.id,
+              userId: resolvedCustomerId,
+              customerEmail: email || null,
+              discountedAmount: dto.discount,
+            },
+          });
+
+          await tx.discount.update({
+            where: { id: discountRecord.id },
+            data: {
+              usedCount: { increment: 1 },
+              revenue: { increment: order.total },
+            },
+          });
+        }
+      }
+
+      return order;
+    });
+
+    this.logger.log(`Order ${createdOrder.number} created successfully for tenant ${resolvedTenantId}`);
+    return ResponseHelper.created(createdOrder, 'Order created successfully');
+  }
+}
