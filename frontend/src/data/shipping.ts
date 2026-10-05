@@ -821,7 +821,7 @@ export const shippingMethods: ShippingMethod[] = [
   {
     id: 'standard',
     name: 'Home delivery',
-    description: 'ঢাকার ভেতরে ৭০৳, ঢাকার বাইরে ১৫০৳',
+    description: 'Inside Dhaka ৳70 (1–2 days) · Outside Dhaka ৳150 (3–5 days)',
     eta: '',
     price: (d) => (d === 'Dhaka' ? 70 : 150),
     available: () => true,
@@ -829,7 +829,7 @@ export const shippingMethods: ShippingMethod[] = [
   {
     id: 'pickup',
     name: 'Store pickup',
-    description: 'সরাসরি দোকানে এসে পিকআপ (ফ্রি)',
+    description: 'Collect directly from our store / shop (Free)',
     eta: '',
     price: () => 0,
     available: () => true,
