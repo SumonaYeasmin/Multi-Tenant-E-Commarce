@@ -28,7 +28,7 @@ type Errors = Partial<Record<string, string>>;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { user, addresses, storeCredit, placeOrder } = useStore();
+  const { user, addresses, storeCredit, placeOrder, saveAddress } = useStore();
   const { active, subtotal, hasIssues } = useCartLines();
   const defaultAddr = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
 
@@ -46,7 +46,9 @@ export default function CheckoutPage() {
     line1: '',
     district: 'Dhaka',
     area: 'Dhanmondi',
+    label: 'Home',
   });
+  const [saveToProfile, setSaveToProfile] = useState(true);
   const [billingSame, setBillingSame] = useState(true);
   const [billingLine, setBillingLine] = useState('');
   const [shippingId, setShippingId] = useState('standard');
@@ -76,6 +78,16 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const submitting = useRef(false);
 
+  // Sync address selection when addresses hydrate
+  useEffect(() => {
+    if (user && addresses.length > 0 && addressId === 'new') {
+      const def = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
+      if (def && !newAddr.line1) {
+        setAddressId(def.id);
+      }
+    }
+  }, [user, addresses]);
+
   useEffect(() => {
     if (active.length === 0 && !placing) {
       router.replace('/cart');
@@ -87,8 +99,8 @@ export default function CheckoutPage() {
     return (
       saved ?? {
         id: `a${Date.now()}`,
-        label: 'New',
         ...newAddr,
+        label: newAddr.label || 'Home',
         name: newAddr.name || contact.name,
         phone: newAddr.phone || contact.phone,
       }
@@ -157,10 +169,31 @@ export default function CheckoutPage() {
     }
     submitting.current = true;
     setPlacing(true);
-    await new Promise((r) => setTimeout(r, 900));
+
+    let finalAddress = address;
+    if (user && addressId === 'new' && saveToProfile) {
+      try {
+        const savedResult: any = await saveAddress({
+          ...address,
+          label: newAddr.label || 'Home',
+          isDefaultShipping: addresses.length === 0,
+        });
+        if (savedResult && typeof savedResult === 'object' && savedResult.id) {
+          finalAddress = {
+            ...address,
+            id: savedResult.id,
+            label: savedResult.label || newAddr.label || 'Home',
+          };
+        }
+      } catch (err) {
+        console.error('Failed to save address to profile:', err);
+      }
+    }
+
+    await new Promise((r) => setTimeout(r, 600));
     const order = placeOrder({
       contact,
-      address,
+      address: finalAddress,
       shippingMethod: method.name,
       shippingCost: totals.shipping + totals.codFee,
       paymentMethod: payment,
@@ -286,6 +319,15 @@ export default function CheckoutPage() {
             )}
             {addressId === 'new' && (
               <div className={cn('grid gap-4 sm:grid-cols-2', user && 'mt-5')}>
+                {user && (
+                  <Select
+                    label="Address label"
+                    value={newAddr.label}
+                    onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })}
+                    options={['Home', 'Office', "Parents' home", 'Other']}
+                    className="sm:col-span-2"
+                  />
+                )}
                 <Input
                   label="Recipient name"
                   value={newAddr.name}
@@ -324,6 +366,15 @@ export default function CheckoutPage() {
                   onChange={(e) => setNewAddr({ ...newAddr, area: e.target.value })}
                   options={areasFor(newAddr.district)}
                 />
+                {user && (
+                  <div className="sm:col-span-2 pt-1">
+                    <Checkbox
+                      checked={saveToProfile}
+                      onChange={setSaveToProfile}
+                      label="Save this address to my profile for future orders"
+                    />
+                  </div>
+                )}
               </div>
             )}
             <div className="mt-5">
