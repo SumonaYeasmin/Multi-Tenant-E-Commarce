@@ -32,25 +32,37 @@ export default function CheckoutPage() {
   const { active, subtotal, hasIssues } = useCartLines();
   const defaultAddr = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
 
-  const [contact, setContact] = useState({
-    name: user?.name ?? '',
-    email: user?.email ?? '',
-    phone: user?.phone ?? '',
+  const [contact, setContact] = useState(() => {
+    let name = user?.name ?? '';
+    let email = user?.email ?? '';
+    let phone = user?.phone ?? '';
+    if (typeof window !== 'undefined') {
+      try {
+        const savedContact = localStorage.getItem('tanti_last_contact');
+        if (savedContact) {
+          const parsed = JSON.parse(savedContact);
+          if (parsed.name && !name) name = parsed.name;
+          if (parsed.email && !email) email = parsed.email;
+          if (parsed.phone && !phone) phone = parsed.phone;
+        }
+      } catch {}
+    }
+    return { name, email, phone };
   });
-  const [addressId, setAddressId] = useState<string>(
-    user && defaultAddr ? defaultAddr.id : 'new'
-  );
+
+  const [addressId, setAddressId] = useState<string>(() => {
+    if (defaultAddr) return defaultAddr.id;
+    return 'new';
+  });
+
   const [newAddr, setNewAddr] = useState({
     name: '',
     phone: '',
     line1: '',
-    district: 'Dhaka',
-    area: 'Dhanmondi',
-    label: 'Home',
+    district: '',
+    area: '',
+    label: '',
   });
-  const [saveToProfile, setSaveToProfile] = useState(true);
-  const [billingSame, setBillingSame] = useState(true);
-  const [billingLine, setBillingLine] = useState('');
   const [shippingId, setShippingId] = useState('standard');
   const [payment, setPayment] = useState<PaymentMethod>('bkash');
   const [useCredit, setUseCredit] = useState(false);
@@ -78,15 +90,29 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const submitting = useRef(false);
 
-  // Sync address selection when addresses hydrate
+  // Auto-select saved/previous address if available when addresses hydrate
   useEffect(() => {
-    if (user && addresses.length > 0 && addressId === 'new') {
-      const def = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
-      if (def && !newAddr.line1) {
-        setAddressId(def.id);
+    if (addresses.length > 0) {
+      if (addressId === 'new' && !newAddr.line1) {
+        const def = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
+        if (def) {
+          setAddressId(def.id);
+        }
       }
     }
-  }, [user, addresses]);
+  }, [addresses]);
+
+  // Auto-populate contact info from selected address if contact is empty
+  useEffect(() => {
+    const selected = addresses.find((a) => a.id === addressId);
+    if (selected) {
+      setContact((prev) => ({
+        name: prev.name || selected.name,
+        email: prev.email || (user?.email ?? ''),
+        phone: prev.phone || selected.phone,
+      }));
+    }
+  }, [addressId, addresses, user]);
 
   useEffect(() => {
     if (active.length === 0 && !placing) {
@@ -101,6 +127,8 @@ export default function CheckoutPage() {
         id: `a${Date.now()}`,
         ...newAddr,
         label: newAddr.label || 'Home',
+        district: newAddr.district || 'Dhaka',
+        area: newAddr.area || 'Dhanmondi',
         name: newAddr.name || contact.name,
         phone: newAddr.phone || contact.phone,
       }
@@ -124,15 +152,29 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const e: Errors = {};
-    if (contact.name.trim().length < 2) e.name = 'Enter your full name';
+    const contactName = contact.name.trim();
+    let contactPhone = contact.phone.trim().replace(/[\s-]/g, '');
+    if (contactPhone.startsWith('+88')) contactPhone = contactPhone.slice(3);
+    if (contactPhone.startsWith('88') && contactPhone.length === 13) contactPhone = contactPhone.slice(2);
+
+    if (contactName.length < 2) e.name = 'Enter your full name';
     if (!/^\S+@\S+\.\S+$/.test(contact.email))
       e.email = 'Enter a valid email so we can send your receipt';
-    if (!/^01[3-9]\d{2}-?\d{6}$/.test(contact.phone.replace(/\s/g, '')))
-      e.phone = 'Enter an 11-digit Bangladeshi mobile number (01XXX-XXXXXX)';
-    if (addressId === 'new' && newAddr.line1.trim().length < 5)
-      e.line1 = 'Enter house, road and area details';
-    if (!billingSame && billingLine.trim().length < 5)
-      e.billing = 'Enter your billing address';
+    if (!/^01[3-9]\d{8}$/.test(contactPhone))
+      e.phone = 'Enter an 11-digit Bangladeshi mobile number';
+
+    if (addressId === 'new') {
+      const recipientName = (newAddr.name || contact.name || '').trim();
+      let recipientPhone = (newAddr.phone || contact.phone || '').trim().replace(/[\s-]/g, '');
+      if (recipientPhone.startsWith('+88')) recipientPhone = recipientPhone.slice(3);
+      if (recipientPhone.startsWith('88') && recipientPhone.length === 13) recipientPhone = recipientPhone.slice(2);
+
+      if (!recipientName || recipientName.length < 2) e.recipientName = 'Enter recipient name';
+      if (!/^01[3-9]\d{8}$/.test(recipientPhone)) e.recipientPhone = 'Enter recipient mobile number';
+      if (!newAddr.line1 || newAddr.line1.trim().length < 3)
+        e.line1 = 'Enter house, road and area details';
+    }
+
     if (!consent) e.consent = 'Please accept the terms to continue';
     return e;
   };
@@ -146,6 +188,79 @@ export default function CheckoutPage() {
     setApplied(c.code);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('tanti.coupon', c.code);
+    }
+  };
+
+  const [savingAddress, setSavingAddress] = useState(false);
+
+  const handleSaveAddressExplicitly = async () => {
+    const e: Errors = {};
+    const recipientName = (newAddr.name || contact.name || '').trim();
+    let recipientPhone = (newAddr.phone || contact.phone || '').trim().replace(/[\s-]/g, '');
+    if (recipientPhone.startsWith('+88')) recipientPhone = recipientPhone.slice(3);
+    if (recipientPhone.startsWith('88') && recipientPhone.length === 13) recipientPhone = recipientPhone.slice(2);
+
+    if (!recipientName || recipientName.length < 2) {
+      e.recipientName = 'Please enter full name (minimum 2 characters)';
+    }
+    if (!/^01[3-9]\d{8}$/.test(recipientPhone)) {
+      e.recipientPhone = 'Please enter a valid 11-digit mobile number (e.g. 01712345678)';
+    }
+    if (!newAddr.line1 || newAddr.line1.trim().length < 3) {
+      e.line1 = 'Please enter street / delivery address details';
+    }
+    if (!newAddr.district) {
+      e.district = 'Please select your district';
+    }
+    if (!newAddr.area) {
+      e.area = 'Please select your thana / area';
+    }
+
+    setErrors(e);
+    if (Object.keys(e).length > 0) {
+      const firstError = Object.values(e)[0];
+      toast.error(firstError || 'Please fill in all required address fields');
+      return;
+    }
+
+    try {
+      setSavingAddress(true);
+      const payload: Address = {
+        id: `a${Date.now()}`,
+        label: newAddr.label || 'Home',
+        name: recipientName,
+        phone: recipientPhone,
+        line1: newAddr.line1.trim(),
+        district: newAddr.district || 'Dhaka',
+        area: newAddr.area || 'Dhanmondi',
+        isDefaultShipping: true,
+      };
+
+      const res: any = await saveAddress(payload);
+      const savedId = (res && typeof res === 'object' && res.id) ? res.id : payload.id;
+      setAddressId(savedId);
+
+      setContact((prev) => ({
+        name: prev.name || recipientName,
+        email: prev.email,
+        phone: prev.phone || recipientPhone,
+      }));
+
+      setNewAddr({
+        name: '',
+        phone: '',
+        line1: '',
+        district: '',
+        area: '',
+        label: '',
+      });
+      setErrors({});
+
+      toast.success('Address saved successfully!');
+    } catch (err) {
+      toast.error('Could not save address. Please try again.');
+    } finally {
+      setSavingAddress(false);
     }
   };
 
@@ -171,7 +286,7 @@ export default function CheckoutPage() {
     setPlacing(true);
 
     let finalAddress = address;
-    if (user && addressId === 'new' && saveToProfile) {
+    if (addressId === 'new') {
       try {
         const savedResult: any = await saveAddress({
           ...address,
@@ -186,7 +301,13 @@ export default function CheckoutPage() {
           };
         }
       } catch (err) {
-        console.error('Failed to save address to profile:', err);
+        console.error('Failed to save address:', err);
+      }
+    } else {
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('tanti_last_delivery_address', JSON.stringify(finalAddress));
+        } catch {}
       }
     }
 
@@ -206,6 +327,9 @@ export default function CheckoutPage() {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('tanti.coupon');
       sessionStorage.removeItem('tanti.note');
+      try {
+        localStorage.setItem('tanti_last_contact', JSON.stringify(contact));
+      } catch {}
     }
     router.replace(payment === 'cod' ? `/order/${order.id}` : `/pay/${order.id}`);
   };
@@ -281,118 +405,165 @@ export default function CheckoutPage() {
           </Section>
 
           <Section n={2} title="Delivery address">
-            {user && addresses.length > 0 && (
+            {addresses.length > 0 && (
               <div
                 className="grid gap-3 sm:grid-cols-2"
                 role="radiogroup"
-                aria-label="Saved addresses"
+                aria-label="Delivery addresses"
               >
-                {addresses.map((a) => (
-                  <RadioCard
-                    key={a.id}
-                    checked={addressId === a.id}
-                    onSelect={() => setAddressId(a.id)}
-                  >
-                    <p className="text-sm font-medium">
-                      {a.label}
-                      {a.isDefaultShipping && (
-                        <span className="ml-2 text-xs font-normal text-ink-muted">
-                          Default
-                        </span>
-                      )}
-                    </p>
-                    <p className="mt-1 text-sm text-ink-muted">
-                      {a.name} · {a.phone}
-                    </p>
-                    <p className="text-sm text-ink-muted">
-                      {a.line1}, {a.area}, {a.district}
-                    </p>
-                  </RadioCard>
-                ))}
+                {addresses.map((a) => {
+                  const isSelected = addressId === a.id;
+                  return (
+                    <RadioCard
+                      key={a.id}
+                      checked={isSelected}
+                      onSelect={() => setAddressId(a.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-ink">{a.label || 'Saved Address'}</p>
+                        {a.isDefaultShipping ? (
+                          <span className="rounded bg-clay/10 px-2 py-0.5 text-xs font-medium text-clay">
+                            Default
+                          </span>
+                        ) : (
+                          <span className="rounded bg-surface-muted px-2 py-0.5 text-xs text-ink-muted">
+                            Previous Address
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-sm font-medium text-ink">
+                        {a.name} · {a.phone}
+                      </p>
+                      <p className="text-sm text-ink-muted">
+                        {a.line1}, {a.area}, {a.district}
+                      </p>
+                    </RadioCard>
+                  );
+                })}
                 <RadioCard
                   checked={addressId === 'new'}
                   onSelect={() => setAddressId('new')}
                 >
-                  <p className="text-sm font-medium">+ Use a new address</p>
+                  <p className="text-sm font-medium text-brand flex items-center gap-1.5">
+                    + Use a new address
+                  </p>
+                  <p className="text-xs text-ink-muted mt-1">
+                    Enter a different recipient or delivery location
+                  </p>
                 </RadioCard>
               </div>
             )}
             {addressId === 'new' && (
-              <div className={cn('grid gap-4 sm:grid-cols-2', user && 'mt-5')}>
+              <div className={cn('grid gap-4 sm:grid-cols-2', addresses.length > 0 && 'mt-5 p-4 rounded-xl border border-line bg-surface/40')}>
+                {addresses.length > 0 && (
+                  <div className="sm:col-span-2 flex items-center justify-between border-b border-line pb-2 mb-1">
+                    <p className="text-sm font-medium text-ink">Enter New Delivery Address</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const def = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
+                        if (def) setAddressId(def.id);
+                      }}
+                      className="text-xs text-brand hover:underline cursor-pointer font-medium"
+                    >
+                      ← Back to saved address
+                    </button>
+                  </div>
+                )}
                 {user && (
                   <Select
-                    label="Address label"
+                    label="Address type"
                     value={newAddr.label}
+                    placeholder="Select address type (e.g. Home)"
                     onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })}
                     options={['Home', 'Office', "Parents' home", 'Other']}
                     className="sm:col-span-2"
                   />
                 )}
                 <Input
-                  label="Recipient name"
+                  label="Full name"
                   value={newAddr.name}
-                  onChange={(e) => setNewAddr({ ...newAddr, name: e.target.value })}
-                  placeholder={contact.name || 'Same as contact'}
+                  onChange={(e) => {
+                    setNewAddr({ ...newAddr, name: e.target.value });
+                    if (errors.recipientName) setErrors((prev) => ({ ...prev, recipientName: undefined }));
+                  }}
+                  error={errors.recipientName}
+                  placeholder={contact.name || "Enter recipient's full name"}
                 />
                 <Input
-                  label="Recipient phone"
+                  label="Phone number"
+                  type="tel"
                   value={newAddr.phone}
-                  onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
-                  placeholder={contact.phone || '01XXX-XXXXXX'}
+                  onChange={(e) => {
+                    setNewAddr({ ...newAddr, phone: e.target.value });
+                    if (errors.recipientPhone) setErrors((prev) => ({ ...prev, recipientPhone: undefined }));
+                  }}
+                  error={errors.recipientPhone}
+                  placeholder="01XXXXXXXXX (e.g. 01712-345678)"
                 />
                 <Input
-                  label="House, road, area"
+                  label="Street / delivery address"
                   value={newAddr.line1}
-                  onChange={(e) => setNewAddr({ ...newAddr, line1: e.target.value })}
+                  onChange={(e) => {
+                    setNewAddr({ ...newAddr, line1: e.target.value });
+                    if (errors.line1) setErrors((prev) => ({ ...prev, line1: undefined }));
+                  }}
                   error={errors.line1}
+                  placeholder="House no, road no, flat, area details..."
                   className="sm:col-span-2"
                   autoComplete="street-address"
                 />
                 <Select
                   label="District"
                   value={newAddr.district}
-                  onChange={(e) =>
+                  placeholder="Select district"
+                  error={errors.district}
+                  onChange={(e) => {
                     setNewAddr({
                       ...newAddr,
                       district: e.target.value,
-                      area: areasFor(e.target.value)[0],
-                    })
-                  }
+                      area: areasFor(e.target.value)[0] || '',
+                    });
+                    if (errors.district) setErrors((prev) => ({ ...prev, district: undefined }));
+                  }}
                   options={districts}
                 />
                 <Select
                   label="Thana / area"
                   value={newAddr.area}
-                  onChange={(e) => setNewAddr({ ...newAddr, area: e.target.value })}
-                  options={areasFor(newAddr.district)}
+                  placeholder="Select thana / area"
+                  error={errors.area}
+                  onChange={(e) => {
+                    setNewAddr({ ...newAddr, area: e.target.value });
+                    if (errors.area) setErrors((prev) => ({ ...prev, area: undefined }));
+                  }}
+                  options={newAddr.district ? areasFor(newAddr.district) : []}
                 />
-                {user && (
-                  <div className="sm:col-span-2 pt-1">
-                    <Checkbox
-                      checked={saveToProfile}
-                      onChange={setSaveToProfile}
-                      label="Save this address to my profile for future orders"
-                    />
-                  </div>
-                )}
+                <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-line/60 mt-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    loading={savingAddress}
+                    onClick={handleSaveAddressExplicitly}
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    <CheckIcon className="h-4 w-4" /> Save address
+                  </Button>
+                  {addresses.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const def = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
+                        if (def) setAddressId(def.id);
+                      }}
+                      className="text-xs text-ink-muted hover:text-ink cursor-pointer font-medium"
+                    >
+                      Cancel & use saved address
+                    </button>
+                  )}
+                </div>
               </div>
             )}
-            <div className="mt-5">
-              <Checkbox
-                checked={billingSame}
-                onChange={setBillingSame}
-                label="Billing address is the same as delivery"
-              />
-              {!billingSame && (
-                <Input
-                  className="mt-3"
-                  label="Billing address"
-                  value={billingLine}
-                  onChange={(e) => setBillingLine(e.target.value)}
-                  error={errors.billing}
-                />
-              )}
-            </div>
           </Section>
 
           <Section n={3} title="Delivery method">

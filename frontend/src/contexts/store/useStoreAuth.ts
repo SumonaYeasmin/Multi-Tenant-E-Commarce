@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Address, Customer } from '@/types/commerce';
-import { customers as seedCustomers, currentUserAddresses } from '@/data/customers';
+import { customers as seedCustomers } from '@/data/customers';
 import { authService } from '@/services/auth';
 import { addressService } from '@/services/address-service';
 import type { User } from './types';
+
+const LOCAL_STORAGE_SAVED_ADDRESSES = 'tanti_saved_delivery_addresses';
+const LOCAL_STORAGE_LAST_ADDRESS = 'tanti_last_delivery_address';
 
 export function useStoreAuth() {
   const [user, setUser] = useState<User | null>(() => {
@@ -23,7 +26,18 @@ export function useStoreAuth() {
     return null;
   });
 
-  const [addresses, setAddresses] = useState<Address[]>(currentUserAddresses);
+  const [addresses, setAddresses] = useState<Address[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_SAVED_ADDRESSES);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+
   const [isAddressesLoading, setIsAddressesLoading] = useState<boolean>(false);
   const [storeCredit] = useState(450);
   const [customers, setCustomers] = useState<Customer[]>(seedCustomers);
@@ -31,7 +45,19 @@ export function useStoreAuth() {
   // Helper to load addresses from backend database for authenticated users
   const loadAddressesFromBackend = useCallback(async () => {
     const token = authService.getStoredUser();
-    if (!token) return;
+    if (!token) {
+      // Guest: Load from localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem(LOCAL_STORAGE_SAVED_ADDRESSES);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) setAddresses(parsed);
+          }
+        } catch {}
+      }
+      return;
+    }
 
     try {
       setIsAddressesLoading(true);
@@ -49,6 +75,9 @@ export function useStoreAuth() {
           isDefaultBilling: !!item.isDefaultBilling,
         }));
         setAddresses(mappedAddresses);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOCAL_STORAGE_SAVED_ADDRESSES, JSON.stringify(mappedAddresses));
+        }
       }
     } catch (err) {
       console.warn('Could not load customer addresses from backend:', err);
@@ -70,7 +99,16 @@ export function useStoreAuth() {
       });
       loadAddressesFromBackend();
     } else {
-      setAddresses(currentUserAddresses);
+      // Load saved addresses from localStorage for guests
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem(LOCAL_STORAGE_SAVED_ADDRESSES);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) setAddresses(parsed);
+          }
+        } catch {}
+      }
     }
   }, [loadAddressesFromBackend]);
 
@@ -107,16 +145,24 @@ export function useStoreAuth() {
   const logout = useCallback(() => {
     authService.logout();
     setUser(null);
-    setAddresses(currentUserAddresses);
+    setAddresses([]);
   }, []);
 
   const saveAddress = useCallback(async (a: Address) => {
-    // 1. Optimistic local state update
+    // 1. Optimistic local state update and localStorage sync
+    let updatedAddresses: Address[] = [];
     setAddresses((prev) => {
       const exists = prev.some((x) => x.id === a.id);
-      let next = exists ? prev.map((x) => (x.id === a.id ? a : x)) : [...prev, a];
+      let next = exists ? prev.map((x) => (x.id === a.id ? a : x)) : [a, ...prev];
       if (a.isDefaultShipping) {
         next = next.map((x) => ({ ...x, isDefaultShipping: x.id === a.id }));
+      }
+      updatedAddresses = next;
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(LOCAL_STORAGE_SAVED_ADDRESSES, JSON.stringify(next));
+          localStorage.setItem(LOCAL_STORAGE_LAST_ADDRESS, JSON.stringify(a));
+        } catch {}
       }
       return next;
     });
@@ -138,9 +184,13 @@ export function useStoreAuth() {
             isDefaultBilling: a.isDefaultBilling,
           });
           if (res?.data) {
-            setAddresses((prev) =>
-              prev.map((item) => (item.id === a.id ? { ...item, ...res.data } : item))
-            );
+            setAddresses((prev) => {
+              const synced = prev.map((item) => (item.id === a.id ? { ...item, ...res.data } : item));
+              if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_SAVED_ADDRESSES, JSON.stringify(synced));
+              }
+              return synced;
+            });
           }
         } else {
           const res = await addressService.saveAddress({
@@ -168,9 +218,13 @@ export function useStoreAuth() {
                 isDefaultShipping: !!res.data.isDefaultShipping,
                 isDefaultBilling: !!res.data.isDefaultBilling,
               };
-              let next = [...filtered, mapped];
+              let next = [mapped, ...filtered];
               if (mapped.isDefaultShipping) {
                 next = next.map((x) => ({ ...x, isDefaultShipping: x.id === mapped.id }));
+              }
+              if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_SAVED_ADDRESSES, JSON.stringify(next));
+                localStorage.setItem(LOCAL_STORAGE_LAST_ADDRESS, JSON.stringify(mapped));
               }
               return next;
             });
@@ -185,8 +239,16 @@ export function useStoreAuth() {
   }, []);
 
   const deleteAddress = useCallback(async (id: string) => {
-    // 1. Optimistic local deletion
-    setAddresses((prev) => prev.filter((a) => a.id !== id));
+    // 1. Optimistic local deletion & localStorage sync
+    setAddresses((prev) => {
+      const next = prev.filter((a) => a.id !== id);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(LOCAL_STORAGE_SAVED_ADDRESSES, JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
 
     // 2. Persist to backend
     const stored = authService.getStoredUser();
@@ -201,7 +263,15 @@ export function useStoreAuth() {
 
   const setDefaultAddress = useCallback(async (id: string) => {
     // 1. Optimistic local update
-    setAddresses((prev) => prev.map((a) => ({ ...a, isDefaultShipping: a.id === id })));
+    setAddresses((prev) => {
+      const next = prev.map((a) => ({ ...a, isDefaultShipping: a.id === id }));
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(LOCAL_STORAGE_SAVED_ADDRESSES, JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
 
     // 2. Persist to backend
     const stored = authService.getStoredUser();
