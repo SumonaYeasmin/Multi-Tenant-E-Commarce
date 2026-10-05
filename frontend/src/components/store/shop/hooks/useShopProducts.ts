@@ -21,7 +21,7 @@ const PAGE_SIZE = 8;
 export type ShopMode = 'shop' | 'category' | 'collection' | 'brand' | 'search';
 
 export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
-  const { products, categories } = useStore();
+  const { products, categories, collections: storeCollections } = useStore();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -128,7 +128,7 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
       : undefined;
   const collection: CollectionItem | undefined =
     mode === 'collection'
-      ? dbCollection || (collections as CollectionItem[]).find((c) => c.slug === slug)
+      ? dbCollection || (storeCollections || (collections as CollectionItem[])).find((c) => c.slug === slug)
       : undefined;
   const brand: BrandItem | undefined =
     mode === 'brand'

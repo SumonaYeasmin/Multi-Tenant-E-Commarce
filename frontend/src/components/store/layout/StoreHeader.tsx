@@ -11,28 +11,39 @@ import {
   ShoppingBagIcon,
   UserIcon,
   ChevronRightIcon,
+  LogOutIcon,
+  ShieldCheckIcon,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { announcement } from '@/data/content';
-import { collections } from '@/data/products';
 import { Drawer } from '@/components/ui/Drawer';
 import { cn } from '@/utils/cn';
 
 export function StoreHeader() {
   const pathname = usePathname();
   const { tenant } = useTenant();
-  const { cart, wishlist, user, setMiniCartOpen, setSearchOpen, categories } =
-    useStore();
+  const {
+    cart,
+    wishlist,
+    user,
+    logout,
+    setMiniCartOpen,
+    setSearchOpen,
+    categories,
+    collections,
+  } = useStore();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+
   const count = cart
     .filter((i) => !i.savedForLater)
     .reduce((s, i) => s + i.qty, 0);
 
-  const isStaffOrOwner = user && ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes((user.role || '').toUpperCase());
-  const dashboardHref = user ? (isStaffOrOwner ? '/admin' : '/account') : '/login';
-  const dashboardLabel = user ? (isStaffOrOwner ? 'Admin Dashboard' : 'My Account') : 'Sign In';
+  // Direct 1-click destination based on authenticated user's role
+  const userRole = (user?.role || '').toUpperCase();
+  const isOwnerOrAdmin = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(userRole);
+  const dashboardHref = !user ? '/login' : (isOwnerOrAdmin ? '/admin' : '/account');
 
   return (
     <header className="sticky top-0 z-30 bg-canvas/95 backdrop-blur-md border-b border-line">
@@ -69,7 +80,7 @@ export function StoreHeader() {
             >
               All Products
             </Link>
-            {categories.slice(0, 5).map((cat) => (
+            {categories.slice(0, 4).map((cat) => (
               <div
                 key={cat.key}
                 className="relative"
@@ -88,7 +99,7 @@ export function StoreHeader() {
                   {cat.name}
                 </Link>
 
-                {/* Dropdown Menu */}
+                {/* Category Dropdown Menu */}
                 <AnimatePresence>
                   {openMenu === cat.key && cat.subcategories.length > 0 && (
                     <motion.div
@@ -114,9 +125,48 @@ export function StoreHeader() {
                 </AnimatePresence>
               </div>
             ))}
+
+            {/* Collections Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setOpenMenu('collections')}
+              onMouseLeave={() => setOpenMenu(null)}
+            >
+              <Link
+                href="/collections"
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-clay py-2 inline-block',
+                  pathname.startsWith('/collections') ? 'text-clay' : 'text-ink'
+                )}
+              >
+                Collections
+              </Link>
+
+              <AnimatePresence>
+                {openMenu === 'collections' && collections.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full w-52 rounded-md border border-line bg-surface p-2 shadow-pop"
+                  >
+                    {collections.map((col) => (
+                      <Link
+                        key={col.slug}
+                        href={`/collections/${col.slug}`}
+                        className="block rounded px-3 py-2 text-xs font-medium text-ink-soft hover:bg-subtle hover:text-ink transition-colors"
+                      >
+                        {col.name}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
-          {/* Actions: Search, Wishlist, Account, Cart */}
+          {/* Actions: Search, Wishlist, Account/Dashboard, Cart */}
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -140,13 +190,17 @@ export function StoreHeader() {
               )}
             </Link>
 
+            {/* Direct 1-Click User / Dashboard Icon */}
             <Link
               href={dashboardHref}
-              className="p-2 text-ink hover:text-clay cursor-pointer transition-colors"
-              aria-label={dashboardLabel}
-              title={dashboardLabel}
+              className="p-2 text-ink hover:text-clay cursor-pointer transition-colors relative"
+              aria-label={!user ? 'Sign in' : isOwnerOrAdmin ? 'Admin Dashboard' : 'My Account'}
+              title={!user ? 'Sign in' : isOwnerOrAdmin ? 'Admin Dashboard' : 'My Account'}
             >
               <UserIcon className="h-5 w-5" />
+              {isOwnerOrAdmin && (
+                <span className="absolute bottom-1 right-1 h-2 w-2 rounded-full bg-clay ring-2 ring-canvas" />
+              )}
             </Link>
 
             <button
@@ -173,6 +227,50 @@ export function StoreHeader() {
         title="Menu"
       >
         <div className="space-y-4 py-4">
+          {/* User Section in Mobile */}
+          {user ? (
+            <div className="rounded-lg border border-line bg-surface p-3 space-y-2">
+              <div>
+                <p className="text-sm font-semibold text-ink">{user.name}</p>
+                <p className="text-xs text-ink-muted">{user.email}</p>
+                {isOwnerOrAdmin && (
+                  <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-clay/10 text-clay uppercase tracking-wider">
+                    {user.role}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 pt-1">
+                <Link
+                  href={dashboardHref}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-semibold bg-ink text-canvas hover:bg-ink/90"
+                >
+                  {isOwnerOrAdmin ? <ShieldCheckIcon className="h-4 w-4 text-clay" /> : <UserIcon className="h-4 w-4" />}
+                  <span>{isOwnerOrAdmin ? 'Admin Dashboard' : 'My Account'}</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    logout();
+                    window.location.href = '/login';
+                  }}
+                  className="flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/10 text-left cursor-pointer"
+                >
+                  <LogOutIcon className="h-4 w-4" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setMobileOpen(false)}
+              className="block rounded-lg bg-ink px-4 py-2.5 text-center text-sm font-semibold text-canvas"
+            >
+              Sign In / Register
+            </Link>
+          )}
+
           <Link
             href="/shop"
             onClick={() => setMobileOpen(false)}
@@ -212,17 +310,6 @@ export function StoreHeader() {
                 {col.name}
               </Link>
             ))}
-          </div>
-
-          <div className="border-t border-line pt-4 space-y-2">
-            <Link
-              href={dashboardHref}
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-between text-sm font-medium text-ink hover:text-clay py-1"
-            >
-              <span>{dashboardLabel}</span>
-              <ChevronRightIcon className="h-4 w-4 text-ink-muted" />
-            </Link>
           </div>
         </div>
       </Drawer>
