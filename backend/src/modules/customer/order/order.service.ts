@@ -242,4 +242,36 @@ export class OrderService {
     this.logger.log(`Order ${createdOrder.number} created successfully for tenant ${resolvedTenantId}`);
     return ResponseHelper.created(createdOrder, 'Order created successfully');
   }
+
+  // Fetch all orders for a specific customer
+  async getCustomerOrders(userId: string, tenantId?: string) {
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+    const customerId = await this.resolveCustomerId(userId, resolvedTenantId);
+
+    // If customer profile does not exist yet, return empty list
+    if (!customerId) {
+      return ResponseHelper.success([], 'No orders found for customer');
+    }
+
+    // Step 1: Filter database by tenant and customer ID
+    // Step 2: Include items and delivery shipping address
+    // Step 3: Sort by creation date descending (newest to oldest)
+    const orders = await this.prisma.order.findMany({
+      where: {
+        tenantId: resolvedTenantId,
+        customerId,
+        deletedAt: null,
+      },
+      include: {
+        shippingAddress: true,
+        items: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return ResponseHelper.success(orders, 'Customer orders retrieved successfully');
+  }
 }
+
