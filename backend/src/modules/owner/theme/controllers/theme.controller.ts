@@ -17,19 +17,19 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ThemeService } from './theme.service';
-import { CreateThemeDto } from './dto/create-theme.dto';
-import { UpdateThemeDto } from './dto/update-theme.dto';
-import { ReorderSectionsDto } from './dto/reorder-sections.dto';
-import { CreateSectionDto } from './dto/create-section.dto';
-import { UpdateSectionDto } from './dto/update-section.dto';
-import { PublishThemeDto } from './dto/publish-theme.dto';
-import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { OptionalJwtAuthGuard } from '../../../common/guards/optional-jwt-auth.guard';
-import { RolesGuard } from '../../../common/guards/roles.guard';
-import { Roles } from '../../../common/decorators/roles.decorator';
-import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { UserRole } from '../../../../prisma/generated/client';
+import { ThemeService } from '../services/theme.service';
+import { CreateThemeDto } from '../dto/create-theme.dto';
+import { UpdateThemeDto } from '../dto/update-theme.dto';
+import { ReorderSectionsDto } from '../dto/reorder-sections.dto';
+import { CreateSectionDto } from '../dto/create-section.dto';
+import { UpdateSectionDto } from '../dto/update-section.dto';
+import { PublishThemeDto } from '../dto/publish-theme.dto';
+import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../../../../common/guards/optional-jwt-auth.guard';
+import { RolesGuard } from '../../../../common/guards/roles.guard';
+import { Roles } from '../../../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
+import { UserRole } from '../../../../../prisma/generated/client';
 
 @ApiTags('(Owner) Theme')
 @Controller('owner/theme')
@@ -41,8 +41,8 @@ export class ThemeController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get all themes, current live theme, and available base presets' })
-  @ApiResponse({ status: 200, description: 'Theme collection retrieved successfully' })
+  @ApiOperation({ summary: 'Get current tenant theme, sections, and version history' })
+  @ApiResponse({ status: 200, description: 'Theme data retrieved successfully' })
   async findAll(@CurrentUser() user?: any) {
     return this.themeService.findAll(user?.tenantId);
   }
@@ -50,7 +50,7 @@ export class ThemeController {
   @Get('live')
   @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get currently active live theme and sections for storefront or preview' })
+  @ApiOperation({ summary: 'Get currently active live theme for storefront' })
   @ApiResponse({ status: 200, description: 'Live theme retrieved successfully' })
   async getLiveTheme(@CurrentUser() user?: any) {
     return this.themeService.getLiveTheme(user?.tenantId);
@@ -61,7 +61,7 @@ export class ThemeController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get single theme details with sections and version history' })
+  @ApiOperation({ summary: 'Get single theme details' })
   @ApiResponse({ status: 200, description: 'Theme details retrieved successfully' })
   async findOne(@Param('id') id: string, @CurrentUser() user?: any) {
     return this.themeService.findOne(id, user?.tenantId);
@@ -72,7 +72,7 @@ export class ThemeController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new draft theme or clone from preset' })
+  @ApiOperation({ summary: 'Create a new draft theme' })
   @ApiResponse({ status: 201, description: 'Theme created successfully' })
   async create(@Body() dto: CreateThemeDto, @CurrentUser() user?: any) {
     return this.themeService.create(dto, user?.tenantId);
@@ -83,7 +83,7 @@ export class ThemeController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update theme design tokens and settings (Save Draft)' })
+  @ApiOperation({ summary: 'Update theme design tokens and brand settings (Save Draft)' })
   @ApiResponse({ status: 200, description: 'Theme draft saved successfully' })
   async update(
     @Param('id') id: string,
@@ -98,7 +98,7 @@ export class ThemeController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.OWNER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Publish theme to storefront and create audit snapshot version' })
+  @ApiOperation({ summary: 'Publish theme live to storefront' })
   @ApiResponse({ status: 200, description: 'Theme published successfully' })
   async publish(
     @Param('id') id: string,
@@ -106,17 +106,6 @@ export class ThemeController {
     @CurrentUser() user?: any,
   ) {
     return this.themeService.publish(id, dto, user?.tenantId, user);
-  }
-
-  @Post(':id/duplicate')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Duplicate an existing theme and its sections' })
-  @ApiResponse({ status: 201, description: 'Theme duplicated successfully' })
-  async duplicate(@Param('id') id: string, @CurrentUser() user?: any) {
-    return this.themeService.duplicate(id, user?.tenantId);
   }
 
   @Put(':id/sections/reorder')
@@ -193,16 +182,5 @@ export class ThemeController {
     @CurrentUser() user?: any,
   ) {
     return this.themeService.restoreVersion(id, versionId, user?.tenantId);
-  }
-
-  @Delete(':id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a non-live theme' })
-  @ApiResponse({ status: 200, description: 'Theme deleted successfully' })
-  async delete(@Param('id') id: string, @CurrentUser() user?: any) {
-    return this.themeService.delete(id, user?.tenantId);
   }
 }
