@@ -71,6 +71,34 @@ export class OrderService {
     });
     if (profileByUserId) return profileByUserId.id;
 
+    // Auto-upsert customer profile if auth user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userIdOrCustomerId },
+    });
+    if (user) {
+      const userEmail = user.email || `${user.id}@customer.store`;
+      const profileName = user.name || (user.email ? user.email.split('@')[0] : 'Customer');
+      const newProfile = await this.prisma.customerProfile.upsert({
+        where: {
+          tenantId_email: {
+            tenantId,
+            email: userEmail,
+          },
+        },
+        update: {
+          userId: user.id,
+          name: profileName,
+        },
+        create: {
+          tenantId,
+          userId: user.id,
+          email: userEmail,
+          name: profileName,
+        },
+      });
+      return newProfile.id;
+    }
+
     return null;
   }
 
@@ -248,19 +276,28 @@ export class OrderService {
     const resolvedTenantId = await this.resolveTenantId(tenantId);
     const customerId = await this.resolveCustomerId(userId, resolvedTenantId);
 
-    // If customer profile does not exist yet, return empty list
-    if (!customerId) {
-      return ResponseHelper.success([], 'No orders found for customer');
-    }
+    // Look up user email to also match orders placed with customer's email
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    const userEmail = user?.email;
 
-    // Step 1: Filter database by tenant and customer ID
+    // Step 1: Filter database by tenant and (customer ID or customer email)
     // Step 2: Include items and delivery shipping address
     // Step 3: Sort by creation date descending (newest to oldest)
     const orders = await this.prisma.order.findMany({
       where: {
         tenantId: resolvedTenantId,
-        customerId,
         deletedAt: null,
+        ...(customerId || userEmail
+          ? {
+              OR: [
+                ...(customerId ? [{ customerId }] : []),
+                ...(userEmail ? [{ email: { equals: userEmail, mode: 'insensitive' as const } }] : []),
+              ],
+            }
+          : { id: 'impossible_empty_match' }),
       },
       include: {
         shippingAddress: true,
