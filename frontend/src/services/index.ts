@@ -14,5 +14,6 @@ export * from './collection-service';
 export * from './inventory-service';
 export * from './cart-service';
 export * from './wishlist-service';
+export * from './theme-service';
 export * from './discount-service';
 export * from './address-service';
