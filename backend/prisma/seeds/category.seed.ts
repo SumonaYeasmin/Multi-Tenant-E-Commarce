@@ -16,7 +16,7 @@ export async function seedCategories(prisma: PrismaClient) {
       name: 'Women',
       slug: 'women',
       description: 'Kurtas, sarees & co-ords',
-      image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+      image: 'https://www.lerevecraze.com/wp-content/uploads/2026/06/e5a2f499-2050-407c-a6c3-06d374aee231.jpg',
       order: 1,
       subcategories: [
         { name: 'Kurtas', slug: 'kurtas', description: 'Handcrafted cotton and silk kurtas' },
