@@ -48,6 +48,8 @@ export interface StoreContextValue {
   recentlyViewed: string[];
   user: User | null;
   addresses: Address[];
+  isAddressesLoading?: boolean;
+  refreshAddresses?: () => Promise<void>;
   storeCredit: number;
   miniCartOpen: boolean;
   quickViewId: string | null;
@@ -69,9 +71,9 @@ export interface StoreContextValue {
   login: (email: string) => void;
   register: (u: Omit<User, 'id'>) => void;
   logout: () => void;
-  saveAddress: (a: Address) => void;
-  deleteAddress: (id: string) => void;
-  setDefaultAddress: (id: string) => void;
+  saveAddress: (a: Address) => Promise<any> | void;
+  deleteAddress: (id: string) => Promise<void> | void;
+  setDefaultAddress: (id: string) => Promise<void> | void;
   placeOrder: (input: PlaceOrderInput) => Order;
   completePayment: (orderId: string, result: 'success' | 'fail' | 'cancel') => void;
   retryPayment: (orderId: string, method: PaymentMethod) => void;

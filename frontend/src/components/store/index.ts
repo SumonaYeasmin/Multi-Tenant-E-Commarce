@@ -15,3 +15,7 @@ export * from './shared';
 
 // 🛍️ Shop & Filter Components
 export * from './shop';
+
+// 💳 Checkout Components
+export * from './checkout';
+
