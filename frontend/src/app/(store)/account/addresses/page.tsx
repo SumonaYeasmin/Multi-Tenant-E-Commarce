@@ -31,16 +31,16 @@ export default function AccountAddressesPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState<Address | null>(null);
 
-  const save = () => {
+  const save = async () => {
     if (!editing) return;
     const er: Record<string, string> = {};
     if (!editing.name.trim()) er.name = 'Required';
-    if (!/^01\d{3}-?\d{6}$/.test(editing.phone))
+    if (!/^01[3-9]\d{2}-?\d{6}$|^01[3-9]\d{8}$/.test(editing.phone.replace(/\s/g, '')))
       er.phone = 'Enter an 11-digit mobile number';
     if (editing.line1.trim().length < 5) er.line1 = 'Enter house, road and area';
     setErrors(er);
     if (Object.keys(er).length) return;
-    saveAddress({ ...editing, id: editing.id || `a${Date.now()}` });
+    await saveAddress({ ...editing, id: editing.id || `a${Date.now()}` });
     setEditing(null);
     toast.success('Address saved');
   };
