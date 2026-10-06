@@ -47,6 +47,7 @@ import { cn } from '@/lib/utils';
 import type { Order, OrderStatus } from '@/types/commerce';
 
 const actionLabel: Partial<Record<OrderStatus, string>> = {
+  confirmed: 'Confirm order',
   processing: 'Start processing',
   packed: 'Mark as packed',
   shipped: 'Create shipment',
@@ -55,7 +56,7 @@ const actionLabel: Partial<Record<OrderStatus, string>> = {
 };
 
 const eventLabel: Partial<Record<OrderStatus, string>> = {
-  confirmed: 'Order confirmed',
+  confirmed: 'Order confirmed by staff',
   processing: 'Picking & processing started',
   packed: 'Packed and ready for pickup',
   out_for_delivery: 'Out for delivery',
@@ -133,12 +134,44 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   const customer = customers.find((c) => c.id === order.customerId);
-  const next = order.status === 'pending_payment' ? null : nextFulfillmentStatus(order.status);
+  const next = order.status === 'pending_payment' ? 'confirmed' : nextFulfillmentStatus(order.status);
   const canUpdate = can('orders', 'update');
   const refundable = order.total - order.refunded;
   const isPaid = ['paid', 'partially_refunded', 'partially_paid'].includes(order.paymentStatus);
   const relatedReturn = returns.find((r) => r.orderNumber === order.number);
   const codPending = order.paymentMethod === 'cod' && !order.codCollected && ['out_for_delivery', 'delivered'].includes(order.status);
+
+  // Mark payment as paid and confirm order
+  const handleMarkPaid = async () => {
+    try {
+      setIsUpdating(true);
+      const res = await orderService.updateOwnerOrderStatus(order.id, {
+        status: (order.status === 'pending_payment' ? 'CONFIRMED' : order.status).toUpperCase() as any,
+        paymentStatus: 'PAID',
+        note: 'Payment marked as received by admin',
+      });
+
+      if (res?.data) {
+        setLiveOrder(res.data);
+      } else {
+        setOrderStatus(order.id, 'confirmed', {
+          label: 'Payment marked as received by admin',
+          by: actor,
+        });
+      }
+      toast.success('Payment marked as paid & order confirmed');
+      fetchOrderDetail();
+    } catch (err: any) {
+      const fieldErrors = err?.response?.data?.errors;
+      if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+        toast.error(fieldErrors.map((e: any) => `${e.field}: ${e.message}`).join(' | '));
+      } else {
+        toast.error(err?.response?.data?.message || err.message || 'Failed to update payment status');
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   // Advance fulfillment/order status
   const advance = async () => {
@@ -157,7 +190,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       setIsUpdating(true);
       const label = eventLabel[next] ?? `Order status updated to ${next}`;
       const res = await orderService.updateOwnerOrderStatus(order.id, {
-        status: next,
+        status: next.toUpperCase() as any,
         note: label,
       });
 
@@ -170,7 +203,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       toast.success(`${order.number}: Marked as ${orderStatusMeta[next]?.label || next}`);
       fetchOrderDetail();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update order status');
+      const fieldErrors = err?.response?.data?.errors;
+      if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+        toast.error(fieldErrors.map((e: any) => `${e.field}: ${e.message}`).join(' | '));
+      } else {
+        toast.error(err?.response?.data?.message || err.message || 'Failed to update order status');
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -309,6 +347,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 <Banknote className="h-4 w-4" aria-hidden /> Mark COD collected
               </Button>
             )}
+            {order.paymentStatus === 'pending' && canUpdate && (
+              <Button size="sm" variant="secondary" onClick={handleMarkPaid} disabled={isUpdating} className="cursor-pointer">
+                <Banknote className="h-4 w-4" aria-hidden /> Mark as Paid
+              </Button>
+            )}
             {next && canUpdate && (
               <Button size="sm" onClick={advance} disabled={isUpdating} className="cursor-pointer">
                 {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -403,6 +446,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               <p className="text-xs text-ink-muted py-1">
                 Payment method: <span className="font-medium text-ink uppercase">{order.paymentMethod}</span> ({order.paymentStatus})
               </p>
+            )}
+            {order.paymentStatus === 'pending' && canUpdate && (
+              <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
+                <span className="text-xs text-ink-muted">Awaiting customer payment confirmation.</span>
+                <Button size="sm" variant="secondary" onClick={handleMarkPaid} disabled={isUpdating} className="cursor-pointer">
+                  <Banknote className="h-3.5 w-3.5" aria-hidden /> Mark as Paid
+                </Button>
+              </div>
             )}
           </Panel>
 
