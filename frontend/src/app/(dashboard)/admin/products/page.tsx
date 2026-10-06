@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Download, Plus, Search, Tag, Upload, RefreshCw, Loader2 } from 'lucide-react';
+import { Download, Plus, Search, Tag, Upload, RefreshCw, Loader2, Edit, Trash2 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { categories as seedCategories } from '@/data/products';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
@@ -109,13 +109,21 @@ export default function AdminProductsPage() {
     [products, tab, cat, stock, q, categoryFilterOptions]
   );
 
-  const bulk = (status: ProductStatus) => {
-    selected.forEach((id) => {
-      const p = products.find((x) => x.id === id);
-      if (p) saveProduct({ ...p, status });
-    });
-    toast.success(`${selected.length} products set to ${status}`);
-    setSelected([]);
+  const bulk = async (status: ProductStatus) => {
+    try {
+      const backendStatus = status === 'published' ? 'PUBLISHED' : status === 'archived' ? 'ARCHIVED' : 'DRAFT';
+      await Promise.all(
+        selected.map((id) =>
+          productService.updateProduct(id, { status: backendStatus as any })
+        )
+      );
+      toast.success(`${selected.length} products updated to ${status}`);
+      setSelected([]);
+      loadData();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to update selected products');
+      loadData();
+    }
   };
 
   const columns: Column<Product>[] = [
@@ -206,6 +214,42 @@ export default function AdminProductsPage() {
       align: 'right',
       render: (p) => <span className="tabular-nums text-ink-muted">{p.sold ?? 0}</span>,
       hideOnMobile: true,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      render: (p) => (
+        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            onClick={() => router.push(`/admin/products/${p.id}`)}
+            className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium text-ink hover:bg-subtle/80 transition-colors cursor-pointer border border-line"
+            title="Edit product"
+          >
+            <Edit className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Edit</span>
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              if (window.confirm(`Are you sure you want to delete "${p.title}"?`)) {
+                try {
+                  await productService.deleteProduct(p.id);
+                  toast.success(`"${p.title}" deleted successfully`);
+                  loadData();
+                } catch (err: any) {
+                  toast.error(err?.message || 'Failed to delete product');
+                }
+              }
+            }}
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-danger hover:bg-danger/10 transition-colors cursor-pointer border border-danger/20"
+            title="Delete product"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
     },
   ];
 
@@ -371,12 +415,22 @@ export default function AdminProductsPage() {
         <button onClick={() => bulk('draft')}>Set as draft</button>
         <button onClick={() => bulk('archived')}>Archive</button>
         <button
-          onClick={() => {
-            toast.success('Price update applied: −10% to selected');
-            setSelected([]);
+          onClick={async () => {
+            if (window.confirm(`Are you sure you want to delete ${selected.length} selected products?`)) {
+              try {
+                await Promise.all(selected.map((id) => productService.deleteProduct(id)));
+                toast.success(`${selected.length} products deleted successfully`);
+                setSelected([]);
+                loadData();
+              } catch (err: any) {
+                toast.error(err?.message || 'Failed to delete some products');
+                loadData();
+              }
+            }
           }}
+          className="text-danger hover:text-danger/80"
         >
-          Adjust prices
+          Delete ({selected.length})
         </button>
       </BulkBar>
     </div>
