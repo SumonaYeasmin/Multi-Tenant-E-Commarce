@@ -43,20 +43,69 @@ export class OrderService {
       deletedAt: null,
     };
 
+    // Filter by tab or status
+    const activeTab = query.tab?.toLowerCase() || query.status?.toLowerCase();
+
+    if (activeTab === 'unfulfilled') {
+      where.status = { notIn: [OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.FAILED] };
+      where.OR = [
+        { status: { in: [OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.PENDING_PAYMENT] } },
+        { fulfillmentStatus: FulfillmentStatus.UNFULFILLED },
+      ];
+    } else if (activeTab === 'unpaid') {
+      where.status = { notIn: [OrderStatus.CANCELLED, OrderStatus.FAILED] };
+      where.OR = [
+        { status: OrderStatus.PENDING_PAYMENT },
+        {
+          paymentStatus: {
+            in: [
+              PaymentStatus.PENDING,
+              PaymentStatus.FAILED,
+              PaymentStatus.PARTIALLY_PAID,
+            ],
+          },
+        },
+      ];
+    } else if (activeTab === 'packed') {
+      where.status = OrderStatus.PACKED;
+    } else if (activeTab === 'shipped' || activeTab === 'in_transit') {
+      where.status = { in: [OrderStatus.SHIPPED, OrderStatus.OUT_FOR_DELIVERY] };
+    } else if (activeTab === 'returns') {
+      where.status = {
+        in: [
+          OrderStatus.RETURN_REQUESTED,
+          OrderStatus.RETURNED,
+          OrderStatus.REFUNDED,
+          OrderStatus.PARTIALLY_REFUNDED,
+        ],
+      };
+    } else if (activeTab === 'closed') {
+      where.status = {
+        in: [
+          OrderStatus.DELIVERED,
+          OrderStatus.CANCELLED,
+          OrderStatus.FAILED,
+        ],
+      };
+    } else if (query.status && Object.values(OrderStatus).includes(query.status.toUpperCase() as OrderStatus)) {
+      where.status = query.status.toUpperCase() as OrderStatus;
+    }
+
     // Keyword search across order number, customer name, email, and phone
     if (query.search?.trim()) {
       const s = query.search.trim();
-      where.OR = [
+      const searchCondition = [
         { number: { contains: s, mode: 'insensitive' } },
         { customerName: { contains: s, mode: 'insensitive' } },
         { email: { contains: s, mode: 'insensitive' } },
         { phone: { contains: s, mode: 'insensitive' } },
       ];
-    }
-
-    // Filter by order status
-    if (query.status) {
-      where.status = query.status;
+      if (where.OR) {
+        where.AND = [{ OR: where.OR }, { OR: searchCondition }];
+        delete where.OR;
+      } else {
+        where.OR = searchCondition;
+      }
     }
 
     // Filter by payment status
@@ -93,7 +142,7 @@ export class OrderService {
     }
 
     const page = query.page && query.page > 0 ? query.page : 1;
-    const limit = query.limit && query.limit > 0 ? query.limit : 20;
+    const limit = query.limit && query.limit > 0 ? query.limit : 50;
     const skip = (page - 1) * limit;
 
     const sortBy = query.sortBy || 'createdAt';
@@ -141,13 +190,18 @@ export class OrderService {
         where: {
           tenantId: targetTenantId,
           deletedAt: null,
-          status: { in: [OrderStatus.CONFIRMED, OrderStatus.PROCESSING] },
+          status: { notIn: [OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.FAILED] },
+          OR: [
+            { status: { in: [OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.PENDING_PAYMENT] } },
+            { fulfillmentStatus: FulfillmentStatus.UNFULFILLED },
+          ],
         },
       }),
       this.prisma.order.count({
         where: {
           tenantId: targetTenantId,
           deletedAt: null,
+          status: { notIn: [OrderStatus.CANCELLED, OrderStatus.FAILED] },
           OR: [
             { status: OrderStatus.PENDING_PAYMENT },
             {

@@ -25,8 +25,12 @@ type Tab = 'all' | 'unfulfilled' | 'unpaid' | 'packed' | 'shipped' | 'returns' |
 
 const tabFilter: Record<Tab, (o: Order) => boolean> = {
   all: () => true,
-  unfulfilled: (o) => ['confirmed', 'processing'].includes(o.status),
-  unpaid: (o) => o.status === 'pending_payment' || o.paymentStatus === 'failed' || o.paymentStatus === 'partially_paid',
+  unfulfilled: (o) =>
+    (o.fulfillmentStatus === 'unfulfilled' || ['confirmed', 'processing', 'pending_payment'].includes(o.status)) &&
+    !['delivered', 'cancelled', 'failed'].includes(o.status),
+  unpaid: (o) =>
+    (o.paymentStatus !== 'paid' || o.status === 'pending_payment') &&
+    !['cancelled', 'failed'].includes(o.status),
   packed: (o) => o.status === 'packed',
   shipped: (o) => ['shipped', 'out_for_delivery'].includes(o.status),
   returns: (o) => ['return_requested', 'returned', 'refunded', 'partially_refunded'].includes(o.status),
@@ -46,8 +50,8 @@ function OrdersContent() {
   const [selected, setSelected] = useState<string[]>([]);
   
   // Real backend order data state
-  const [liveOrders, setLiveOrders] = useState<Order[]>(storeOrders);
-  const [isLoading, setIsLoading] = useState(false);
+  const [liveOrders, setLiveOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [serverCounts, setServerCounts] = useState<{
     all: number;
@@ -73,24 +77,18 @@ function OrdersContent() {
       setIsLoading(true);
       const res = await orderService.getOwnerOrders({
         search: q.trim() || undefined,
-        status: tab !== 'all' ? tab : undefined,
+        tab: tab !== 'all' ? tab : undefined,
         paymentMethod: method !== 'all' ? method : undefined,
         channel: channel !== 'all' ? channel : undefined,
-        limit: 50,
+        limit: 100,
       });
 
-      if (res?.data?.orders && res.data.orders.length > 0) {
+      if (res?.data?.orders) {
         setLiveOrders(res.data.orders);
         if (res.data.counts) {
           setServerCounts(res.data.counts);
         }
-      } else if (res?.data?.orders && res.data.orders.length === 0 && (q || tab !== 'all' || method !== 'all' || channel !== 'all')) {
-        setLiveOrders([]);
-        if (res.data.counts) {
-          setServerCounts(res.data.counts);
-        }
       } else {
-        // Fallback to store orders if backend has no orders
         setLiveOrders(storeOrders);
       }
     } catch (err) {
@@ -236,7 +234,7 @@ function OrdersContent() {
 
   // Helper to compute counts prioritizing server counts if available
   const count = (t: Tab) => {
-    if (serverCounts[t] !== undefined && serverCounts.all > 0) {
+    if (serverCounts && typeof serverCounts[t] === 'number') {
       return serverCounts[t];
     }
     return liveOrders.filter(tabFilter[t]).length;
