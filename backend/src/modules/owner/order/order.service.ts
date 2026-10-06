@@ -575,5 +575,127 @@ export class OrderService {
         : 'Manual order created and marked as paid successfully',
     );
   }
+
+  // Fetch all draft and manual orders for tenant
+  async getDraftOrders(query: OrderQueryDto, tenantId?: string) {
+    let targetTenantId = tenantId;
+    if (!targetTenantId) {
+      const defaultTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = defaultTenant?.id;
+    }
+
+    if (!targetTenantId) {
+      throw new NotFoundException('Store tenant context not found');
+    }
+
+    const where: any = {
+      tenantId: targetTenantId,
+      channel: OrderChannel.MANUAL,
+      deletedAt: null,
+    };
+
+    // Keyword search across draft number, customer name, email, and phone
+    if (query.search?.trim()) {
+      const s = query.search.trim();
+      where.OR = [
+        { number: { contains: s, mode: 'insensitive' } },
+        { customerName: { contains: s, mode: 'insensitive' } },
+        { email: { contains: s, mode: 'insensitive' } },
+        { phone: { contains: s, mode: 'insensitive' } },
+      ];
+    }
+
+    // Filter by order status (e.g. pending_payment for open drafts)
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    // Filter by payment status
+    if (query.paymentStatus) {
+      where.paymentStatus = query.paymentStatus;
+    }
+
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 50;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder || 'desc';
+    const orderBy = { [sortBy]: sortOrder };
+
+    const [drafts, total, openCount, completedCount, cancelledCount] =
+      await Promise.all([
+        this.prisma.order.findMany({
+          where,
+          include: {
+            items: true,
+            shippingAddress: true,
+            customer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+            timeline: {
+              orderBy: { createdAt: 'asc' },
+            },
+            notes: {
+              orderBy: { createdAt: 'desc' },
+            },
+          },
+          orderBy,
+          skip,
+          take: limit,
+        }),
+        this.prisma.order.count({ where }),
+        this.prisma.order.count({
+          where: {
+            tenantId: targetTenantId,
+            channel: OrderChannel.MANUAL,
+            status: OrderStatus.PENDING_PAYMENT,
+            deletedAt: null,
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            tenantId: targetTenantId,
+            channel: OrderChannel.MANUAL,
+            status: { notIn: [OrderStatus.PENDING_PAYMENT, OrderStatus.CANCELLED] },
+            deletedAt: null,
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            tenantId: targetTenantId,
+            channel: OrderChannel.MANUAL,
+            status: OrderStatus.CANCELLED,
+            deletedAt: null,
+          },
+        }),
+      ]);
+
+    return ResponseHelper.success(
+      {
+        drafts,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        counts: {
+          all: total,
+          open: openCount,
+          completed: completedCount,
+          cancelled: cancelledCount,
+        },
+      },
+      'Draft orders retrieved successfully',
+    );
+  }
 }
+
 
