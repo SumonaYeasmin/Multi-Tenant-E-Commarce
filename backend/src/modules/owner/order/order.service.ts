@@ -9,12 +9,14 @@ import {
   OrderQueryDto,
   UpdateOrderStatusDto,
   AddOrderNoteDto,
+  CreateDraftOrderDto,
 } from './dto';
 import {
   OrderStatus,
   PaymentStatus,
   FulfillmentStatus,
   PaymentMethod,
+  OrderChannel,
 } from '../../../../prisma/generated/client';
 
 @Injectable()
@@ -386,4 +388,192 @@ export class OrderService {
 
     return ResponseHelper.created(note, 'Order note added successfully');
   }
+
+  // Helper to generate sequential unique manual order number
+  private async generateManualOrderNumber(tenantId: string): Promise<string> {
+    const totalOrders = await this.prisma.order.count({
+      where: { tenantId },
+    });
+    const nextSeq = 10500 + totalOrders + 1;
+    return `TN-${nextSeq}`;
+  }
+
+  // Create draft or manual order by staff
+  async createDraftOrder(
+    dto: CreateDraftOrderDto,
+    tenantId?: string,
+    adminUser?: any,
+  ) {
+    let targetTenantId = tenantId;
+    if (!targetTenantId) {
+      const defaultTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = defaultTenant?.id;
+    }
+
+    if (!targetTenantId) {
+      throw new NotFoundException('Store tenant context not found');
+    }
+
+    if (!dto.items || dto.items.length === 0) {
+      throw new BadRequestException('Draft order must contain at least one product');
+    }
+
+    // Resolve customer profile if customerId provided or look up by email/phone
+    let resolvedCustomerId = dto.customerId;
+    if (!resolvedCustomerId && dto.email) {
+      const existingCustomer = await this.prisma.customerProfile.findFirst({
+        where: {
+          tenantId: targetTenantId,
+          email: { equals: dto.email.trim(), mode: 'insensitive' },
+          deletedAt: null,
+        },
+      });
+      if (existingCustomer) {
+        resolvedCustomerId = existingCustomer.id;
+      }
+    }
+
+    // Financial calculations
+    const subtotal = dto.items.reduce(
+      (sum, item) => sum + Number(item.price) * item.qty,
+      0,
+    );
+    const discount = Number(dto.discount || 0);
+    const shipping = Number(dto.shippingFee || 0);
+    const total = Math.max(0, subtotal - discount + shipping);
+
+    const isPaid = dto.mode === 'paid';
+    const initialStatus = isPaid ? OrderStatus.CONFIRMED : OrderStatus.PENDING_PAYMENT;
+    const initialPaymentStatus = isPaid ? PaymentStatus.PAID : PaymentStatus.PENDING;
+    const initialFulfillmentStatus = FulfillmentStatus.UNFULFILLED;
+    const paymentMethod = dto.paymentMethod || PaymentMethod.COD;
+
+    const orderNumber = await this.generateManualOrderNumber(targetTenantId);
+    const adminName = adminUser?.name || adminUser?.email || 'Admin';
+
+    const createdOrder = await this.prisma.$transaction(async (tx) => {
+      // 1. Create main Order record
+      const order = await tx.order.create({
+        data: {
+          tenantId: targetTenantId,
+          number: orderNumber,
+          customerId: resolvedCustomerId || null,
+          customerName: dto.customerName.trim(),
+          email: dto.email.trim(),
+          phone: dto.phone.trim(),
+          subtotal,
+          discount,
+          shipping,
+          tax: 0,
+          total,
+          status: initialStatus,
+          paymentStatus: initialPaymentStatus,
+          fulfillmentStatus: initialFulfillmentStatus,
+          paymentMethod,
+          couponCode: dto.couponCode || null,
+          channel: OrderChannel.MANUAL,
+          codCollected: isPaid && paymentMethod === PaymentMethod.COD,
+          customerNote: dto.customerNote || null,
+          shippingMethod: shipping > 0 ? 'Home delivery' : 'Standard delivery',
+
+          // 2. Create shipping address if provided
+          ...(dto.shippingAddress
+            ? {
+                shippingAddress: {
+                  create: {
+                    name: dto.shippingAddress.name.trim(),
+                    phone: dto.shippingAddress.phone.trim(),
+                    line1: dto.shippingAddress.line1.trim(),
+                    area: dto.shippingAddress.area.trim(),
+                    district: dto.shippingAddress.district.trim(),
+                  },
+                },
+              }
+            : {}),
+
+          // 3. Create items
+          items: {
+            create: dto.items.map((item) => ({
+              productId: item.productId || null,
+              variantId: item.variantId || null,
+              title: item.title,
+              image: item.image || null,
+              color: item.color || null,
+              size: item.size || null,
+              sku: item.sku || `MAN-${Math.floor(Math.random() * 9000 + 1000)}`,
+              price: item.price,
+              qty: item.qty,
+            })),
+          },
+
+          // 4. Create timeline audit trail
+          timeline: {
+            create: [
+              {
+                label: `Order created manually by staff [${adminName}]`,
+                by: adminName,
+                note: dto.mode === 'invoice' ? 'Invoice sent with payment link' : undefined,
+              },
+              ...(isPaid
+                ? [
+                    {
+                      label: `Payment marked as received by staff [${adminName}]`,
+                      by: adminName,
+                    },
+                  ]
+                : []),
+            ],
+          },
+
+          // 5. Create staff note if provided
+          ...(dto.staffNote?.trim()
+            ? {
+                notes: {
+                  create: {
+                    text: dto.staffNote.trim(),
+                    by: adminName,
+                    internal: true,
+                  },
+                },
+              }
+            : {}),
+        },
+        include: {
+          items: true,
+          shippingAddress: true,
+          timeline: {
+            orderBy: { createdAt: 'asc' },
+          },
+          notes: {
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+      });
+
+      // 6. Deduct variant stock if variantId is linked
+      for (const item of dto.items) {
+        if (item.variantId) {
+          await tx.productVariant.updateMany({
+            where: { id: item.variantId },
+            data: {
+              stock: { decrement: item.qty },
+            },
+          });
+        }
+      }
+
+      return order;
+    });
+
+    return ResponseHelper.created(
+      createdOrder,
+      dto.mode === 'invoice'
+        ? 'Draft order created and invoice ready'
+        : 'Manual order created and marked as paid successfully',
+    );
+  }
 }
+
