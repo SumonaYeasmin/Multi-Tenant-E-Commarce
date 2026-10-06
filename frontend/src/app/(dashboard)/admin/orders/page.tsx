@@ -3,7 +3,8 @@
 import React, { useMemo, useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { Download, Plus, Search, ShoppingCart, RefreshCw, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Download, Plus, Search, ShoppingCart, RefreshCw, Loader2, Eye, ChevronRight } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { orderService } from '@/services/order-service';
@@ -145,7 +146,19 @@ function OrdersContent() {
   };
 
   const columns: Column<Order>[] = [
-    { key: 'num', header: 'Order', render: (o) => <span className="font-medium text-ink">{o.number}</span> },
+    {
+      key: 'num',
+      header: 'Order',
+      render: (o) => (
+        <Link
+          href={`/admin/orders/${o.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="font-medium text-ink hover:text-clay hover:underline inline-flex items-center gap-1"
+        >
+          {o.number}
+        </Link>
+      ),
+    },
     {
       key: 'date',
       header: 'Date',
@@ -178,11 +191,8 @@ function OrdersContent() {
       key: 'pay',
       header: 'Payment',
       render: (o) => (
-        <span className="flex items-center gap-2">
+        <span className="inline-flex items-center" title={`Payment method: ${o.paymentMethod}`}>
           <PaymentMark method={o.paymentMethod} />
-          <Badge tone={paymentStatusMeta[o.paymentStatus]?.tone || 'neutral'}>
-            {paymentStatusMeta[o.paymentStatus]?.label || o.paymentStatus}
-          </Badge>
         </span>
       ),
     },
@@ -203,6 +213,23 @@ function OrdersContent() {
         <Badge tone={orderStatusMeta[o.status]?.tone || 'neutral'}>
           {orderStatusMeta[o.status]?.label || o.status}
         </Badge>
+      ),
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      align: 'right',
+      render: (o) => (
+        <Button
+          variant="secondary"
+          size="sm"
+          href={`/admin/orders/${o.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="cursor-pointer h-7 px-2.5 text-xs inline-flex items-center gap-1 hover:border-clay hover:text-clay"
+        >
+          <Eye className="h-3.5 w-3.5" aria-hidden />
+          <span>View</span>
+        </Button>
       ),
     },
   ];
@@ -338,13 +365,16 @@ function OrdersContent() {
                 <p className="mt-0.5 text-xs text-ink-muted">
                   {o.customerName} · {o.shippingAddress?.district || o.shippingAddress?.area}
                 </p>
-                <div className="mt-2 flex items-center gap-2">
-                  <Badge tone={orderStatusMeta[o.status]?.tone || 'neutral'}>
-                    {orderStatusMeta[o.status]?.label || o.status}
-                  </Badge>
-                  <Badge tone={paymentStatusMeta[o.paymentStatus]?.tone || 'neutral'}>
-                    {paymentStatusMeta[o.paymentStatus]?.label || o.paymentStatus}
-                  </Badge>
+                <div className="mt-2.5 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <PaymentMark method={o.paymentMethod} />
+                    <Badge tone={orderStatusMeta[o.status]?.tone || 'neutral'}>
+                      {orderStatusMeta[o.status]?.label || o.status}
+                    </Badge>
+                  </div>
+                  <span className="text-xs font-medium text-clay hover:underline inline-flex items-center gap-0.5">
+                    Details <ChevronRight className="h-3 w-3" />
+                  </span>
                 </div>
               </div>
             )}
