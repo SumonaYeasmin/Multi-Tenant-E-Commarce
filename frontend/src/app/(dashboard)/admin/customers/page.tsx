@@ -1,10 +1,23 @@
 'use client';
 
-import React, { useMemo, useState, Suspense } from 'react';
+import React, { useMemo, useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
-import { Download, Search, Users, Mail, Phone } from 'lucide-react';
+import {
+  Download,
+  Search,
+  Users,
+  Mail,
+  Phone,
+  CreditCard,
+  ShoppingBag,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  Tag,
+  RefreshCw,
+} from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
@@ -15,31 +28,50 @@ import { Badge } from '@/components/ui/Badge';
 import { Drawer } from '@/components/ui/Drawer';
 import { Textarea } from '@/components/ui/Textarea';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { customerService } from '@/services/customer-service';
 import { orderStatusMeta } from '@/utils/status';
 import { formatBDT, formatDate } from '@/utils/format';
 import { cn } from '@/utils/cn';
 import type { Customer } from '@/types/commerce';
 
-const segments = ['All', 'VIP', 'Loyal', 'New', 'At risk', 'Wholesale'] as const;
-const segTone = {
-  VIP: 'clay',
-  Loyal: 'success',
-  New: 'info',
-  'At risk': 'warning',
-  Wholesale: 'neutral',
-} as const;
+const statusFilters = ['All', 'Active', 'Inactive'] as const;
 
 function CustomersContent() {
-  const { customers, orders, toggleCustomerStatus } = useStore();
+  const { customers: localCustomers, orders, toggleCustomerStatus } = useStore();
   const { can } = useAdmin();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [q, setQ] = useState('');
-  const [seg, setSeg] = useState<(typeof segments)[number]>('All');
+  const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>('All');
+  const [customerList, setCustomerList] = useState<Customer[]>(localCustomers);
+  const [loading, setLoading] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  // Sync / fetch customers from backend API
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const res = await customerService.getOwnerCustomers({ search: q });
+      if (res?.data?.customers && res.data.customers.length > 0) {
+        setCustomerList(res.data.customers);
+      } else {
+        setCustomerList(localCustomers);
+      }
+    } catch {
+      setCustomerList(localCustomers);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const activeId = searchParams.get('c');
-  const active = customers.find((c) => c.id === activeId);
+  const active = customerList.find((c) => c.id === activeId) || localCustomers.find((c) => c.id === activeId);
 
   const setCustomerParam = (id?: string) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -51,19 +83,52 @@ function CustomersContent() {
     router.push(`${pathname}?${p.toString()}`);
   };
 
-  const rows = useMemo(
-    () =>
-      customers.filter(
-        (c) =>
-          (seg === 'All' || c.segment === seg) &&
-          (!q ||
-            `${c.name} ${c.email} ${c.phone}`
-              .toLowerCase()
-              .includes(q.toLowerCase()))
-      ),
-    [customers, seg, q]
-  );
+  // Filter rows by search and status
+  const rows = useMemo(() => {
+    return customerList.filter((c) => {
+      const matchesStatus =
+        statusFilter === 'All' ||
+        (statusFilter === 'Active' && c.status === 'active') ||
+        (statusFilter === 'Inactive' && c.status === 'inactive');
+
+      const matchesQuery =
+        !q ||
+        `${c.name} ${c.email} ${c.phone} ${c.tags.join(' ')}`
+          .toLowerCase()
+          .includes(q.toLowerCase());
+
+      return matchesStatus && matchesQuery;
+    });
+  }, [customerList, statusFilter, q]);
+
   const custOrders = active ? orders.filter((o) => o.customerId === active.id) : [];
+
+  const handleToggleStatus = async (customer: Customer) => {
+    try {
+      setIsUpdatingStatus(true);
+      const nextActiveState = customer.status !== 'active';
+      await customerService.updateCustomerStatus(customer.id, { isActive: nextActiveState });
+      toggleCustomerStatus(customer.id);
+
+      setCustomerList((prev) =>
+        prev.map((c) =>
+          c.id === customer.id
+            ? { ...c, status: nextActiveState ? 'active' : 'inactive' }
+            : c,
+        ),
+      );
+
+      toast.success(
+        nextActiveState
+          ? `Customer ${customer.name} reactivated successfully`
+          : `Customer ${customer.name} deactivated / banned successfully`,
+      );
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to update customer status');
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
 
   const columns: Column<Customer>[] = [
     {
@@ -71,50 +136,83 @@ function CustomersContent() {
       header: 'Customer',
       render: (c) => (
         <span className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-subtle text-xs font-semibold text-ink">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-subtle text-xs font-semibold text-ink shadow-xs">
             {c.name
               .split(' ')
               .map((x) => x[0])
               .slice(0, 2)
-              .join('')}
+              .join('')
+              .toUpperCase()}
           </span>
-          <span>
-            <span className="block font-medium text-ink">{c.name}</span>
-            <span className="text-xs text-ink-muted">{c.email}</span>
+          <span className="min-w-0">
+            <span className="block truncate font-medium text-ink">{c.name}</span>
+            <span className="block truncate text-xs text-ink-muted">{c.email}</span>
           </span>
         </span>
       ),
     },
     {
-      key: 'seg',
-      header: 'Segment',
+      key: 'phone',
+      header: 'Phone',
       render: (c) => (
-        <Badge tone={segTone[c.segment as keyof typeof segTone] || 'neutral'}>
-          {c.segment}
-        </Badge>
+        <span className="text-xs text-ink-muted">
+          {c.phone ? (
+            <span className="flex items-center gap-1 font-mono text-ink-soft">
+              <Phone className="h-3 w-3 text-ink-muted" aria-hidden />
+              {c.phone}
+            </span>
+          ) : (
+            '—'
+          )}
+        </span>
       ),
-    },
-    {
-      key: 'd',
-      header: 'Location',
-      render: (c) => <span className="text-ink-muted">{c.district}</span>,
       hideOnMobile: true,
     },
     {
       key: 'o',
       header: 'Orders',
       align: 'right',
-      render: (c) => <span className="tabular-nums text-ink">{c.orders}</span>,
+      render: (c) => (
+        <span className="flex items-center justify-end gap-1.5 tabular-nums text-ink">
+          <ShoppingBag className="h-3.5 w-3.5 text-ink-muted" aria-hidden />
+          <span className="font-medium">{c.orders}</span>
+        </span>
+      ),
     },
     {
       key: 's',
-      header: 'Spent',
+      header: 'Total Spent',
       align: 'right',
       render: (c) => (
-        <span className="tabular-nums font-medium text-ink">
+        <span className="tabular-nums font-semibold text-ink">
           {formatBDT(c.spent)}
         </span>
       ),
+    },
+    {
+      key: 'credit',
+      header: 'Store Credit',
+      align: 'right',
+      render: (c) => (
+        <span className="tabular-nums text-xs font-medium text-ink-soft">
+          {c.storeCredit > 0 ? (
+            <span className="text-success font-semibold">{formatBDT(c.storeCredit)}</span>
+          ) : (
+            '৳0'
+          )}
+        </span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'joined',
+      header: 'Joined',
+      render: (c) => (
+        <span className="text-xs text-ink-muted">
+          {formatDate(c.joined)}
+        </span>
+      ),
+      hideOnMobile: true,
     },
     {
       key: 'st',
@@ -124,7 +222,6 @@ function CustomersContent() {
           {c.status === 'active' ? 'Active' : 'Inactive'}
         </Badge>
       ),
-      hideOnMobile: true,
     },
   ];
 
@@ -132,52 +229,68 @@ function CustomersContent() {
     <div className="w-full space-y-6">
       <PageHeader
         title="Customers"
-        description={`${customers.length} customers · ${
-          customers.filter((c) => c.marketingConsent).length
+        description={`${customerList.length} total customers · ${
+          customerList.filter((c) => c.status === 'active').length
+        } active accounts · ${
+          customerList.filter((c) => c.marketingConsent).length
         } subscribed to marketing`}
         actions={
-          <GuardedButton
-            module="customers"
-            action="export"
-            variant="secondary"
-            size="sm"
-            onClick={() => toast.success(`Exported ${rows.length} customers`)}
-          >
-            <Download className="h-4 w-4" aria-hidden /> Export
-          </GuardedButton>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={fetchCustomers}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink hover:bg-subtle transition-colors cursor-pointer"
+            >
+              <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} aria-hidden />
+              Refresh
+            </button>
+            <GuardedButton
+              module="customers"
+              action="export"
+              variant="secondary"
+              size="sm"
+              onClick={() => toast.success(`Exported ${rows.length} customers list`)}
+            >
+              <Download className="h-4 w-4" aria-hidden /> Export
+            </GuardedButton>
+          </div>
         }
       />
-      <div className="rounded-lg border border-line bg-surface">
-        <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-3">
-          <div className="relative min-w-[200px] flex-1">
+
+      <div className="rounded-lg border border-line bg-surface shadow-xs">
+        {/* Search & Status Filter Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
+          <div className="relative min-w-[240px] flex-1">
             <Search
-              className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
               aria-hidden
             />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search name, email or phone…"
+              placeholder="Search by name, email, phone or tags…"
               aria-label="Search customers"
-              className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm text-ink focus:border-clay focus:outline-none"
+              className="h-9 w-full rounded-md border border-line-strong bg-surface pl-9 pr-3 text-sm text-ink placeholder:text-ink-muted focus:border-clay focus:outline-none transition-colors"
             />
           </div>
+
           <div
-            className="flex flex-wrap gap-1"
+            className="flex items-center gap-1 rounded-lg bg-subtle p-1"
             role="group"
-            aria-label="Segment"
+            aria-label="Filter by account status"
           >
-            {segments.map((s) => (
+            {statusFilters.map((s) => (
               <button
                 key={s}
                 type="button"
-                onClick={() => setSeg(s)}
-                aria-pressed={seg === s}
+                onClick={() => setStatusFilter(s)}
+                aria-pressed={statusFilter === s}
                 className={cn(
-                  'rounded-full px-3 py-1 text-xs transition-colors cursor-pointer',
-                  seg === s
-                    ? 'bg-ink text-canvas font-medium'
-                    : 'bg-subtle text-ink-soft hover:text-ink'
+                  'rounded-md px-3 py-1 text-xs font-medium transition-colors cursor-pointer',
+                  statusFilter === s
+                    ? 'bg-surface text-ink shadow-xs'
+                    : 'text-ink-muted hover:text-ink',
                 )}
               >
                 {s}
@@ -185,6 +298,8 @@ function CustomersContent() {
             ))}
           </div>
         </div>
+
+        {/* Customers Data Table */}
         <DataTable
           columns={columns}
           rows={rows}
@@ -193,13 +308,14 @@ function CustomersContent() {
           empty={
             <EmptyState
               icon={Users}
-              title="No customers match"
-              description="Try another segment or search."
+              title="No customers match your search"
+              description="Try adjusting your search query or status filter."
             />
           }
         />
       </div>
 
+      {/* Customer Details Drawer */}
       <Drawer
         open={!!active}
         onClose={() => setCustomerParam(undefined)}
@@ -208,34 +324,38 @@ function CustomersContent() {
         subtitle={
           active && (
             <span className="flex items-center gap-2">
-              <Badge
-                tone={segTone[active.segment as keyof typeof segTone] || 'neutral'}
-              >
-                {active.segment}
-              </Badge>{' '}
-              Customer since {formatDate(active.joined)}
+              <Badge tone={active.status === 'active' ? 'success' : 'neutral'} dot>
+                {active.status === 'active' ? 'Active' : 'Inactive'}
+              </Badge>
+              <span className="text-xs text-ink-muted">
+                Customer since {formatDate(active.joined)}
+              </span>
             </span>
           )
         }
         footer={
           active && (
-            <div className="flex justify-end gap-2">
+            <div className="flex w-full items-center justify-between gap-3">
+              <span className="text-xs text-ink-muted">
+                ID: <span className="font-mono text-[11px]">{active.id.slice(0, 8)}...</span>
+              </span>
               <GuardedButton
                 module="customers"
                 action="update"
-                variant="secondary"
-                onClick={() => {
-                  toggleCustomerStatus(active.id);
-                  toast.success(
-                    active.status === 'active'
-                      ? 'Account deactivated'
-                      : 'Account reactivated'
-                  );
-                }}
+                variant={active.status === 'active' ? 'danger' : 'secondary'}
+                size="sm"
+                disabled={isUpdatingStatus}
+                onClick={() => handleToggleStatus(active)}
               >
-                {active.status === 'active'
-                  ? 'Deactivate account'
-                  : 'Reactivate account'}
+                {active.status === 'active' ? (
+                  <>
+                    <XCircle className="h-4 w-4" aria-hidden /> Deactivate Account
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" aria-hidden /> Reactivate Account
+                  </>
+                )}
               </GuardedButton>
             </div>
           )
@@ -243,93 +363,130 @@ function CustomersContent() {
       >
         {active && (
           <div className="space-y-6 px-5 py-5 text-sm">
-            <dl className="grid grid-cols-3 gap-3 rounded-md bg-canvas p-4 border border-line">
+            {/* Quick Metrics */}
+            <dl className="grid grid-cols-3 gap-3 rounded-lg bg-canvas p-4 border border-line shadow-xs">
               <div>
-                <dt className="text-xs text-ink-muted">Lifetime value</dt>
-                <dd className="text-base font-semibold text-ink">
+                <dt className="text-xs text-ink-muted">Lifetime Value</dt>
+                <dd className="mt-1 text-base font-bold text-ink">
                   {formatBDT(active.spent)}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-ink-muted">Orders</dt>
-                <dd className="text-base font-semibold text-ink">
+                <dt className="text-xs text-ink-muted">Total Orders</dt>
+                <dd className="mt-1 text-base font-bold text-ink">
                   {active.orders}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-ink-muted">AOV</dt>
-                <dd className="text-base font-semibold text-ink">
-                  {formatBDT(Math.round(active.spent / Math.max(1, active.orders)))}
+                <dt className="text-xs text-ink-muted">Store Credit</dt>
+                <dd className="mt-1 text-base font-bold text-success">
+                  {formatBDT(active.storeCredit)}
                 </dd>
               </div>
             </dl>
-            <div className="space-y-1.5">
-              <p className="flex items-center gap-2 text-ink">
-                <Mail className="h-3.5 w-3.5 text-ink-muted" aria-hidden />
-                {active.email}
-              </p>
-              <p className="flex items-center gap-2 text-ink">
-                <Phone className="h-3.5 w-3.5 text-ink-muted" aria-hidden />
-                {active.phone} · {active.district}
-              </p>
-              <p className="text-ink-muted">
-                Marketing:{' '}
-                {active.marketingConsent
-                  ? 'Subscribed (email + SMS)'
-                  : 'Not subscribed'}{' '}
-                · Store credit {formatBDT(active.storeCredit)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-ink-muted">Tags</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {active.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full bg-subtle px-2 py-0.5 text-xs text-ink-soft"
-                  >
-                    {t}
+
+            {/* Contact & Profile Info */}
+            <div className="rounded-lg border border-line bg-surface p-4 space-y-2.5">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+                Customer Information
+              </h4>
+              <div className="space-y-2 text-ink">
+                <p className="flex items-center gap-2.5">
+                  <Mail className="h-4 w-4 text-ink-muted shrink-0" aria-hidden />
+                  <span className="font-medium text-ink">{active.email}</span>
+                </p>
+                {active.phone && (
+                  <p className="flex items-center gap-2.5 font-mono text-xs">
+                    <Phone className="h-4 w-4 text-ink-muted shrink-0" aria-hidden />
+                    <span>{active.phone}</span>
+                  </p>
+                )}
+                <p className="flex items-center gap-2.5 text-xs text-ink-muted">
+                  <CreditCard className="h-4 w-4 text-ink-muted shrink-0" aria-hidden />
+                  Marketing Consent:{' '}
+                  <span className={cn('font-medium', active.marketingConsent ? 'text-success' : 'text-ink-muted')}>
+                    {active.marketingConsent ? 'Subscribed' : 'Not subscribed'}
                   </span>
-                ))}
+                </p>
               </div>
             </div>
+
+            {/* Tags */}
             <div>
-              <p className="text-xs font-medium text-ink-muted">Recent orders</p>
-              {custOrders.length === 0 ? (
-                <p className="mt-2 text-ink-muted">No orders in this demo dataset.</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                  <Tag className="h-3.5 w-3.5" aria-hidden /> Tags
+                </p>
+              </div>
+              {active.tags.length === 0 ? (
+                <p className="mt-2 text-xs text-ink-muted">No tags added yet.</p>
               ) : (
-                <ul className="mt-2 divide-y divide-line rounded-md border border-line">
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {active.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="inline-flex items-center rounded-md bg-subtle px-2.5 py-1 text-xs font-medium text-ink-soft border border-line"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Recent Orders */}
+            <div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                  <ShoppingBag className="h-3.5 w-3.5" aria-hidden /> Order History
+                </p>
+                <span className="text-xs text-ink-muted">{custOrders.length} orders</span>
+              </div>
+
+              {custOrders.length === 0 ? (
+                <div className="mt-2 rounded-lg border border-dashed border-line p-4 text-center text-xs text-ink-muted">
+                  No previous orders found for this customer.
+                </div>
+              ) : (
+                <ul className="mt-2 divide-y divide-line rounded-lg border border-line overflow-hidden">
                   {custOrders.slice(0, 5).map((o) => (
                     <li key={o.id}>
                       {can('orders') ? (
                         <Link
                           href={`/admin/orders/${o.id}`}
-                          className="flex items-center justify-between px-3 py-2 hover:bg-canvas transition-colors"
+                          className="flex items-center justify-between p-3 hover:bg-canvas transition-colors"
                         >
-                          <span className="font-medium text-ink">
-                            {o.number} · {formatDate(o.createdAt)}
-                          </span>
-                          <span className="flex items-center gap-2">
+                          <div>
+                            <span className="font-semibold text-ink block">{o.number}</span>
+                            <span className="text-xs text-ink-muted flex items-center gap-1 mt-0.5">
+                              <Calendar className="h-3 w-3" aria-hidden /> {formatDate(o.createdAt)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2.5">
                             <Badge tone={orderStatusMeta[o.status].tone}>
                               {orderStatusMeta[o.status].label}
                             </Badge>
-                            <span className="font-semibold text-ink">
+                            <span className="font-bold text-ink">
                               {formatBDT(o.total)}
                             </span>
-                          </span>
+                          </div>
                         </Link>
                       ) : (
-                        <span className="block px-3 py-2 text-ink">{o.number}</span>
+                        <div className="p-3">
+                          <span className="font-medium text-ink">{o.number}</span>
+                        </div>
                       )}
                     </li>
                   ))}
                 </ul>
               )}
             </div>
+
+            {/* Internal Staff Notes */}
             <Textarea
-              label="Internal note"
-              rows={2}
-              placeholder="Only visible to staff"
+              label="Staff Notes"
+              rows={3}
+              placeholder="Add internal notes about this customer (visible only to store admins)..."
             />
           </div>
         )}
