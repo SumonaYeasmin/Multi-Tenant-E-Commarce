@@ -95,23 +95,29 @@ export function useStoreOrders(
   adjustStock: (productId: string, variantId: string, delta: number) => void,
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>
 ) {
-  const [orders, setOrders] = useState<Order[]>(seedOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
-  const [returns, setReturns] = useState<ReturnRequest[]>(seedReturns);
-  const [reviews, setReviews] = useState<Review[]>(seedReviews);
+  const [returns, setReturns] = useState<ReturnRequest[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   // Auto-fetch real orders from backend whenever customer is logged in
   const loadOrdersFromBackend = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setOrders([]);
+      return;
+    }
     try {
       setIsOrdersLoading(true);
       const res = await orderService.getCustomerOrders();
       if (res?.data && Array.isArray(res.data)) {
         const mapped = res.data.map(mapBackendOrderToFrontend);
         setOrders(mapped);
+      } else {
+        setOrders([]);
       }
     } catch (err) {
       console.warn('Could not load customer orders from backend:', err);
+      setOrders([]);
     } finally {
       setIsOrdersLoading(false);
     }
@@ -121,7 +127,7 @@ export function useStoreOrders(
     if (user?.id) {
       loadOrdersFromBackend();
     } else {
-      setOrders(seedOrders);
+      setOrders([]);
     }
   }, [user?.id, loadOrdersFromBackend]);
 
