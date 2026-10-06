@@ -11,11 +11,11 @@ const columns = [
   {
     title: 'Shop',
     links: [
-      ['/category/women', 'Women'],
-      ['/category/men', 'Men'],
-      ['/category/kids', 'Kids'],
-      ['/category/footwear', 'Footwear'],
-      ['/category/accessories', 'Accessories'],
+      ['/shop?category=women', 'Women'],
+      ['/shop?category=men', 'Men'],
+      ['/shop?category=kids', 'Kids'],
+      ['/shop?category=footwear', 'Footwear'],
+      ['/shop?category=accessories', 'Accessories'],
     ],
   },
   {

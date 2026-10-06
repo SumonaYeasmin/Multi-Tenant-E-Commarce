@@ -52,9 +52,12 @@ export function ProductCard({
         <Link href={`/products/${product.slug}`} aria-label={product.title} className="block relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={product.images[0]}
+            src={product.images[0] || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80'}
             alt={product.title}
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80';
+            }}
             data-product-card-img
             className={cn(
               'aspect-[3/4] w-full object-cover transition-all duration-300 ease-out group-hover:scale-[1.03]',
@@ -68,6 +71,9 @@ export function ProductCard({
               src={product.images[1]}
               alt={`${product.title} alternative view`}
               loading="lazy"
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80';
+              }}
               data-product-card-img
               className={cn(
                 'absolute inset-0 aspect-[3/4] w-full h-full object-cover opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-[1.03]',

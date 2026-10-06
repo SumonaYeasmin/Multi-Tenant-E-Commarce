@@ -28,10 +28,17 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
   const q = searchParams.get('q') ?? '';
   const sub = searchParams.get('sub');
 
-  const [filters, setFilters] = useState<FilterState>({
+  const getInitialCategories = (): string[] => {
+    const cat = searchParams.get('category');
+    if (!cat) return [];
+    return cat.includes(',') ? cat.split(',').map((s) => s.trim()).filter(Boolean) : [cat];
+  };
+
+  const [filters, setFilters] = useState<FilterState>(() => ({
     ...emptyFilters,
+    categories: getInitialCategories(),
     onSale: searchParams.get('sale') === '1',
-  });
+  }));
   const [sort, setSort] = useState<Sort>(
     (searchParams.get('sort') as Sort) ?? (mode === 'search' ? 'relevance' : 'popular')
   );
@@ -43,6 +50,7 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
   useEffect(() => {
     setFilters({
       ...emptyFilters,
+      categories: getInitialCategories(),
       onSale: searchParams.get('sale') === '1',
     });
     setVisible(PAGE_SIZE);
@@ -122,10 +130,20 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
     }
   }, [mode, slug]);
 
+  const selectedCatObj =
+    filters.categories.length === 1
+      ? categories.find(
+          (c) =>
+            c.key === filters.categories[0] ||
+            c.key.toLowerCase() === filters.categories[0].toLowerCase() ||
+            c.name.toLowerCase() === filters.categories[0].toLowerCase()
+        )
+      : undefined;
+
   const category =
     mode === 'category'
       ? dbCategory || categories.find((c) => c.key === slug)
-      : undefined;
+      : selectedCatObj;
   const collection: CollectionItem | undefined =
     mode === 'collection'
       ? dbCollection || (storeCollections || (collections as CollectionItem[])).find((c) => c.slug === slug)
@@ -143,7 +161,7 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
       return { base: r.results, suggestion: r.suggestion };
     }
     let list = live;
-    if (category)
+    if (category && mode === 'category')
       list = list.filter(
         (p) => p.category === category.key && (!sub || p.subcategory === sub)
       );
@@ -198,11 +216,11 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
 
     return {
       categories: categories
-        .filter((c) => cats.has(c.key))
+        .filter((c) => cats.has(c.key) || cats.has(c.name as any))
         .map((c) => ({
           key: c.key,
           label: c.name,
-          count: cats.get(c.key)!,
+          count: cats.get(c.key) ?? cats.get(c.name as any) ?? 0,
         })),
       brands: Array.from(brs.entries()).map(([key, n]) => ({ key, count: n })),
       sizes,
@@ -216,8 +234,28 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
   const results = useMemo(() => {
     let list = base.filter((p) => {
       const price = productPrice(p);
-      if (filters.categories.length && !filters.categories.includes(p.category))
+      if (
+        filters.categories.length &&
+        !filters.categories.some(
+          (c) =>
+            p.category === c ||
+            p.category?.toLowerCase() === c.toLowerCase() ||
+            categories.some(
+              (cat) =>
+                (cat.key === c || cat.name?.toLowerCase() === c.toLowerCase()) &&
+                (p.category === cat.key || p.category?.toLowerCase() === cat.name?.toLowerCase())
+            )
+        )
+      ) {
         return false;
+      }
+      if (
+        sub &&
+        p.subcategory !== sub &&
+        p.subcategory?.toLowerCase() !== sub.toLowerCase()
+      ) {
+        return false;
+      }
       if (filters.brands.length && !filters.brands.includes(p.brand)) return false;
       if (
         filters.sizes.length &&
@@ -254,12 +292,12 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
       }
     });
     return list;
-  }, [base, filters, sort]);
+  }, [base, filters, sort, categories, sub]);
 
   // 4. Compute active filter chips
   const activeChips: ActiveChip[] = useMemo(() => [
     ...filters.categories.map((c) => ({
-      label: categories.find((x) => x.key === c)?.name ?? c,
+      label: categories.find((x) => x.key === c || x.name.toLowerCase() === c.toLowerCase())?.name ?? c,
       clear: () =>
         setFilters((f) => ({
           ...f,
@@ -338,13 +376,12 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
 
   const breadcrumbs = useMemo(() => [
     { to: '/', label: 'Home' },
-    ...(mode === 'category'
-      ? [{ to: `/category/${slug}`, label: category?.name ?? '' }]
-      : []),
-    ...(mode === 'collection' ? [{ to: '/shop', label: 'Collections' }] : []),
-    ...(mode === 'brand' ? [{ to: '/shop', label: 'Brands' }] : []),
-    ...(sub ? [{ to: `${pathname}?sub=${sub}`, label: sub }] : []),
-  ], [mode, slug, category, sub, pathname]);
+    { to: '/shop', label: 'Shop' },
+    ...(category ? [{ to: `/shop?category=${category.key}`, label: category.name }] : []),
+    ...(mode === 'collection' && collection ? [{ to: `/collections/${collection.slug}`, label: collection.name }] : []),
+    ...(mode === 'brand' && brand ? [{ to: `/brands/${brand.slug}`, label: brand.name }] : []),
+    ...(sub ? [{ to: `${pathname}?category=${category?.key || ''}&sub=${encodeURIComponent(sub)}`, label: sub }] : []),
+  ], [mode, category, collection, brand, sub, pathname]);
 
   return {
     filters,

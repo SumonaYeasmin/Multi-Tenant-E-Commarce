@@ -281,7 +281,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
           <li aria-hidden>/</li>
           <li>
             <Link
-              href={`/category/${product.category}`}
+              href={`/shop?category=${product.category}`}
               className="capitalize hover:text-ink"
             >
               {product.category}
@@ -292,7 +292,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               <li aria-hidden>/</li>
               <li>
                 <Link
-                  href={`/category/${product.category}?sub=${encodeURIComponent(
+                  href={`/shop?category=${product.category}&sub=${encodeURIComponent(
                     product.subcategory
                   )}`}
                   className="hover:text-ink"
@@ -328,10 +328,13 @@ export function ProductDetailView({ slug }: { slug: string }) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={src}
+                  src={src || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80'}
                   alt=""
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80';
+                  }}
                   className={cn(
-                    'aspect-[3/4] w-16 object-cover sm:w-full',
+                    'aspect-[3/4] w-16 object-cover sm:w-full bg-subtle',
                     galleryPositions[i]
                   )}
                 />
@@ -341,10 +344,13 @@ export function ProductDetailView({ slug }: { slug: string }) {
           <div className="relative order-1 overflow-hidden rounded-lg bg-subtle sm:order-2 border border-line">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={product.images[image]}
+              src={product.images[image] || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80'}
               alt={`${product.title} — ${color}`}
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80';
+              }}
               className={cn(
-                'aspect-[3/4] w-full object-cover',
+                'aspect-[3/4] w-full object-cover bg-subtle',
                 galleryPositions[image]
               )}
             />
