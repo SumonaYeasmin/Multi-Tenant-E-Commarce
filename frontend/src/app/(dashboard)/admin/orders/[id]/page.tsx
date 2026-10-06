@@ -146,7 +146,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     try {
       setIsUpdating(true);
       const res = await orderService.updateOwnerOrderStatus(order.id, {
-        status: order.status === 'pending_payment' ? 'CONFIRMED' : order.status,
+        status: (order.status === 'pending_payment' ? 'CONFIRMED' : order.status).toUpperCase() as any,
         paymentStatus: 'PAID',
         note: 'Payment marked as received by admin',
       });
@@ -162,7 +162,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       toast.success('Payment marked as paid & order confirmed');
       fetchOrderDetail();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update payment status');
+      const fieldErrors = err?.response?.data?.errors;
+      if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+        toast.error(fieldErrors.map((e: any) => `${e.field}: ${e.message}`).join(' | '));
+      } else {
+        toast.error(err?.response?.data?.message || err.message || 'Failed to update payment status');
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -185,7 +190,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       setIsUpdating(true);
       const label = eventLabel[next] ?? `Order status updated to ${next}`;
       const res = await orderService.updateOwnerOrderStatus(order.id, {
-        status: next,
+        status: next.toUpperCase() as any,
         note: label,
       });
 
@@ -198,7 +203,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       toast.success(`${order.number}: Marked as ${orderStatusMeta[next]?.label || next}`);
       fetchOrderDetail();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update order status');
+      const fieldErrors = err?.response?.data?.errors;
+      if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+        toast.error(fieldErrors.map((e: any) => `${e.field}: ${e.message}`).join(' | '));
+      } else {
+        toast.error(err?.response?.data?.message || err.message || 'Failed to update order status');
+      }
     } finally {
       setIsUpdating(false);
     }

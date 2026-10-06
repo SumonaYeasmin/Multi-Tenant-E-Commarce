@@ -1,4 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import {
   OrderStatus,
@@ -7,21 +8,24 @@ import {
 } from '../../../../../prisma/generated/client';
 
 export class UpdateOrderStatusDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: OrderStatus,
     example: OrderStatus.SHIPPED,
     description: 'New status for the order (e.g. PROCESSING, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED)',
   })
-  @IsEnum(OrderStatus)
-  status: OrderStatus;
+  @IsEnum(OrderStatus, { message: 'Invalid order status' })
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
+  status?: OrderStatus;
 
   @ApiPropertyOptional({
     enum: FulfillmentStatus,
     example: FulfillmentStatus.FULFILLED,
     description: 'Optional fulfillment status update',
   })
-  @IsEnum(FulfillmentStatus)
+  @IsEnum(FulfillmentStatus, { message: 'Invalid fulfillment status' })
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
   fulfillmentStatus?: FulfillmentStatus;
 
   @ApiPropertyOptional({
@@ -29,8 +33,9 @@ export class UpdateOrderStatusDto {
     example: PaymentStatus.PAID,
     description: 'Optional payment status update (e.g. PAID, REFUNDED)',
   })
-  @IsEnum(PaymentStatus)
+  @IsEnum(PaymentStatus, { message: 'Invalid payment status' })
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
   paymentStatus?: PaymentStatus;
 
   @ApiPropertyOptional({

@@ -301,10 +301,11 @@ export class OrderService {
     }
 
     const adminName = adminUser?.name || adminUser?.email || 'Admin';
+    const targetStatus = dto.status ?? existingOrder.status;
 
     // Derive fulfillment status based on new order status if not explicitly passed
     let derivedFulfillmentStatus = dto.fulfillmentStatus;
-    if (!derivedFulfillmentStatus) {
+    if (!derivedFulfillmentStatus && dto.status) {
       if (dto.status === OrderStatus.DELIVERED) {
         derivedFulfillmentStatus = FulfillmentStatus.FULFILLED;
       } else if (dto.status === OrderStatus.SHIPPED || dto.status === OrderStatus.OUT_FOR_DELIVERY) {
@@ -315,7 +316,11 @@ export class OrderService {
     // Auto-resolve payment for COD on delivery if not explicitly specified
     let targetPaymentStatus = dto.paymentStatus;
     let codCollected = existingOrder.codCollected;
-    if (dto.status === OrderStatus.DELIVERED && existingOrder.paymentMethod === PaymentMethod.COD && !targetPaymentStatus) {
+    if (
+      (dto.status === OrderStatus.DELIVERED || (!dto.status && existingOrder.status === OrderStatus.DELIVERED)) &&
+      existingOrder.paymentMethod === PaymentMethod.COD &&
+      !targetPaymentStatus
+    ) {
       targetPaymentStatus = PaymentStatus.PAID;
       codCollected = true;
     }
@@ -324,7 +329,7 @@ export class OrderService {
       const order = await tx.order.update({
         where: { id: existingOrder.id },
         data: {
-          status: dto.status,
+          status: targetStatus,
           ...(derivedFulfillmentStatus ? { fulfillmentStatus: derivedFulfillmentStatus } : {}),
           ...(targetPaymentStatus ? { paymentStatus: targetPaymentStatus, codCollected } : {}),
           ...(dto.courier ? { courier: dto.courier } : {}),
@@ -340,13 +345,22 @@ export class OrderService {
       });
 
       // Append status change event to order timeline
-      const statusLabel = `Order status updated to ${dto.status.replace(/_/g, ' ').toLowerCase()}`;
+      const statusLabel = dto.status
+        ? `Order status updated to ${dto.status.replace(/_/g, ' ').toLowerCase()}`
+        : dto.paymentStatus
+          ? `Payment status marked as ${dto.paymentStatus.toLowerCase()}`
+          : 'Order updated';
+
       await tx.orderTimeline.create({
         data: {
           orderId: existingOrder.id,
           label: statusLabel,
           by: adminName,
-          note: dto.note || (dto.trackingNumber ? `Courier: ${dto.courier || existingOrder.courier || 'Standard'}, Tracking: ${dto.trackingNumber}` : undefined),
+          note:
+            dto.note ||
+            (dto.trackingNumber
+              ? `Courier: ${dto.courier || existingOrder.courier || 'Standard'}, Tracking: ${dto.trackingNumber}`
+              : undefined),
         },
       });
 
@@ -421,9 +435,22 @@ export class OrderService {
       throw new BadRequestException('Draft order must contain at least one product');
     }
 
-    // Resolve customer profile if customerId provided or look up by email/phone
-    let resolvedCustomerId = dto.customerId;
-    if (!resolvedCustomerId && dto.email) {
+    // Resolve customer profile safely if exists in database
+    let resolvedCustomerId: string | null = null;
+    if (dto.customerId) {
+      const existingCustomerById = await this.prisma.customerProfile.findFirst({
+        where: {
+          id: dto.customerId,
+          tenantId: targetTenantId,
+          deletedAt: null,
+        },
+      });
+      if (existingCustomerById) {
+        resolvedCustomerId = existingCustomerById.id;
+      }
+    }
+
+    if (!resolvedCustomerId && dto.email?.trim()) {
       const existingCustomer = await this.prisma.customerProfile.findFirst({
         where: {
           tenantId: targetTenantId,
@@ -434,6 +461,32 @@ export class OrderService {
       if (existingCustomer) {
         resolvedCustomerId = existingCustomer.id;
       }
+    }
+
+    // Check valid product and variant IDs in database to avoid foreign key errors
+    const validProductIds = new Set<string>();
+    const validVariantIds = new Set<string>();
+
+    const productIdsToCheck = dto.items
+      .map((i) => i.productId)
+      .filter((id): id is string => Boolean(id));
+    if (productIdsToCheck.length > 0) {
+      const existingProducts = await this.prisma.product.findMany({
+        where: { id: { in: productIdsToCheck }, tenantId: targetTenantId, deletedAt: null },
+        select: { id: true },
+      });
+      existingProducts.forEach((p) => validProductIds.add(p.id));
+    }
+
+    const variantIdsToCheck = dto.items
+      .map((i) => i.variantId)
+      .filter((id): id is string => Boolean(id));
+    if (variantIdsToCheck.length > 0) {
+      const existingVariants = await this.prisma.productVariant.findMany({
+        where: { id: { in: variantIdsToCheck } },
+        select: { id: true },
+      });
+      existingVariants.forEach((v) => validVariantIds.add(v.id));
     }
 
     // Financial calculations
@@ -460,9 +513,9 @@ export class OrderService {
         data: {
           tenantId: targetTenantId,
           number: orderNumber,
-          customerId: resolvedCustomerId || null,
+          customerId: resolvedCustomerId,
           customerName: dto.customerName.trim(),
-          email: dto.email.trim(),
+          email: dto.email?.trim() || '',
           phone: dto.phone.trim(),
           subtotal,
           discount,
@@ -497,8 +550,14 @@ export class OrderService {
           // 3. Create items
           items: {
             create: dto.items.map((item) => ({
-              productId: item.productId || null,
-              variantId: item.variantId || null,
+              productId:
+                item.productId && validProductIds.has(item.productId)
+                  ? item.productId
+                  : null,
+              variantId:
+                item.variantId && validVariantIds.has(item.variantId)
+                  ? item.variantId
+                  : null,
               title: item.title,
               image: item.image || null,
               color: item.color || null,
@@ -553,9 +612,9 @@ export class OrderService {
         },
       });
 
-      // 6. Deduct variant stock if variantId is linked
+      // 6. Deduct variant stock if variantId is linked in database
       for (const item of dto.items) {
-        if (item.variantId) {
+        if (item.variantId && validVariantIds.has(item.variantId)) {
           await tx.productVariant.updateMany({
             where: { id: item.variantId },
             data: {

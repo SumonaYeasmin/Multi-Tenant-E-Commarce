@@ -47,7 +47,7 @@ export interface CreateOrderPayload {
 
 // Payload to update order status, tracking, and fulfillment (Owner)
 export interface UpdateOrderStatusPayload {
-  status: OrderStatus | string;
+  status?: OrderStatus | string;
   fulfillmentStatus?: string;
   paymentStatus?: string;
   courier?: string;
@@ -114,7 +114,7 @@ export interface CreateDraftOrderItemPayload {
 export interface CreateDraftOrderPayload {
   customerId?: string;
   customerName: string;
-  email: string;
+  email?: string;
   phone: string;
   shippingAddress?: {
     name: string;
@@ -337,9 +337,8 @@ export const orderService = {
       ? `/owner/orders/${encodeURIComponent(id)}/status?tenantId=${encodeURIComponent(tenantId)}`
       : `/owner/orders/${encodeURIComponent(id)}/status`;
 
-    const body: any = {
-      status: payload.status.toUpperCase(),
-    };
+    const body: any = {};
+    if (payload.status) body.status = payload.status.toUpperCase();
     if (payload.fulfillmentStatus) body.fulfillmentStatus = payload.fulfillmentStatus.toUpperCase();
     if (payload.paymentStatus) body.paymentStatus = payload.paymentStatus.toUpperCase();
     if (payload.courier) body.courier = payload.courier;

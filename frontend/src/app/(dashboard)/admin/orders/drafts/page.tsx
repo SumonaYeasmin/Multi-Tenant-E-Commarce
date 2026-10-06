@@ -29,7 +29,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PaymentMark } from '@/components/ui/PaymentMark';
 import { variantPrice, available } from '@/utils/pricing';
 import { formatBDT, formatDateTime } from '@/utils/format';
-import { districts } from '@/data/shipping';
+import { districts, areasByDistrict } from '@/data/shipping';
 import type { Order, PaymentMethod } from '@/types/commerce';
 
 interface DraftLine {
@@ -57,8 +57,14 @@ export default function DraftOrdersPage() {
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newLine1, setNewLine1] = useState('');
-  const [newArea, setNewArea] = useState('');
   const [newDistrict, setNewDistrict] = useState('Dhaka');
+  const [newArea, setNewArea] = useState(areasByDistrict['Dhaka']?.[0] || 'Dhanmondi');
+
+  const handleDistrictChange = (d: string) => {
+    setNewDistrict(d);
+    const thanas = areasByDistrict[d] || [];
+    setNewArea(thanas[0] || '');
+  };
 
   // Form State: Financials & Notes
   const [discount, setDiscount] = useState('');
@@ -163,7 +169,7 @@ export default function DraftOrdersPage() {
       }
       resolvedName = selectedCustomer.name;
       resolvedPhone = selectedCustomer.phone;
-      resolvedEmail = selectedCustomer.email || `${selectedCustomer.phone}@customer.tanti.store`;
+      resolvedEmail = selectedCustomer.email || '';
       resolvedAddress = {
         name: selectedCustomer.name,
         phone: selectedCustomer.phone,
@@ -182,12 +188,12 @@ export default function DraftOrdersPage() {
       }
       resolvedName = newName.trim();
       resolvedPhone = newPhone.trim();
-      resolvedEmail = newEmail.trim() || `${newPhone.trim()}@guest.tanti.store`;
+      resolvedEmail = newEmail.trim() || '';
       resolvedAddress = {
         name: newName.trim(),
         phone: newPhone.trim(),
         line1: newLine1.trim() || 'Store pick up / Standard address',
-        area: newArea.trim() || newDistrict,
+        area: newArea.trim() || (areasByDistrict[newDistrict]?.[0] || 'Dhanmondi'),
         district: newDistrict || 'Dhaka',
       };
     }
@@ -196,7 +202,7 @@ export default function DraftOrdersPage() {
       customerId: customerMode === 'existing' ? selectedCustomer?.id : undefined,
       customerName: resolvedName,
       phone: resolvedPhone,
-      email: resolvedEmail,
+      email: resolvedEmail?.trim() ? resolvedEmail.trim() : undefined,
       shippingAddress: resolvedAddress,
       items: detailed.map((l) => ({
         productId: l.p.id,
@@ -211,7 +217,7 @@ export default function DraftOrdersPage() {
       })),
       shippingFee: Number(shipping || 0),
       discount: Number(discount || 0),
-      paymentMethod,
+      paymentMethod: (paymentMethod || 'cod').toUpperCase() as any,
       mode,
       customerNote: customerNote.trim() || undefined,
       staffNote: staffNote.trim() || `Manual draft order created by admin`,
@@ -238,7 +244,8 @@ export default function DraftOrdersPage() {
           setNewPhone('');
           setNewEmail('');
           setNewLine1('');
-          setNewArea('');
+          setNewDistrict('Dhaka');
+          setNewArea(areasByDistrict['Dhaka']?.[0] || 'Dhanmondi');
         }
 
         // Refresh live drafts
@@ -247,7 +254,13 @@ export default function DraftOrdersPage() {
         toast.error(res?.message || 'Could not create draft order');
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to create draft order');
+      const fieldErrors = err?.response?.data?.errors;
+      if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+        const errorMsg = fieldErrors.map((e: any) => `${e.field}: ${e.message}`).join(' | ');
+        toast.error(errorMsg);
+      } else {
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to create draft order');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -509,22 +522,30 @@ export default function DraftOrdersPage() {
                   onChange={(e) => setNewLine1(e.target.value)}
                 />
                 <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    label="Area / Thana"
-                    placeholder="e.g. Dhanmondi"
-                    value={newArea}
-                    onChange={(e) => setNewArea(e.target.value)}
-                  />
                   <div>
-                    <label className="block text-xs font-medium text-ink mb-1.5">District</label>
+                    <label className="block text-xs font-medium text-ink mb-1.5">District *</label>
                     <select
                       value={newDistrict}
-                      onChange={(e) => setNewDistrict(e.target.value)}
+                      onChange={(e) => handleDistrictChange(e.target.value)}
                       className="h-9 w-full rounded-md border border-line bg-surface px-2.5 text-xs text-ink focus:outline-none"
                     >
                       {districts.map((d) => (
                         <option key={d} value={d}>
                           {d}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-ink mb-1.5">Area / Thana *</label>
+                    <select
+                      value={newArea}
+                      onChange={(e) => setNewArea(e.target.value)}
+                      className="h-9 w-full rounded-md border border-line bg-surface px-2.5 text-xs text-ink focus:outline-none"
+                    >
+                      {(areasByDistrict[newDistrict] || []).map((thana) => (
+                        <option key={thana} value={thana}>
+                          {thana}
                         </option>
                       ))}
                     </select>

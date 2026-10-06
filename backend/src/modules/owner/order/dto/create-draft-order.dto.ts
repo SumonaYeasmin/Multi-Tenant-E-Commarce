@@ -11,6 +11,7 @@ import {
   IsString,
   Matches,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { PaymentMethod } from '../../../../../prisma/generated/client';
@@ -32,10 +33,10 @@ export class DraftOrderAddressDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Recipient mobile number is required' })
-  @Matches(/^01[3-9]\d{2}-?\d{6}$|^01[3-9]\d{8}$/, {
+  @Transform(({ value }) => (typeof value === 'string' ? value.replace(/[\s-]/g, '').trim() : value))
+  @Matches(/^(?:\+8801|8801|01)[3-9]\d{8}$/, {
     message: 'Please enter a valid 11-digit Bangladeshi mobile number',
   })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   phone: string;
 
   @ApiProperty({
@@ -162,13 +163,17 @@ export class CreateDraftOrderDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   customerName: string;
 
-  @ApiProperty({
-    description: 'Customer email address for invoice / notifications',
+  @ApiPropertyOptional({
+    description: 'Optional customer email address for invoice / notifications',
     example: 'ayesha.siddiqua@example.com',
   })
+  @ValidateIf((o) => typeof o.email === 'string' && o.email.trim().length > 0)
   @IsEmail({}, { message: 'Please provide a valid customer email' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
-  email: string;
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' && value.trim().length > 0 ? value.trim().toLowerCase() : undefined,
+  )
+  email?: string;
 
   @ApiProperty({
     description: 'Customer contact phone number',
@@ -176,10 +181,10 @@ export class CreateDraftOrderDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Customer phone number is required' })
-  @Matches(/^01[3-9]\d{2}-?\d{6}$|^01[3-9]\d{8}$/, {
+  @Transform(({ value }) => (typeof value === 'string' ? value.replace(/[\s-]/g, '').trim() : value))
+  @Matches(/^(?:\+8801|8801|01)[3-9]\d{8}$/, {
     message: 'Please enter a valid 11-digit Bangladeshi mobile number',
   })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   phone: string;
 
   @ApiPropertyOptional({
@@ -237,6 +242,7 @@ export class CreateDraftOrderDto {
   })
   @IsEnum(PaymentMethod, { message: 'Invalid payment method' })
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? (value.toUpperCase() as PaymentMethod) : value))
   paymentMethod?: PaymentMethod;
 
   @ApiPropertyOptional({
