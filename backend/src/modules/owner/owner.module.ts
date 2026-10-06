@@ -6,6 +6,7 @@ import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ThemeModule } from './theme/theme.module';
 import { DiscountModule } from './discount/discount.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DiscountModule } from './discount/discount.module';
     InventoryModule,
     ThemeModule,
     DiscountModule,
+    OrderModule,
   ],
   exports: [
     CategoryModule,
@@ -25,6 +27,7 @@ import { DiscountModule } from './discount/discount.module';
     InventoryModule,
     ThemeModule,
     DiscountModule,
+    OrderModule,
   ],
 })
 export class OwnerModule {}

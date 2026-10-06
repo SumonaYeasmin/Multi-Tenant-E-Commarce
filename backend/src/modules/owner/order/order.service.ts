@@ -1,0 +1,389 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { ResponseHelper } from '../../../common/helpers/response.helper';
+import {
+  OrderQueryDto,
+  UpdateOrderStatusDto,
+  AddOrderNoteDto,
+} from './dto';
+import {
+  OrderStatus,
+  PaymentStatus,
+  FulfillmentStatus,
+  PaymentMethod,
+} from '../../../../prisma/generated/client';
+
+@Injectable()
+export class OrderService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  // Fetch all orders for tenant with filtering, search, pagination, and status counters
+  async getOrders(query: OrderQueryDto, tenantId?: string) {
+    let targetTenantId = tenantId;
+    if (!targetTenantId) {
+      const defaultTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = defaultTenant?.id;
+    }
+
+    if (!targetTenantId) {
+      throw new NotFoundException('Store tenant context not found');
+    }
+
+    const where: any = {
+      tenantId: targetTenantId,
+      deletedAt: null,
+    };
+
+    // Keyword search across order number, customer name, email, and phone
+    if (query.search?.trim()) {
+      const s = query.search.trim();
+      where.OR = [
+        { number: { contains: s, mode: 'insensitive' } },
+        { customerName: { contains: s, mode: 'insensitive' } },
+        { email: { contains: s, mode: 'insensitive' } },
+        { phone: { contains: s, mode: 'insensitive' } },
+      ];
+    }
+
+    // Filter by order status
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    // Filter by payment status
+    if (query.paymentStatus) {
+      where.paymentStatus = query.paymentStatus;
+    }
+
+    // Filter by fulfillment status
+    if (query.fulfillmentStatus) {
+      where.fulfillmentStatus = query.fulfillmentStatus;
+    }
+
+    // Filter by payment method
+    if (query.paymentMethod) {
+      where.paymentMethod = query.paymentMethod;
+    }
+
+    // Filter by sales channel
+    if (query.channel) {
+      where.channel = query.channel;
+    }
+
+    // Filter by date range
+    if (query.startDate || query.endDate) {
+      where.createdAt = {};
+      if (query.startDate) {
+        where.createdAt.gte = new Date(query.startDate);
+      }
+      if (query.endDate) {
+        const end = new Date(query.endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
+
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 20;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder || 'desc';
+    const orderBy = { [sortBy]: sortOrder };
+
+    // Run parallel queries for order list, total count, and tab status metrics
+    const [
+      orders,
+      total,
+      allCount,
+      unfulfilledCount,
+      unpaidCount,
+      packedCount,
+      shippedCount,
+      returnsCount,
+      closedCount,
+    ] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        include: {
+          items: true,
+          shippingAddress: true,
+          timeline: {
+            orderBy: { createdAt: 'asc' },
+          },
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where }),
+      this.prisma.order.count({
+        where: { tenantId: targetTenantId, deletedAt: null },
+      }),
+      this.prisma.order.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: { in: [OrderStatus.CONFIRMED, OrderStatus.PROCESSING] },
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          OR: [
+            { status: OrderStatus.PENDING_PAYMENT },
+            {
+              paymentStatus: {
+                in: [
+                  PaymentStatus.PENDING,
+                  PaymentStatus.FAILED,
+                  PaymentStatus.PARTIALLY_PAID,
+                ],
+              },
+            },
+          ],
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: OrderStatus.PACKED,
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: { in: [OrderStatus.SHIPPED, OrderStatus.OUT_FOR_DELIVERY] },
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: {
+            in: [
+              OrderStatus.RETURN_REQUESTED,
+              OrderStatus.RETURNED,
+              OrderStatus.REFUNDED,
+              OrderStatus.PARTIALLY_REFUNDED,
+            ],
+          },
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: {
+            in: [
+              OrderStatus.DELIVERED,
+              OrderStatus.CANCELLED,
+              OrderStatus.FAILED,
+            ],
+          },
+        },
+      }),
+    ]);
+
+    return ResponseHelper.success(
+      {
+        orders,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+        counts: {
+          all: allCount,
+          unfulfilled: unfulfilledCount,
+          unpaid: unpaidCount,
+          packed: packedCount,
+          shipped: shippedCount,
+          returns: returnsCount,
+          closed: closedCount,
+        },
+      },
+      'Orders retrieved successfully',
+    );
+  }
+
+  // Retrieve single order with complete timeline, attempts, notes, and items
+  async getOrderById(id: string, tenantId?: string) {
+    let targetTenantId = tenantId;
+    if (!targetTenantId) {
+      const defaultTenant = await this.prisma.tenant.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      targetTenantId = defaultTenant?.id;
+    }
+
+    const order = await this.prisma.order.findFirst({
+      where: {
+        OR: [{ id }, { number: id }],
+        ...(targetTenantId ? { tenantId: targetTenantId } : {}),
+        deletedAt: null,
+      },
+      include: {
+        items: true,
+        shippingAddress: true,
+        attempts: {
+          orderBy: { createdAt: 'desc' },
+        },
+        timeline: {
+          orderBy: { createdAt: 'asc' },
+        },
+        notes: {
+          orderBy: { createdAt: 'desc' },
+        },
+        returns: {
+          include: {
+            items: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with identifier "${id}" not found`);
+    }
+
+    return ResponseHelper.success(order, 'Order details retrieved successfully');
+  }
+
+  // Update order status, courier tracking, and append audit timeline
+  async updateOrderStatus(
+    id: string,
+    dto: UpdateOrderStatusDto,
+    tenantId?: string,
+    adminUser?: any,
+  ) {
+    const existingOrder = await this.prisma.order.findFirst({
+      where: {
+        OR: [{ id }, { number: id }],
+        ...(tenantId ? { tenantId } : {}),
+        deletedAt: null,
+      },
+    });
+
+    if (!existingOrder) {
+      throw new NotFoundException(`Order with identifier "${id}" not found`);
+    }
+
+    const adminName = adminUser?.name || adminUser?.email || 'Admin';
+
+    // Derive fulfillment status based on new order status if not explicitly passed
+    let derivedFulfillmentStatus = dto.fulfillmentStatus;
+    if (!derivedFulfillmentStatus) {
+      if (dto.status === OrderStatus.DELIVERED) {
+        derivedFulfillmentStatus = FulfillmentStatus.FULFILLED;
+      } else if (dto.status === OrderStatus.SHIPPED || dto.status === OrderStatus.OUT_FOR_DELIVERY) {
+        derivedFulfillmentStatus = FulfillmentStatus.PARTIALLY_FULFILLED;
+      }
+    }
+
+    // Auto-resolve payment for COD on delivery if not explicitly specified
+    let targetPaymentStatus = dto.paymentStatus;
+    let codCollected = existingOrder.codCollected;
+    if (dto.status === OrderStatus.DELIVERED && existingOrder.paymentMethod === PaymentMethod.COD && !targetPaymentStatus) {
+      targetPaymentStatus = PaymentStatus.PAID;
+      codCollected = true;
+    }
+
+    const updatedOrder = await this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.update({
+        where: { id: existingOrder.id },
+        data: {
+          status: dto.status,
+          ...(derivedFulfillmentStatus ? { fulfillmentStatus: derivedFulfillmentStatus } : {}),
+          ...(targetPaymentStatus ? { paymentStatus: targetPaymentStatus, codCollected } : {}),
+          ...(dto.courier ? { courier: dto.courier } : {}),
+          ...(dto.trackingNumber ? { trackingNumber: dto.trackingNumber } : {}),
+        },
+        include: {
+          items: true,
+          shippingAddress: true,
+          timeline: {
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+      });
+
+      // Append status change event to order timeline
+      const statusLabel = `Order status updated to ${dto.status.replace(/_/g, ' ').toLowerCase()}`;
+      await tx.orderTimeline.create({
+        data: {
+          orderId: existingOrder.id,
+          label: statusLabel,
+          by: adminName,
+          note: dto.note || (dto.trackingNumber ? `Courier: ${dto.courier || existingOrder.courier || 'Standard'}, Tracking: ${dto.trackingNumber}` : undefined),
+        },
+      });
+
+      return order;
+    });
+
+    return ResponseHelper.success(updatedOrder, 'Order status updated successfully');
+  }
+
+  // Add an internal or customer-facing note to the order
+  async addOrderNote(
+    id: string,
+    dto: AddOrderNoteDto,
+    tenantId?: string,
+    adminUser?: any,
+  ) {
+    const existingOrder = await this.prisma.order.findFirst({
+      where: {
+        OR: [{ id }, { number: id }],
+        ...(tenantId ? { tenantId } : {}),
+        deletedAt: null,
+      },
+    });
+
+    if (!existingOrder) {
+      throw new NotFoundException(`Order with identifier "${id}" not found`);
+    }
+
+    const adminName = adminUser?.name || adminUser?.email || 'Admin';
+
+    const note = await this.prisma.orderNote.create({
+      data: {
+        orderId: existingOrder.id,
+        text: dto.text,
+        internal: dto.internal !== false,
+        by: adminName,
+      },
+    });
+
+    return ResponseHelper.created(note, 'Order note added successfully');
+  }
+}
