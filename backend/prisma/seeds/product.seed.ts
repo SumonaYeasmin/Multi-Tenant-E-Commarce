@@ -174,7 +174,7 @@ export async function seedProducts(prisma: PrismaClient) {
       tags: ['handwoven', 'tangail', 'cotton', 'saree'],
       collectionSlugs: ['heritage-weaves', 'everyday-cotton'],
       images: [
-        { url: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1000&q=80', isCover: true, order: 1 },
+        { url: 'https://scontent.fdac142-1.fna.fbcdn.net/v/t51.82787-15/670366591_18047480876742972_8870223386990167877_n.jpg?stp=dst-jpg_tt6&cstp=mx768x1024&ctp=s768x1024&_nc_cat=107&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_ohc=OdB9ecEcNjgQ7kNvwEvVEx0&_nc_oc=AdrvgpV-fYJhy53XDMHqDGAct01AZL8-0juxefuh-yHfRIZmPxpwTQPD4IV-Dd6U9gQ&_nc_zt=23&_nc_ht=scontent.fdac142-1.fna&_nc_gid=QHwkBQClH8SgLGOVYHBRiQ&_nc_ss=7b2a8&oh=00_AQOH_DBxY-PCHVIEdH0hU4fUqimhvZlpCUtLZ29omOtjkA&oe=6ACAE1B1', isCover: true, order: 1 },
       ],
       variants: [
         { color: 'Crimson Red', colorHex: '#990000', size: 'Free Size', sku: 'TN-TAN-CRM-FS', stock: 12, price: 6800, salePrice: 5900 },
@@ -259,7 +259,7 @@ export async function seedProducts(prisma: PrismaClient) {
       tags: ['silk', 'rajshahi', 'festive', 'handwoven'],
       collectionSlugs: ['eid-2026', 'heritage-weaves'],
       images: [
-        { url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80', isCover: true, order: 1 },
+        { url: 'https://www.shoplibas.com/cdn/shop/files/maroon-embellished-satin-saree-with-unstitched-blouse-piece-45591p.jpg?v=1776228270&width=1800', isCover: true, order: 1 },
       ],
       variants: [
         { color: 'Emerald Green', colorHex: '#097969', size: 'Free Size', sku: 'TN-SLK-EMR-FS', stock: 8, price: 14500, salePrice: 12900 },
@@ -290,7 +290,7 @@ export async function seedProducts(prisma: PrismaClient) {
       tags: ['linen', 'panjabi', 'festive', 'summer'],
       collectionSlugs: ['eid-2026', 'summer-linen'],
       images: [
-        { url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=1000&q=80', isCover: true, order: 1 },
+        { url: 'https://tapee.in/cdn/shop/files/WeddingWearMen_sOutfitThreadEmbroideredNavyBlueManKotiKurta_3.png?v=1778392736&width=3840', isCover: true, order: 1 },
       ],
       variants: [
         { color: 'Sage Green', colorHex: '#7C9082', size: '38', sku: 'TN-PAN-SAG-38', stock: 15, price: 4800, salePrice: 4200 },
@@ -435,7 +435,7 @@ export async function seedProducts(prisma: PrismaClient) {
       tags: ['cotton', 'panjabi', 'everyday'],
       collectionSlugs: ['everyday-cotton'],
       images: [
-        { url: 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?auto=format&fit=crop&w=1000&q=80', isCover: true, order: 1 },
+        { url: 'https://d3j1z37yk0dbyk.cloudfront.net/media/images/2026/09/277036__4_5__20260927125034818.jpg', isCover: true, order: 1 },
       ],
       variants: [
         { color: 'Sky Grey', colorHex: '#808080', size: '38', sku: 'TN-EPN-GRY-38', stock: 12, price: 3200, salePrice: 2750 },
