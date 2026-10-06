@@ -42,7 +42,7 @@ export default function CheckoutPage() {
   }));
 
   const [shippingId, setShippingId] = useState('standard');
-  const [payment, setPayment] = useState<PaymentMethod>('bkash');
+  const [payment, setPayment] = useState<PaymentMethod>('cod');
   const [useCredit, setUseCredit] = useState(false);
   const [consent, setConsent] = useState(false);
   const [code, setCode] = useState(() => {
