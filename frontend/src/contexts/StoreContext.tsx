@@ -24,7 +24,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const auth = useStoreAuth();
 
   // 2. Shopping Cart & Inventory State
-  const cartState = useStoreCart();
+  const cartState = useStoreCart(auth.user);
 
   // 3. Wishlist State & Server Persistence
   const wishlistState = useStoreWishlist(auth.user);

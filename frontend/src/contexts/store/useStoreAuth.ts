@@ -146,6 +146,14 @@ export function useStoreAuth() {
     authService.logout();
     setUser(null);
     setAddresses([]);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('tanti.cart');
+        localStorage.removeItem('tanti.wishlist');
+        localStorage.removeItem(LOCAL_STORAGE_SAVED_ADDRESSES);
+        localStorage.removeItem(LOCAL_STORAGE_LAST_ADDRESS);
+      } catch {}
+    }
   }, []);
 
   const saveAddress = useCallback(async (a: Address) => {
