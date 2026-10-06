@@ -190,7 +190,7 @@ export function SearchOverlay() {
                         {matchingCats.map((c) => (
                           <Link
                             key={c.key}
-                            href={`/category/${c.key}`}
+                            href={`/shop?category=${c.key}`}
                             onClick={close}
                             className="rounded-full bg-subtle px-3 py-1 text-xs font-medium text-ink hover:bg-ink hover:text-canvas transition-colors"
                           >
