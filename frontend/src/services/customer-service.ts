@@ -1,7 +1,6 @@
 import { apiClient } from './api-client';
 import type { ApiResponse, PaginatedResponse, PaginatedMeta } from '@/types';
 import type { Customer } from '@/types/commerce';
-import { customers as seedCustomers } from '@/data/customers';
 
 // Query parameters for fetching owner customers list
 export interface OwnerCustomerQueryParams {
@@ -140,29 +139,29 @@ export const customerService = {
   // Fallback / Standard helpers
   // ----------------------------------------------------
 
-  // Fetch customer list with fallback to seed data
+  // Fetch customer list
   async getCustomers(): Promise<Customer[]> {
     try {
       const res = await apiClient.get<ApiResponse<any[]>>('/owner/customers');
       if (Array.isArray(res?.data)) {
         return res.data.map(mapBackendCustomerToFrontend);
       }
-      return seedCustomers;
+      return [];
     } catch {
-      return seedCustomers;
+      return [];
     }
   },
 
-  // Fetch single customer by ID with fallback
+  // Fetch single customer by ID
   async getCustomerById(id: string): Promise<Customer | undefined> {
     try {
       const res = await apiClient.get<ApiResponse<any>>(`/owner/customers/${id}`);
       if (res?.data) {
         return mapBackendCustomerToFrontend(res.data);
       }
-      return seedCustomers.find((c) => c.id === id);
+      return undefined;
     } catch {
-      return seedCustomers.find((c) => c.id === id);
+      return undefined;
     }
   },
 
