@@ -25,9 +25,8 @@ import {
   Info,
   Eye,
   MapPin,
-  Sparkles,
+  Loader2,
 } from 'lucide-react';
-import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { DataTable, type Column } from '@/components/dashboard/shared/DataTable';
@@ -37,7 +36,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Drawer } from '@/components/ui/Drawer';
 import { Textarea } from '@/components/ui/Textarea';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { customerService } from '@/services/customer-service';
+import { customerService, mapBackendCustomerToFrontend } from '@/services/customer-service';
 import { orderStatusMeta } from '@/utils/status';
 import { formatBDT, formatDate } from '@/utils/format';
 import { cn } from '@/utils/cn';
@@ -65,7 +64,6 @@ interface PurchasedItemDetail {
 }
 
 function CustomersContent() {
-  const { customers: localCustomers, orders: localOrders, toggleCustomerStatus } = useStore();
   const { can } = useAdmin();
   const router = useRouter();
   const pathname = usePathname();
@@ -73,8 +71,8 @@ function CustomersContent() {
 
   const [q, setQ] = useState('');
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>('All');
-  const [customerList, setCustomerList] = useState<Customer[]>(localCustomers);
-  const [loading, setLoading] = useState(false);
+  const [customerList, setCustomerList] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   // Active Customer detailed data
@@ -82,18 +80,18 @@ function CustomersContent() {
   const [customerDetail, setCustomerDetail] = useState<any>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  // Sync / fetch customers from backend API
-  const fetchCustomers = async () => {
+  // Fetch customers from backend API only
+  const fetchCustomers = async (searchQuery = q) => {
     try {
       setLoading(true);
-      const res = await customerService.getOwnerCustomers({ search: q });
-      if (res?.data?.customers && res.data.customers.length > 0) {
+      const res = await customerService.getOwnerCustomers({ search: searchQuery });
+      if (res?.data?.customers && Array.isArray(res.data.customers)) {
         setCustomerList(res.data.customers);
       } else {
-        setCustomerList(localCustomers);
+        setCustomerList([]);
       }
     } catch {
-      setCustomerList(localCustomers);
+      setCustomerList([]);
     } finally {
       setLoading(false);
     }
@@ -104,7 +102,9 @@ function CustomersContent() {
   }, []);
 
   const activeId = searchParams.get('c');
-  const active = customerList.find((c) => c.id === activeId) || localCustomers.find((c) => c.id === activeId);
+  const active =
+    customerList.find((c) => c.id === activeId) ||
+    (customerDetail ? mapBackendCustomerToFrontend(customerDetail) : null);
 
   // Fetch full details with order items & variants when a customer is opened
   useEffect(() => {
@@ -156,7 +156,7 @@ function CustomersContent() {
 
       const matchesQuery =
         !q ||
-        `${c.name} ${c.email} ${c.phone} ${c.tags.join(' ')}`
+        `${c.name} ${c.email} ${c.phone} ${(c.tags || []).join(' ')}`
           .toLowerCase()
           .includes(q.toLowerCase());
 
@@ -168,7 +168,6 @@ function CustomersContent() {
   const purchasedItems = useMemo<PurchasedItemDetail[]>(() => {
     const list: PurchasedItemDetail[] = [];
 
-    // 1. From Backend API full detail if available
     if (customerDetail?.orders && Array.isArray(customerDetail.orders)) {
       for (const ord of customerDetail.orders) {
         if (Array.isArray(ord.items)) {
@@ -194,36 +193,10 @@ function CustomersContent() {
           }
         }
       }
-      return list;
-    }
-
-    // 2. Fallback from local store orders
-    if (active) {
-      const relatedOrders = localOrders.filter((o) => o.customerId === active.id);
-      for (const ord of relatedOrders) {
-        for (const item of ord.items) {
-          list.push({
-            id: `${ord.id}-${item.productId}-${item.variantId || ''}`,
-            orderId: ord.id,
-            orderNumber: ord.number,
-            orderStatus: ord.status,
-            orderDate: ord.createdAt,
-            productId: item.productId,
-            variantId: item.variantId,
-            title: item.title,
-            image: item.image,
-            color: item.color,
-            size: item.size,
-            sku: item.sku,
-            price: item.price,
-            qty: item.qty,
-          });
-        }
-      }
     }
 
     return list;
-  }, [customerDetail, active, localOrders]);
+  }, [customerDetail]);
 
   // Total quantity of items bought across all orders
   const totalUnitsBought = useMemo(() => {
@@ -234,15 +207,14 @@ function CustomersContent() {
     if (customerDetail?.orders && Array.isArray(customerDetail.orders)) {
       return customerDetail.orders;
     }
-    return active ? localOrders.filter((o) => o.customerId === active.id) : [];
-  }, [customerDetail, active, localOrders]);
+    return [];
+  }, [customerDetail]);
 
   const handleToggleStatus = async (customer: Customer) => {
     try {
       setIsUpdatingStatus(true);
       const nextActiveState = customer.status !== 'active';
       await customerService.updateCustomerStatus(customer.id, { isActive: nextActiveState });
-      toggleCustomerStatus(customer.id);
 
       setCustomerList((prev) =>
         prev.map((c) =>
@@ -251,6 +223,13 @@ function CustomersContent() {
             : c,
         ),
       );
+
+      if (customerDetail && customerDetail.id === customer.id) {
+        setCustomerDetail((prev: any) => ({
+          ...prev,
+          isActive: nextActiveState,
+        }));
+      }
 
       toast.success(
         nextActiveState
@@ -381,16 +360,18 @@ function CustomersContent() {
     <div className="w-full space-y-6">
       <PageHeader
         title="Customers"
-        description={`${customerList.length} total customers · ${
-          customerList.filter((c) => c.status === 'active').length
-        } active accounts · ${
-          customerList.filter((c) => c.marketingConsent).length
-        } subscribed to marketing`}
+        description={
+          loading
+            ? 'Loading customer records...'
+            : `${customerList.length} total customers · ${
+                customerList.filter((c) => c.status === 'active').length
+              } active accounts`
+        }
         actions={
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={fetchCustomers}
+              onClick={() => fetchCustomers()}
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink hover:bg-subtle transition-colors cursor-pointer"
             >
@@ -402,6 +383,7 @@ function CustomersContent() {
               action="export"
               variant="secondary"
               size="sm"
+              disabled={loading || rows.length === 0}
               onClick={() => toast.success(`Exported ${rows.length} customers list`)}
             >
               <Download className="h-4 w-4" aria-hidden /> Export
@@ -451,20 +433,34 @@ function CustomersContent() {
           </div>
         </div>
 
-        {/* Customers Data Table */}
-        <DataTable
-          columns={columns}
-          rows={rows}
-          rowKey={(c) => c.id}
-          onRowClick={(c) => setCustomerParam(c.id)}
-          empty={
-            <EmptyState
-              icon={Users}
-              title="No customers match your search"
-              description="Try adjusting your search query or status filter."
-            />
-          }
-        />
+        {/* Loading Skeleton / Data Table */}
+        {loading ? (
+          <div className="p-8 space-y-4">
+            <div className="flex items-center justify-center gap-2 text-sm text-ink-muted py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-clay" />
+              <span>Loading real customer data from store...</span>
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-12 w-full animate-pulse rounded-md bg-subtle/70" />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            rows={rows}
+            rowKey={(c) => c.id}
+            onRowClick={(c) => setCustomerParam(c.id)}
+            empty={
+              <EmptyState
+                icon={Users}
+                title="No customers match your criteria"
+                description="When customers register or place orders in your store, they will appear here."
+              />
+            }
+          />
+        )}
       </div>
 
       {/* Customer Details Drawer */}
@@ -597,8 +593,9 @@ function CustomersContent() {
                 </div>
 
                 {loadingDetail ? (
-                  <div className="p-8 text-center text-xs text-ink-muted animate-pulse">
-                    Loading customer purchased items and variant info...
+                  <div className="p-8 text-center text-xs text-ink-muted flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-clay" />
+                    <span>Loading customer purchased items and variant info...</span>
                   </div>
                 ) : purchasedItems.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-line p-6 text-center text-xs text-ink-muted">
@@ -827,7 +824,7 @@ function CustomersContent() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
                     <Tag className="h-3.5 w-3.5" aria-hidden /> Tags
                   </p>
-                  {active.tags.length === 0 ? (
+                  {(!active.tags || active.tags.length === 0) ? (
                     <p className="mt-2 text-xs text-ink-muted">No tags added yet.</p>
                   ) : (
                     <div className="mt-2 flex flex-wrap gap-1.5">
