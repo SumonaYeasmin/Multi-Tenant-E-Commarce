@@ -127,6 +127,17 @@ export class CustomerService {
                     images: { take: 1 },
                   },
                 },
+                variant: {
+                  select: {
+                    id: true,
+                    sku: true,
+                    color: true,
+                    colorHex: true,
+                    size: true,
+                    price: true,
+                    salePrice: true,
+                  },
+                },
               },
             },
             shippingAddress: true,
