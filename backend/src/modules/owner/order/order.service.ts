@@ -254,6 +254,12 @@ export class OrderService {
         notes: {
           orderBy: { createdAt: 'desc' },
         },
+        returns: {
+          include: {
+            items: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
         customer: {
           select: {
             id: true,
