@@ -3,6 +3,7 @@ import { IsEnum, IsOptional, IsString } from 'class-validator';
 import {
   OrderStatus,
   FulfillmentStatus,
+  PaymentStatus,
 } from '../../../../../prisma/generated/client';
 
 export class UpdateOrderStatusDto {
@@ -22,6 +23,15 @@ export class UpdateOrderStatusDto {
   @IsEnum(FulfillmentStatus)
   @IsOptional()
   fulfillmentStatus?: FulfillmentStatus;
+
+  @ApiPropertyOptional({
+    enum: PaymentStatus,
+    example: PaymentStatus.PAID,
+    description: 'Optional payment status update (e.g. PAID, REFUNDED)',
+  })
+  @IsEnum(PaymentStatus)
+  @IsOptional()
+  paymentStatus?: PaymentStatus;
 
   @ApiPropertyOptional({
     example: 'Pathao Courier',

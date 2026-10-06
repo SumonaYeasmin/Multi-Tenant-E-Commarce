@@ -14,6 +14,7 @@ import {
   OrderStatus,
   PaymentStatus,
   FulfillmentStatus,
+  PaymentMethod,
 } from '../../../../prisma/generated/client';
 
 @Injectable()
@@ -309,12 +310,21 @@ export class OrderService {
       }
     }
 
+    // Auto-resolve payment for COD on delivery if not explicitly specified
+    let targetPaymentStatus = dto.paymentStatus;
+    let codCollected = existingOrder.codCollected;
+    if (dto.status === OrderStatus.DELIVERED && existingOrder.paymentMethod === PaymentMethod.COD && !targetPaymentStatus) {
+      targetPaymentStatus = PaymentStatus.PAID;
+      codCollected = true;
+    }
+
     const updatedOrder = await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.update({
         where: { id: existingOrder.id },
         data: {
           status: dto.status,
           ...(derivedFulfillmentStatus ? { fulfillmentStatus: derivedFulfillmentStatus } : {}),
+          ...(targetPaymentStatus ? { paymentStatus: targetPaymentStatus, codCollected } : {}),
           ...(dto.courier ? { courier: dto.courier } : {}),
           ...(dto.trackingNumber ? { trackingNumber: dto.trackingNumber } : {}),
         },
@@ -334,7 +344,7 @@ export class OrderService {
           orderId: existingOrder.id,
           label: statusLabel,
           by: adminName,
-          note: dto.note || (dto.trackingNumber ? `Tracking: ${dto.trackingNumber}` : undefined),
+          note: dto.note || (dto.trackingNumber ? `Courier: ${dto.courier || existingOrder.courier || 'Standard'}, Tracking: ${dto.trackingNumber}` : undefined),
         },
       });
 
