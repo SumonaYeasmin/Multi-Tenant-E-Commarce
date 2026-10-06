@@ -1,23 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CustomerSegment } from '../../../../../prisma/generated/client';
 
 export class QueryCustomerDto {
   @ApiPropertyOptional({ description: 'Search by name, email, phone, or tags' })
   @IsOptional()
   @IsString()
   search?: string;
-
-  @ApiPropertyOptional({ enum: CustomerSegment, description: 'Filter by customer segment' })
-  @IsOptional()
-  @IsEnum(CustomerSegment)
-  segment?: CustomerSegment;
-
-  @ApiPropertyOptional({ description: 'Filter by district' })
-  @IsOptional()
-  @IsString()
-  district?: string;
 
   @ApiPropertyOptional({ description: 'Page number', default: 1 })
   @IsOptional()

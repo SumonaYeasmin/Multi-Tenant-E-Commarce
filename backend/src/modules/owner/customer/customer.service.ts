@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
-import { QueryCustomerDto } from './dto';
+import {
+  QueryCustomerDto,
+  UpdateCustomerDto,
+  UpdateCustomerStatusDto,
+} from './dto';
 import {
   NotFoundException,
   ConflictException,
@@ -27,7 +31,7 @@ export class CustomerService {
     return activeTenant.id;
   }
 
-  // Get all customers with search, segment filter, sorting, and pagination
+  // 1. GET /api/v1/owner/customers (without segment and location filters)
   async findAll(query?: QueryCustomerDto, tenantId?: string) {
     const resolvedTenantId = await this.resolveTenantId(tenantId);
 
@@ -36,24 +40,13 @@ export class CustomerService {
       deletedAt: null,
     };
 
-    // Filter by Segment
-    if (query?.segment) {
-      where.segment = query.segment;
-    }
-
-    // Filter by District
-    if (query?.district && query.district !== 'all') {
-      where.district = { equals: query.district, mode: 'insensitive' };
-    }
-
-    // Search query across name, email, phone, tags, district
+    // Search query across name, email, phone, tags
     if (query?.search && query.search.trim()) {
       const q = query.search.trim();
       where.OR = [
         { name: { contains: q, mode: 'insensitive' } },
         { email: { contains: q, mode: 'insensitive' } },
         { phone: { contains: q, mode: 'insensitive' } },
-        { district: { contains: q, mode: 'insensitive' } },
         { tags: { has: q } },
       ];
     }
@@ -107,7 +100,7 @@ export class CustomerService {
     return ResponseHelper.paginated(customers, meta, 'Customers retrieved successfully');
   }
 
-  // Get single customer details by ID or Email with full order history & addresses
+  // 2. GET /api/v1/owner/customers/:id
   async findOne(id: string, tenantId?: string) {
     const resolvedTenantId = await this.resolveTenantId(tenantId);
 
@@ -181,5 +174,75 @@ export class CustomerService {
     }
 
     return ResponseHelper.success(customer, 'Customer details retrieved successfully');
+  }
+
+  // 3. PATCH /api/v1/owner/customers/:id/status
+  async updateStatus(id: string, dto?: UpdateCustomerStatusDto, tenantId?: string) {
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+
+    const customer = await this.prisma.customerProfile.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+        tenantId: resolvedTenantId,
+        deletedAt: null,
+      },
+    });
+
+    if (!customer) {
+      throw new NotFoundException('Customer');
+    }
+
+    const nextStatus = typeof dto?.isActive === 'boolean' ? dto.isActive : !customer.isActive;
+
+    const updated = await this.prisma.customerProfile.update({
+      where: { id: customer.id },
+      data: {
+        isActive: nextStatus,
+      },
+    });
+
+    return ResponseHelper.success(
+      updated,
+      `Customer ${updated.isActive ? 'activated' : 'deactivated / banned'} successfully`,
+    );
+  }
+
+  // 4. PATCH /api/v1/owner/customers/:id (without segment and district)
+  async update(id: string, dto: UpdateCustomerDto, tenantId?: string) {
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+
+    const customer = await this.prisma.customerProfile.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+        tenantId: resolvedTenantId,
+        deletedAt: null,
+      },
+    });
+
+    if (!customer) {
+      throw new NotFoundException('Customer');
+    }
+
+    const updated = await this.prisma.customerProfile.update({
+      where: { id: customer.id },
+      data: {
+        name: dto.name?.trim() !== undefined ? dto.name.trim() : undefined,
+        phone: dto.phone?.trim() !== undefined ? dto.phone.trim() : undefined,
+        tags: dto.tags !== undefined ? dto.tags : undefined,
+        storeCredit: dto.storeCredit !== undefined ? dto.storeCredit : undefined,
+      },
+      include: {
+        addresses: true,
+        _count: {
+          select: {
+            orders: true,
+            reviews: true,
+            wishlist: true,
+          },
+        },
+      },
+    });
+
+    return ResponseHelper.success(updated, 'Customer updated successfully');
   }
 }
