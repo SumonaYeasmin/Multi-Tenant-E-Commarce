@@ -85,8 +85,7 @@ export async function seedProducts(prisma: PrismaClient) {
       tags: ['handwoven', 'jamdani', 'cotton', 'summer'],
       collectionSlugs: ['eid-2026', 'heritage-weaves', 'summer-linen'],
       images: [
-        { url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80', isCover: true, order: 1 },
-        { url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1000&q=80', isCover: false, order: 2 },
+        { url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1000&q=80', isCover: true, order: 1 },
       ],
       variants: [
         { color: 'Natural Ivory', colorHex: '#F7F4EC', size: 'S', sku: 'TN-JAM-IVO-S', stock: 12, price: 4200, salePrice: 3800 },

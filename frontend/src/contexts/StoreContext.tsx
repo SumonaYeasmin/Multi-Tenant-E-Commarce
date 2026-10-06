@@ -29,22 +29,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // 3. Wishlist State & Server Persistence
   const wishlistState = useStoreWishlist(auth.user);
 
-  // 4. Initial Database Cart Hydration Callback
-  const handleCartInitialized = useCallback((dbItems: any[]) => {
-    const formatted: CartItem[] = dbItems.map((item) => ({
-      key: `${item.variantId}-${item.id}`,
-      productId: item.productId,
-      variantId: item.variantId,
-      qty: item.qty,
-      savedForLater: item.savedForLater,
-    }));
-    cartState.setCart(formatted);
-  }, [cartState]);
+  // 4. Product Catalog & Categories State
+  const catalog = useStoreCatalog();
 
-  // 5. Product Catalog & Categories State
-  const catalog = useStoreCatalog(handleCartInitialized);
-
-  // 6. Orders, Returns & Reviews State
+  // 5. Orders, Returns & Reviews State
   const ordersState = useStoreOrders(
     auth.user,
     catalog.products,
