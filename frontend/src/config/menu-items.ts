@@ -36,7 +36,6 @@ export const adminNavItems: NavItem[] = [
     badge: 5,
     children: [
       { title: 'Draft orders', href: '/admin/orders/drafts' },
-      { title: 'Abandoned checkouts', href: '/admin/orders/abandoned' },
     ],
   },
   {

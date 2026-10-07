@@ -143,8 +143,8 @@ export default function DraftOrdersPage() {
     setQ('');
   };
 
-  // Submit Draft or Create Paid Order
-  const finalize = async (mode: 'invoice' | 'paid') => {
+  // Submit Draft Order
+  const finalize = async () => {
     if (!lines.length) {
       toast.error('Please add at least one product to the draft');
       return;
@@ -217,8 +217,8 @@ export default function DraftOrdersPage() {
       })),
       shippingFee: Number(shipping || 0),
       discount: Number(discount || 0),
-      paymentMethod: (paymentMethod || 'cod').toUpperCase() as any,
-      mode,
+      paymentMethod: 'COD' as const,
+      mode: 'invoice' as const,
       customerNote: customerNote.trim() || undefined,
       staffNote: staffNote.trim() || `Manual draft order created by admin`,
     };
@@ -228,11 +228,7 @@ export default function DraftOrdersPage() {
       const res = await orderService.createDraftOrder(payload);
 
       if (res?.data) {
-        toast.success(
-          mode === 'invoice'
-            ? `Draft order #${res.data.number} created with payment link!`
-            : `Order #${res.data.number} created and marked as PAID!`
-        );
+        toast.success(`Draft order #${res.data.number} created successfully!`);
 
         // Reset form
         setLines([]);
@@ -560,27 +556,13 @@ export default function DraftOrdersPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-ink mb-1.5">Payment Method</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'cod', label: 'Cash on Delivery' },
-                    { id: 'bkash', label: 'bKash' },
-                    { id: 'nagad', label: 'Nagad' },
-                    { id: 'sslcommerz', label: 'Card / Online' },
-                  ].map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setPaymentMethod(m.id as PaymentMethod)}
-                      className={`flex items-center gap-1.5 p-2 rounded-md border text-xs text-left cursor-pointer transition-colors ${
-                        paymentMethod === m.id
-                          ? 'border-clay bg-clay-soft/40 text-ink font-medium'
-                          : 'border-line hover:bg-canvas text-ink-muted'
-                      }`}
-                    >
-                      <PaymentMark method={m.id as PaymentMethod} />
-                      <span className="truncate">{m.label}</span>
-                    </button>
-                  ))}
+                <div className="flex items-center gap-2.5 p-3 rounded-md border border-clay/60 bg-clay-soft/30 text-ink">
+                  <PaymentMark method="cod" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-ink">Cash on Delivery (COD)</p>
+                    <p className="text-[11px] text-ink-muted">Payment collected at customer's doorstep</p>
+                  </div>
+                  <Badge tone="success">Default</Badge>
                 </div>
               </div>
 
@@ -655,25 +637,15 @@ export default function DraftOrdersPage() {
               </div>
             </dl>
 
-            <div className="mt-5 space-y-2">
+            <div className="mt-5">
               <Button
                 fullWidth
                 disabled={isSubmitting || detailed.length === 0}
-                onClick={() => finalize('invoice')}
+                onClick={finalize}
                 className="cursor-pointer"
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Send invoice with payment link
-              </Button>
-              <Button
-                fullWidth
-                variant="secondary"
-                disabled={isSubmitting || detailed.length === 0}
-                onClick={() => finalize('paid')}
-                className="cursor-pointer"
-              >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Mark as paid & create order
+                Create draft order
               </Button>
             </div>
           </Panel>
