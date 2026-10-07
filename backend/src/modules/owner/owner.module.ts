@@ -8,6 +8,7 @@ import { ThemeModule } from './theme/theme.module';
 import { DiscountModule } from './discount/discount.module';
 import { OrderModule } from './order/order.module';
 import { CustomerModule } from './customer/customer.module';
+import { ReturnModule } from './return/return.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CustomerModule } from './customer/customer.module';
     DiscountModule,
     OrderModule,
     CustomerModule,
+    ReturnModule,
   ],
   exports: [
     CategoryModule,
@@ -31,6 +33,7 @@ import { CustomerModule } from './customer/customer.module';
     DiscountModule,
     OrderModule,
     CustomerModule,
+    ReturnModule,
   ],
 })
 export class OwnerModule {}

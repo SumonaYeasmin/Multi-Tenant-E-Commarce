@@ -1,0 +1,198 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { ResponseHelper } from '../../../common/helpers/response.helper';
+import { QueryReturnDto } from './dto/query-return.dto';
+import { ReturnStatus } from '../../../../prisma/generated/client';
+
+@Injectable()
+export class ReturnService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  // Helper to resolve tenant ID from token or fallback to active tenant
+  private async resolveTenantId(tenantId?: string): Promise<string> {
+    if (tenantId) return tenantId;
+
+    const activeTenant = await this.prisma.tenant.findFirst({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!activeTenant) {
+      throw new NotFoundException('Store tenant context not found');
+    }
+
+    return activeTenant.id;
+  }
+
+  // GET /api/v1/owner/returns - Retrieve all return requests for store with filters, search, metrics, and pagination
+  async findAll(query: QueryReturnDto, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const where: any = {
+      tenantId: targetTenantId,
+      deletedAt: null,
+    };
+
+    // Tab and Status Filtering
+    const normalizedTab = query.tab?.toLowerCase().trim().replace(/[\s-]+/g, '_');
+
+    if (normalizedTab === 'open') {
+      where.status = {
+        notIn: [ReturnStatus.REFUNDED, ReturnStatus.EXCHANGED, ReturnStatus.REJECTED],
+      };
+    } else if (normalizedTab === 'awaiting_review' || normalizedTab === 'requested') {
+      where.status = ReturnStatus.REQUESTED;
+    } else if (normalizedTab === 'in_progress') {
+      where.status = {
+        in: [ReturnStatus.APPROVED, ReturnStatus.IN_TRANSIT, ReturnStatus.RECEIVED],
+      };
+    } else if (normalizedTab === 'closed') {
+      where.status = {
+        in: [ReturnStatus.REFUNDED, ReturnStatus.EXCHANGED, ReturnStatus.REJECTED],
+      };
+    } else if (query.status) {
+      where.status = query.status;
+    }
+
+    // Resolution Filter
+    if (query.resolution) {
+      where.resolution = query.resolution;
+    }
+
+    // Keyword Search across Customer Name, Return Reason, ID, or Order Number
+    if (query.search?.trim()) {
+      const s = query.search.trim();
+      const searchConditions = [
+        { customerName: { contains: s, mode: 'insensitive' as const } },
+        { reason: { contains: s, mode: 'insensitive' as const } },
+        { id: { contains: s, mode: 'insensitive' as const } },
+        { order: { number: { contains: s, mode: 'insensitive' as const } } },
+      ];
+
+      if (where.OR) {
+        where.AND = [{ OR: where.OR }, { OR: searchConditions }];
+        delete where.OR;
+      } else {
+        where.OR = searchConditions;
+      }
+    }
+
+    // Date Range Filtering
+    if (query.startDate || query.endDate) {
+      where.createdAt = {};
+      if (query.startDate) {
+        where.createdAt.gte = new Date(query.startDate);
+      }
+      if (query.endDate) {
+        const end = new Date(query.endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
+
+    // Pagination
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 50;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder || 'desc';
+    const orderBy = { [sortBy]: sortOrder };
+
+    // Parallel execution for data fetch, total count, and tab metrics
+    const [
+      returns,
+      total,
+      allCount,
+      openCount,
+      awaitingReviewCount,
+      inProgressCount,
+      closedCount,
+    ] = await Promise.all([
+      this.prisma.returnRequest.findMany({
+        where,
+        include: {
+          items: true,
+          timeline: {
+            orderBy: { createdAt: 'desc' },
+          },
+          order: {
+            select: {
+              id: true,
+              number: true,
+              status: true,
+              paymentStatus: true,
+              fulfillmentStatus: true,
+              total: true,
+              createdAt: true,
+              customerName: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      this.prisma.returnRequest.count({ where }),
+      this.prisma.returnRequest.count({
+        where: { tenantId: targetTenantId, deletedAt: null },
+      }),
+      this.prisma.returnRequest.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: {
+            notIn: [ReturnStatus.REFUNDED, ReturnStatus.EXCHANGED, ReturnStatus.REJECTED],
+          },
+        },
+      }),
+      this.prisma.returnRequest.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: ReturnStatus.REQUESTED,
+        },
+      }),
+      this.prisma.returnRequest.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: {
+            in: [ReturnStatus.APPROVED, ReturnStatus.IN_TRANSIT, ReturnStatus.RECEIVED],
+          },
+        },
+      }),
+      this.prisma.returnRequest.count({
+        where: {
+          tenantId: targetTenantId,
+          deletedAt: null,
+          status: {
+            in: [ReturnStatus.REFUNDED, ReturnStatus.EXCHANGED, ReturnStatus.REJECTED],
+          },
+        },
+      }),
+    ]);
+
+    return ResponseHelper.success(
+      {
+        returns,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1,
+        },
+        counts: {
+          all: allCount,
+          open: openCount,
+          awaitingReview: awaitingReviewCount,
+          inProgress: inProgressCount,
+          closed: closedCount,
+        },
+      },
+      'Store return requests retrieved successfully',
+    );
+  }
+}
