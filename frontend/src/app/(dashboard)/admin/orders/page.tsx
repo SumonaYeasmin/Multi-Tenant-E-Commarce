@@ -84,9 +84,19 @@ function OrdersContent() {
       });
 
       if (res?.data?.orders) {
-        setLiveOrders(res.data.orders);
+        const backendOrders = res.data.orders;
+        const backendOrderKeys = new Set(backendOrders.map((o: Order) => o.number || o.id));
+        const localOnlyOrders = (storeOrders || []).filter(
+          (o) => !backendOrderKeys.has(o.number) && !backendOrderKeys.has(o.id)
+        );
+        const combined = [...backendOrders, ...localOnlyOrders];
+        setLiveOrders(combined);
         if (res.data.counts) {
-          setServerCounts(res.data.counts);
+          setServerCounts({
+            ...res.data.counts,
+            all: res.data.counts.all + localOnlyOrders.length,
+            unfulfilled: res.data.counts.unfulfilled + localOnlyOrders.filter((o) => o.fulfillmentStatus === 'unfulfilled').length,
+          });
         }
       } else {
         setLiveOrders(storeOrders);
