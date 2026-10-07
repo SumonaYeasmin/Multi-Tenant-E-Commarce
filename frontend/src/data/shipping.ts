@@ -842,14 +842,10 @@ export function deliveryEstimate(district: string, method = 'standard') {
 }
 
 export const paymentMethods: { id: PaymentMethod; name: string; description: string; color: string; short: string }[] = [
-  { id: 'bkash', name: 'bKash', description: 'Pay with your bKash account', color: '#E2136E', short: 'bK' },
-  { id: 'nagad', name: 'Nagad', description: 'Pay with your Nagad account', color: '#EC1C24', short: 'Ng' },
-  { id: 'sslcommerz', name: 'Card, Mobile & Net banking', description: 'Secured by SSLCommerz — Visa, Mastercard, Amex, Rocket, Upay', color: '#1E4E9E', short: 'SSL' },
-  { id: 'stripe', name: 'International card', description: 'Secured by Stripe — for cards issued outside Bangladesh', color: '#635BFF', short: 'St' },
-  { id: 'cod', name: 'Cash on delivery', description: 'Pay when your order arrives (৳20 COD fee)', color: '#1C1A17', short: '৳' },
+  { id: 'cod', name: 'Cash on delivery', description: 'Pay when your order arrives at your doorstep', color: '#1C1A17', short: '৳' },
 ];
 
-export const COD_FEE = 20;
+export const COD_FEE = 0;
 
 export interface Coupon {
   code: string;

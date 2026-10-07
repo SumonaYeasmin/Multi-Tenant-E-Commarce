@@ -12,6 +12,7 @@ import {
   Loader2,
   AlertCircle,
   Package,
+  RefreshCw,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { orderService } from '@/services/order-service';
@@ -22,11 +23,10 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { formatBDT } from '@/utils/format';
-import { paymentMethodLabel } from '@/utils/status';
 import { cn } from '@/utils/cn';
-import type { Order, ReturnResolution } from '@/types/commerce';
+import type { Order } from '@/types/commerce';
 
-const steps = ['Items', 'Reason', 'Resolution', 'Review'];
+const steps = ['Select Items', 'Reason & Photos', 'Exchange Option', 'Review & Submit'];
 
 interface ReturnWizardPageProps {
   params: Promise<{ number: string }>;
@@ -46,15 +46,14 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
   const [reason, setReason] = useState(returnReasons[0]);
   const [details, setDetails] = useState('');
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-  const [resolution, setResolution] = useState<ReturnResolution>('refund');
   const [exchangeSize, setExchangeSize] = useState('L');
+  const [exchangeNote, setExchangeNote] = useState('');
   const [error, setError] = useState('');
 
   // Load Order details from backend API (or store cache)
   const fetchOrder = useCallback(async () => {
     setIsLoadingOrder(true);
     try {
-      // 1. Check if cached in storeOrders
       const found = storeOrders.find(
         (o) => o.number === number || o.id === number,
       );
@@ -62,7 +61,6 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
         setOrder(found);
       }
 
-      // 2. Fetch fresh from backend
       const res = await orderService.getOrderDetail(number);
       if (res?.data) {
         setOrder(res.data);
@@ -102,7 +100,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
         </div>
         <h2 className="font-display text-2xl">Order not found</h2>
         <p className="text-sm text-ink-muted">
-          We couldn&apos;t find order #{number} to request a return for.
+          We couldn&apos;t find order #{number} to request a return or exchange for.
         </p>
         <Button href="/account/orders" variant="secondary">
           Back to My Orders
@@ -126,7 +124,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
     );
   };
 
-  // Add dummy or uploaded photo
+  // Add dummy/uploaded photo
   const handleAddPhoto = () => {
     if (photoUrls.length >= 4) return;
     const samplePhotos = [
@@ -147,7 +145,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
     setError('');
 
     if (step === 0 && selectedIndices.length === 0) {
-      setError('Please select at least one item to return.');
+      setError('Please select at least one item to return or exchange.');
       return;
     }
 
@@ -160,16 +158,21 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
     if (step === 3) {
       setIsSubmitting(true);
       try {
+        const fullDetails = [
+          details ? `Issue: ${details}` : '',
+          exchangeSize ? `Preferred replacement size: ${exchangeSize}` : '',
+          exchangeNote ? `Exchange note: ${exchangeNote}` : '',
+        ]
+          .filter(Boolean)
+          .join(' · ');
+
         const payload = {
           orderId: order.id || order.number,
           customerName: user?.name || order.customerName || 'Customer',
           reason,
-          details:
-            resolution === 'exchange'
-              ? `${details} [Exchange requested for size ${exchangeSize}]`.trim()
-              : details,
+          details: fullDetails,
           photos: photoUrls,
-          resolution: resolution.toUpperCase(),
+          resolution: 'EXCHANGE',
           items: selectedItems.map((item) => ({
             title: item.title,
             image: item.image || undefined,
@@ -184,15 +187,15 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
 
         if (res?.data || res?.success) {
           toast.success(
-            `Return request #${res?.data?.id?.slice(0, 8) || 'R-100'} submitted successfully!`,
+            `Return & exchange request #${res?.data?.id?.slice(0, 8) || 'R-100'} submitted successfully!`,
           );
           router.push('/account/returns');
         } else {
-          throw new Error(res?.message || 'Could not submit return request');
+          throw new Error(res?.message || 'Could not submit request');
         }
       } catch (err: any) {
-        toast.error(err?.message || 'Failed to submit return request. Please try again.');
-        setError(err?.message || 'Failed to submit return request');
+        toast.error(err?.message || 'Failed to submit request. Please try again.');
+        setError(err?.message || 'Failed to submit request');
       } finally {
         setIsSubmitting(false);
       }
@@ -211,9 +214,9 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
         <ChevronLeftIcon className="h-4 w-4" aria-hidden /> Back to Order {order.number}
       </Link>
 
-      <h1 className="mt-4 font-display text-3xl text-ink">Return or exchange</h1>
+      <h1 className="mt-4 font-display text-3xl text-ink">Return & Exchange</h1>
       <p className="mt-1 text-sm text-ink-muted">
-        Items can be returned within 7 days of delivery with original tags and packaging intact.
+        Items can be returned for size or product exchange within 7 days of delivery.
       </p>
 
       {/* Progress Steps Header */}
@@ -255,7 +258,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
         {step === 0 && (
           <fieldset>
             <legend className="text-sm font-semibold text-ink">
-              Which items would you like to return?
+              Which items would you like to exchange/return?
             </legend>
             <ul className="mt-4 space-y-3">
               {order.items.map((i, idx) => {
@@ -308,7 +311,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
         {step === 1 && (
           <div className="space-y-5">
             <Select
-              label="Reason for return"
+              label="Reason for return / exchange"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               options={returnReasons}
@@ -317,7 +320,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
               label="Tell us more about the issue (optional)"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="e.g. The size was smaller than expected, stitching issue near collar, etc."
+              placeholder="e.g. Size 41 was too tight, looking to get size 42 instead."
               rows={3}
             />
             <div>
@@ -365,80 +368,51 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
           </div>
         )}
 
-        {/* Step 2: Resolution Preference */}
+        {/* Step 2: Exchange & Replacement Options */}
         {step === 2 && (
-          <fieldset>
+          <fieldset className="space-y-4">
             <legend className="text-sm font-semibold text-ink">
-              How would you like us to resolve this?
+              Exchange & Replacement Option
             </legend>
-            <div className="mt-4 space-y-2.5" role="radiogroup">
-              {(
-                [
-                  [
-                    'refund',
-                    'Refund to original payment method',
-                    `${paymentMethodLabel[order.paymentMethod] || 'Original payment'} · 3–5 business days after inspection`,
-                  ],
-                  [
-                    'store_credit',
-                    'Store Credit (Instant)',
-                    'Instant credit to wallet once received · +5% bonus credit',
-                  ],
-                  [
-                    'exchange',
-                    'Exchange for another size/variant',
-                    'Courier delivers replacement and collects return item at doorstep',
-                  ],
-                ] as [ReturnResolution, string, string][]
-              ).map(([v, t, d]) => (
-                <button
-                  key={v}
-                  type="button"
-                  role="radio"
-                  aria-checked={resolution === v}
-                  onClick={() => setResolution(v)}
-                  className={cn(
-                    'flex w-full items-start gap-3 rounded-lg border p-4 text-left cursor-pointer transition-colors',
-                    resolution === v
-                      ? 'border-clay bg-clay-soft/10 ring-1 ring-clay'
-                      : 'border-line hover:border-line-strong',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
-                      resolution === v ? 'border-clay bg-clay' : 'border-line-strong',
-                    )}
-                  >
-                    {resolution === v && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                    )}
-                  </span>
-                  <span>
-                    <span className="block text-sm font-semibold text-ink">{t}</span>
-                    <span className="block text-xs text-ink-muted mt-0.5">{d}</span>
-                  </span>
-                </button>
-              ))}
+
+            <div className="rounded-lg border-2 border-clay bg-clay-soft/15 p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-9 w-9 rounded-full bg-clay text-white flex items-center justify-center shrink-0">
+                  <RefreshCw className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-ink">
+                    Doorstep Product & Size Exchange
+                  </p>
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    Our courier will deliver the replacement size/product to your doorstep and collect the return item simultaneously.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {resolution === 'exchange' && (
-              <div className="mt-4 max-w-xs">
-                <Select
-                  label="Select replacement size"
-                  value={exchangeSize}
-                  onChange={(e) => setExchangeSize(e.target.value)}
-                  options={['S', 'M', 'L', 'XL', 'XXL', '38', '39', '40', '41', '42', '43', '44']}
-                />
-              </div>
-            )}
+            <div className="pt-2 max-w-xs space-y-4">
+              <Select
+                label="Select preferred replacement size"
+                value={exchangeSize}
+                onChange={(e) => setExchangeSize(e.target.value)}
+                options={['S', 'M', 'L', 'XL', 'XXL', '38', '39', '40', '41', '42', '43', '44']}
+              />
+              <Textarea
+                label="Any specific instruction for replacement (optional)"
+                value={exchangeNote}
+                onChange={(e) => setExchangeNote(e.target.value)}
+                placeholder="e.g. Please send Dark Brown instead of Tan Brown if available."
+                rows={2}
+              />
+            </div>
           </fieldset>
         )}
 
         {/* Step 3: Review and Submit */}
         {step === 3 && (
           <div className="space-y-4 text-sm">
-            <h2 className="font-semibold text-ink text-base">Review your return request</h2>
+            <h2 className="font-semibold text-ink text-base">Review your exchange request</h2>
             <ul className="space-y-2.5 border-b border-line pb-4">
               {selectedItems.map((i, idx) => (
                 <li key={idx} className="flex justify-between items-center text-ink">
@@ -452,7 +426,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
               ))}
             </ul>
 
-            <dl className="grid grid-cols-[130px_1fr] gap-y-2.5 text-xs">
+            <dl className="grid grid-cols-[140px_1fr] gap-y-2.5 text-xs">
               <dt className="text-ink-muted">Reason</dt>
               <dd className="font-medium text-ink">{reason}</dd>
 
@@ -463,36 +437,29 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
                 </>
               )}
 
+              <dt className="text-ink-muted">Requested Size</dt>
+              <dd className="font-semibold text-ink">{exchangeSize}</dd>
+
+              {exchangeNote && (
+                <>
+                  <dt className="text-ink-muted">Exchange Note</dt>
+                  <dd className="text-ink">{exchangeNote}</dd>
+                </>
+              )}
+
               <dt className="text-ink-muted">Photos attached</dt>
               <dd className="font-medium text-ink">{photoUrls.length} photo(s)</dd>
 
-              <dt className="text-ink-muted">Requested Resolution</dt>
-              <dd className="font-semibold text-ink capitalize">
-                {resolution === 'refund'
-                  ? `Refund to ${paymentMethodLabel[order.paymentMethod] || 'Original method'}`
-                  : resolution === 'store_credit'
-                  ? 'Store credit (+5% Bonus)'
-                  : `Exchange for size ${exchangeSize}`}
-              </dd>
-
-              <dt className="text-ink-muted">Pickup Address</dt>
+              <dt className="text-ink-muted">Pickup & Delivery</dt>
               <dd className="text-ink">
                 {order.shippingAddress?.line1 || ''}, {order.shippingAddress?.area || ''},{' '}
                 {order.shippingAddress?.district || ''}
               </dd>
             </dl>
 
-            {resolution !== 'exchange' && (
-              <div className="rounded-lg bg-canvas border border-line p-3 text-xs text-ink-muted">
-                Estimated refund value:{' '}
-                <b className="text-ink font-bold">
-                  {formatBDT(
-                    resolution === 'store_credit' ? Math.round(amount * 1.05) : amount,
-                  )}
-                </b>
-                . Courier fee deductions may apply based on inspection outcome.
-              </div>
-            )}
+            <div className="rounded-lg bg-canvas border border-line p-3 text-xs text-ink-muted">
+              Doorstep courier exchange will be dispatched upon review and approval by store admin.
+            </div>
           </div>
         )}
 
@@ -514,7 +481,7 @@ export default function ReturnRequestWizardPage({ params }: ReturnWizardPageProp
           </Button>
           <Button onClick={handleNext} disabled={isSubmitting} className="bg-clay text-white hover:bg-clay-dark">
             {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {step === 3 ? 'Submit Return Request' : 'Continue'}
+            {step === 3 ? 'Submit Exchange Request' : 'Continue'}
           </Button>
         </div>
       </div>

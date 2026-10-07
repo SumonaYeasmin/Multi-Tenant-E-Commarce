@@ -13,7 +13,6 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle,
 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import { returnService } from '@/services/return-service';
@@ -31,7 +30,7 @@ const flow: ReturnStatus[] = [
   'approved',
   'in_transit',
   'received',
-  'refunded',
+  'exchanged',
 ];
 
 export default function AccountReturnsPage() {
@@ -72,7 +71,7 @@ export default function AccountReturnsPage() {
     <div className="space-y-6">
       <AccountHeader
         title="Returns & Exchanges"
-        description="Track the real-time status and timeline of your return and exchange requests."
+        description="Track the real-time status and timeline of your product return and exchange requests."
         action={
           <div className="flex items-center gap-2">
             <Button
@@ -103,8 +102,8 @@ export default function AccountReturnsPage() {
       ) : returnsList.length === 0 ? (
         <EmptyState
           icon={RotateCcwIcon}
-          title="No return requests found"
-          description="You can start a return from any delivered order within 7 days."
+          title="No return or exchange requests found"
+          description="You can start an exchange from any delivered order within 7 days."
           action={
             <Button href="/account/orders" variant="secondary" size="sm">
               View My Orders
@@ -115,8 +114,7 @@ export default function AccountReturnsPage() {
         <ul className="space-y-4">
           {returnsList.map((r) => {
             const isRejected = r.status === 'rejected';
-            const isExchanged = r.status === 'exchanged';
-            const stepIdx = isExchanged ? 4 : flow.indexOf(r.status);
+            const stepIdx = r.status === 'refunded' ? 4 : flow.indexOf(r.status);
             const isExpanded = expandedTimelineId === r.id;
 
             return (
@@ -129,7 +127,7 @@ export default function AccountReturnsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-ink">
-                        Return #{r.id.length > 12 ? r.id.slice(0, 8) : r.id}
+                        Exchange #{r.id.length > 12 ? r.id.slice(0, 8) : r.id}
                       </span>
                       <span className="text-ink-muted text-xs">·</span>
                       <Link
@@ -148,11 +146,13 @@ export default function AccountReturnsPage() {
                     tone={returnStatusMeta[r.status]?.tone || 'neutral'}
                     dot
                   >
-                    {returnStatusMeta[r.status]?.label || r.status}
+                    {r.status === 'exchanged' || r.status === 'refunded'
+                      ? 'Exchanged'
+                      : returnStatusMeta[r.status]?.label || r.status}
                   </Badge>
                 </div>
 
-                {/* Items & Resolution Summary */}
+                {/* Items & Exchange Summary */}
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="flex -space-x-3 overflow-hidden">
@@ -180,19 +180,15 @@ export default function AccountReturnsPage() {
                       </p>
                       <p className="text-xs text-ink-muted mt-0.5">
                         Resolution:{' '}
-                        <span className="capitalize font-semibold text-ink">
-                          {r.resolution === 'exchange'
-                            ? 'Size/Variant Exchange'
-                            : r.resolution === 'store_credit'
-                            ? 'Store Credit (+5% bonus)'
-                            : 'Original Payment Refund'}
+                        <span className="font-semibold text-ink">
+                          Doorstep Product & Size Exchange
                         </span>
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xs text-ink-muted">Refund/Exchange Value</p>
+                    <p className="text-xs text-ink-muted">Item Value</p>
                     <p className="text-base font-bold text-ink tabular-nums">
                       {formatBDT(r.amount)}
                     </p>
@@ -204,14 +200,14 @@ export default function AccountReturnsPage() {
                   <div className="mt-5 rounded-lg bg-canvas p-3.5 border border-line">
                     <ol
                       className="grid grid-cols-5 gap-2 text-xs"
-                      aria-label="Return progress tracking"
+                      aria-label="Exchange progress tracking"
                     >
                       {[
                         'Requested',
                         'Approved',
                         'In Transit',
                         'Inspected',
-                        isExchanged ? 'Exchanged' : 'Refunded',
+                        'Exchange Dispatched',
                       ].map((stepName, i) => {
                         const isDone = i <= stepIdx;
                         const isCurrent = i === stepIdx;
@@ -244,7 +240,7 @@ export default function AccountReturnsPage() {
                   <div className="mt-4 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-700">
                     <XCircle className="h-4 w-4 shrink-0 text-red-600" />
                     <span>
-                      This return request was reviewed and not approved. Check inspection remarks below.
+                      This request was reviewed and rejected. Check inspection remarks below.
                     </span>
                   </div>
                 )}
@@ -254,7 +250,7 @@ export default function AccountReturnsPage() {
                   <div className="mt-3 rounded-lg bg-canvas p-3 text-xs border border-line flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-ink">Inspection & Store Note:</p>
+                      <p className="font-semibold text-ink">Store Inspection Note:</p>
                       <p className="text-ink-soft mt-0.5">{r.inspectionNote}</p>
                     </div>
                   </div>
@@ -288,7 +284,7 @@ export default function AccountReturnsPage() {
                 {isExpanded && (
                   <div className="mt-4 rounded-lg bg-canvas p-4 border border-line animate-in fade-in-50 duration-200">
                     <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-3">
-                      Complete Return Audit Timeline
+                      Complete Return & Exchange Timeline
                     </p>
                     <ol className="relative border-l border-line pl-4 space-y-3.5 text-xs">
                       {r.timeline.map((event, tIdx) => (

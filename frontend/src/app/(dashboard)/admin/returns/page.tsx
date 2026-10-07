@@ -15,11 +15,9 @@ import {
   XCircle,
   Truck,
   PackageCheck,
-  CreditCard,
   Eye,
   X,
 } from 'lucide-react';
-import { useStore } from '@/contexts/StoreContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { returnService } from '@/services/return-service';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
@@ -29,7 +27,6 @@ import { Tabs } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
 import { Drawer } from '@/components/ui/Drawer';
 import { Textarea } from '@/components/ui/Textarea';
-import { Checkbox } from '@/components/ui/Checkbox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
 import { returnStatusMeta } from '@/utils/status';
@@ -53,7 +50,6 @@ function ReturnsContent() {
   const [q, setQ] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [note, setNote] = useState('');
-  const [deductShipping, setDeductShipping] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
   // Live backend data state
@@ -111,7 +107,6 @@ function ReturnsContent() {
   useEffect(() => {
     if (active) {
       setNote(active.inspectionNote || '');
-      setDeductShipping(false);
     }
   }, [active?.id]);
 
@@ -132,11 +127,9 @@ function ReturnsContent() {
 
       if (res?.data) {
         toast.success(successMessage);
-        // Optimistically update live return in list
         setLiveReturns((prev) =>
           prev.map((r) => (r.id === active.id ? { ...r, ...res.data } : r)),
         );
-        // Refresh full list and metrics from backend
         fetchReturns();
       } else {
         throw new Error(res?.message || 'Failed to update return status');
@@ -148,14 +141,10 @@ function ReturnsContent() {
     }
   };
 
-  const refundAmount = active
-    ? Math.max(0, active.amount - (deductShipping ? 70 : 0))
-    : 0;
-
   const columns: Column<ReturnWithExtras>[] = [
     {
       key: 'id',
-      header: 'Return',
+      header: 'Return / Exchange',
       render: (r) => (
         <span className="font-mono text-xs font-semibold text-ink">
           {r.id.length > 12 ? `${r.id.slice(0, 8)}...` : r.id}
@@ -215,16 +204,16 @@ function ReturnsContent() {
     },
     {
       key: 'res',
-      header: 'Resolution',
+      header: 'Type',
       render: (r) => (
         <span className="capitalize text-xs font-medium text-ink bg-canvas px-2 py-0.5 rounded border border-line">
-          {r.resolution.replace('_', ' ')}
+          Exchange
         </span>
       ),
     },
     {
       key: 'amt',
-      header: 'Value',
+      header: 'Item Value',
       align: 'right',
       render: (r) => (
         <span className="tabular-nums font-semibold text-ink">{formatBDT(r.amount)}</span>
@@ -237,7 +226,7 @@ function ReturnsContent() {
         const meta = returnStatusMeta[r.status] || { label: r.status, tone: 'neutral' };
         return (
           <Badge tone={meta.tone} dot>
-            {meta.label}
+            {r.status === 'refunded' || r.status === 'exchanged' ? 'Exchanged' : meta.label}
           </Badge>
         );
       },
@@ -266,15 +255,15 @@ function ReturnsContent() {
   const stats: [string, number | string][] = [
     ['Awaiting review', counts.awaitingReview],
     ['In progress / inspect', counts.inProgress],
-    ['Closed / resolved', counts.closed],
+    ['Exchanged / Closed', counts.closed],
     ['Total store returns', counts.all],
   ];
 
   return (
     <div className="w-full space-y-6">
       <PageHeader
-        title="Returns & Refunds"
-        description="Review customer return requests, inspect parcels, issue refunds or schedule exchanges."
+        title="Returns & Exchanges"
+        description="Review customer exchange requests, schedule courier pickups, inspect items and dispatch replacements."
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -358,7 +347,7 @@ function ReturnsContent() {
         {isLoading && liveReturns.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Loader2 className="h-8 w-8 animate-spin text-clay mb-2" />
-            <p className="text-sm text-ink-muted">Loading returns from store backend...</p>
+            <p className="text-sm text-ink-muted">Loading returns & exchanges...</p>
           </div>
         ) : (
           <DataTable
@@ -369,8 +358,8 @@ function ReturnsContent() {
             empty={
               <EmptyState
                 icon={RotateCcw}
-                title="No return requests found"
-                description="New customer return requests will appear here."
+                title="No return or exchange requests found"
+                description="New customer requests will appear here."
               />
             }
           />
@@ -384,7 +373,7 @@ function ReturnsContent() {
         width="max-w-lg"
         title={
           active
-            ? `Return #${active.id.slice(0, 8)} · ${active.orderNumber}`
+            ? `Exchange #${active.id.slice(0, 8)} · ${active.orderNumber}`
             : ''
         }
         subtitle={
@@ -406,13 +395,15 @@ function ReturnsContent() {
                   }
                   dot
                 >
-                  {returnStatusMeta[active.status]?.label || active.status}
+                  {active.status === 'exchanged' || active.status === 'refunded'
+                    ? 'Exchanged'
+                    : returnStatusMeta[active.status]?.label || active.status}
                 </Badge>
               </div>
               <div>
-                <p className="text-xs font-medium text-ink-muted">Requested Resolution</p>
+                <p className="text-xs font-medium text-ink-muted">Resolution Type</p>
                 <p className="mt-0.5 text-base font-bold capitalize text-ink flex items-center justify-between">
-                  <span>{active.resolution.replace('_', ' ')}</span>
+                  <span>Doorstep Size & Product Exchange</span>
                   <span className="text-clay tabular-nums">{formatBDT(active.amount)}</span>
                 </p>
               </div>
@@ -515,9 +506,9 @@ function ReturnsContent() {
               {active.status === 'requested' && (
                 <div className="space-y-3">
                   <Textarea
-                    label="Inspection Note / Review Remarks"
+                    label="Review Remarks / Pickup Instructions"
                     rows={2}
-                    placeholder="E.g. Approved for courier pickup with Pathao / Steadfast..."
+                    placeholder="E.g. Approved for courier exchange pickup..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                   />
@@ -530,8 +521,8 @@ function ReturnsContent() {
                       onClick={() =>
                         handleUpdateStatus(
                           'approved',
-                          'Return approved & scheduled for pickup',
-                          'Return request approved by staff',
+                          'Exchange request approved & scheduled for courier pickup',
+                          'Exchange request approved by staff',
                         )
                       }
                       className="bg-clay text-white hover:bg-clay-dark"
@@ -548,8 +539,8 @@ function ReturnsContent() {
                       onClick={() =>
                         handleUpdateStatus(
                           'rejected',
-                          'Return request rejected',
-                          'Return request rejected by staff',
+                          'Exchange request rejected',
+                          'Exchange request rejected by staff',
                         )
                       }
                     >
@@ -560,13 +551,13 @@ function ReturnsContent() {
                 </div>
               )}
 
-              {/* 2. When status is APPROVED (Waiting for courier pickup) */}
+              {/* 2. When status is APPROVED */}
               {active.status === 'approved' && (
                 <div className="space-y-3">
                   <Textarea
-                    label="Tracking / Courier Note"
+                    label="Courier Tracking Note"
                     rows={2}
-                    placeholder="Courier tracking ID or pickup note..."
+                    placeholder="Courier name and tracking number..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                   />
@@ -618,64 +609,35 @@ function ReturnsContent() {
                 </div>
               )}
 
-              {/* 4. When status is RECEIVED (Ready for final resolution: Refund / Exchange) */}
+              {/* 4. When status is RECEIVED */}
               {active.status === 'received' && (
                 <div className="space-y-3">
                   <Textarea
                     label="Inspection Findings & Quality Check Notes"
                     rows={2}
-                    placeholder="Tag intact, product condition, fabric verification…"
+                    placeholder="Tag intact, product condition verified, replacement ready…"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                   />
 
-                  {active.resolution !== 'exchange' && (
-                    <Checkbox
-                      checked={deductShipping}
-                      onChange={setDeductShipping}
-                      label="Deduct courier pickup fee (৳70) from refund amount"
-                    />
-                  )}
-
                   <div className="space-y-2 pt-2">
-                    {active.resolution === 'exchange' ? (
-                      <GuardedButton
-                        module="returns"
-                        action="update"
-                        fullWidth
-                        disabled={isActionLoading}
-                        onClick={() =>
-                          handleUpdateStatus(
-                            'exchanged',
-                            'Exchange approved & replacement dispatched',
-                            'Replacement parcel prepared and dispatched to customer',
-                          )
-                        }
-                        className="bg-emerald-600 text-white hover:bg-emerald-700"
-                      >
-                        <PackageCheck className="h-4 w-4 mr-1.5" />
-                        Approve Exchange & Dispatch Replacement
-                      </GuardedButton>
-                    ) : (
-                      <GuardedButton
-                        module="returns"
-                        action="refund"
-                        fullWidth
-                        disabled={isActionLoading}
-                        onClick={() =>
-                          handleUpdateStatus(
-                            'refunded',
-                            `Refund of ${formatBDT(refundAmount)} issued successfully`,
-                            `Refund of ${formatBDT(refundAmount)} processed (${active.resolution})`,
-                          )
-                        }
-                        className="bg-emerald-600 text-white hover:bg-emerald-700"
-                      >
-                        <CreditCard className="h-4 w-4 mr-1.5" />
-                        Issue {active.resolution === 'store_credit' ? 'Store Credit' : 'Refund'} ·{' '}
-                        {formatBDT(refundAmount)}
-                      </GuardedButton>
-                    )}
+                    <GuardedButton
+                      module="returns"
+                      action="update"
+                      fullWidth
+                      disabled={isActionLoading}
+                      onClick={() =>
+                        handleUpdateStatus(
+                          'exchanged',
+                          'Exchange approved & replacement dispatched to customer',
+                          'Replacement parcel prepared and dispatched to customer',
+                        )
+                      }
+                      className="bg-emerald-600 text-white hover:bg-emerald-700"
+                    >
+                      <PackageCheck className="h-4 w-4 mr-1.5" />
+                      Approve Exchange & Dispatch Replacement
+                    </GuardedButton>
 
                     <Button
                       variant="danger"
@@ -684,8 +646,8 @@ function ReturnsContent() {
                       onClick={() =>
                         handleUpdateStatus(
                           'rejected',
-                          'Item failed inspection — return rejected',
-                          'Item failed quality inspection. Return rejected.',
+                          'Item failed quality inspection — exchange rejected',
+                          'Item failed quality inspection. Exchange rejected.',
                         )
                       }
                     >
@@ -705,7 +667,7 @@ function ReturnsContent() {
                     ) : (
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     )}
-                    This return request is closed ({active.status.toUpperCase()})
+                    This exchange request is completed ({active.status === 'rejected' ? 'REJECTED' : 'EXCHANGED'})
                   </p>
                   {active.inspectionNote && (
                     <p className="text-ink-muted">
