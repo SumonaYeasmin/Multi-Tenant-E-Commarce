@@ -143,8 +143,8 @@ export default function DraftOrdersPage() {
     setQ('');
   };
 
-  // Submit Draft or Create Paid Order
-  const finalize = async (mode: 'invoice' | 'paid') => {
+  // Submit Draft Order
+  const finalize = async () => {
     if (!lines.length) {
       toast.error('Please add at least one product to the draft');
       return;
@@ -217,8 +217,8 @@ export default function DraftOrdersPage() {
       })),
       shippingFee: Number(shipping || 0),
       discount: Number(discount || 0),
-      paymentMethod: (paymentMethod || 'cod').toUpperCase() as any,
-      mode,
+      paymentMethod: 'COD' as const,
+      mode: 'invoice' as const,
       customerNote: customerNote.trim() || undefined,
       staffNote: staffNote.trim() || `Manual draft order created by admin`,
     };
@@ -228,11 +228,7 @@ export default function DraftOrdersPage() {
       const res = await orderService.createDraftOrder(payload);
 
       if (res?.data) {
-        toast.success(
-          mode === 'invoice'
-            ? `Draft order #${res.data.number} created with payment link!`
-            : `Order #${res.data.number} created and marked as PAID!`
-        );
+        toast.success(`Draft order #${res.data.number} created successfully!`);
 
         // Reset form
         setLines([]);
@@ -641,25 +637,15 @@ export default function DraftOrdersPage() {
               </div>
             </dl>
 
-            <div className="mt-5 space-y-2">
+            <div className="mt-5">
               <Button
                 fullWidth
                 disabled={isSubmitting || detailed.length === 0}
-                onClick={() => finalize('invoice')}
+                onClick={finalize}
                 className="cursor-pointer"
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Create draft order
-              </Button>
-              <Button
-                fullWidth
-                variant="secondary"
-                disabled={isSubmitting || detailed.length === 0}
-                onClick={() => finalize('paid')}
-                className="cursor-pointer"
-              >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Mark as paid & create order
               </Button>
             </div>
           </Panel>
