@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -39,5 +41,20 @@ export class ReturnController {
     const tenantId = tenantHeader || user?.tenantId;
     const userId = user?.id || user?.sub;
     return this.returnService.createReturn(tenantId, userId, dto);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Get previous return/refund requests for customer' })
+  @ApiResponse({ status: 200, description: 'Return requests retrieved successfully' })
+  async getCustomerReturns(
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+    @Query('orderId') orderId?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    const userId = user?.id || user?.sub;
+    return this.returnService.getCustomerReturns(tenantId, userId, orderId);
   }
 }

@@ -28,6 +28,24 @@ export class ReturnService {
     return activeTenant.id;
   }
 
+  // Helper to resolve customer profile ID from authenticated user
+  private async resolveCustomerId(
+    userId: string | undefined | null,
+    tenantId: string,
+  ): Promise<string | null> {
+    if (!userId) return null;
+
+    const profile = await this.prisma.customerProfile.findFirst({
+      where: {
+        userId,
+        tenantId,
+        deletedAt: null,
+      },
+    });
+
+    return profile?.id || null;
+  }
+
   // POST /api/v1/customer/returns - Submit a new return/refund request
   async createReturn(
     tenantId: string | undefined,
@@ -121,6 +139,71 @@ export class ReturnService {
     return ResponseHelper.created(
       returnRequest,
       'Return request submitted successfully',
+    );
+  }
+
+  // GET /api/v1/customer/returns - Retrieve all previous return requests for customer
+  async getCustomerReturns(
+    tenantId?: string,
+    userId?: string,
+    orderIdFilter?: string,
+  ) {
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+    const customerId = await this.resolveCustomerId(userId, resolvedTenantId);
+
+    let userEmail: string | undefined;
+    if (userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+      userEmail = user?.email || undefined;
+    }
+
+    const where: any = {
+      tenantId: resolvedTenantId,
+      deletedAt: null,
+    };
+
+    if (orderIdFilter && orderIdFilter.trim()) {
+      where.order = {
+        OR: [
+          { id: orderIdFilter.trim() },
+          { number: orderIdFilter.trim() },
+        ],
+      };
+    } else if (customerId || userEmail) {
+      where.order = {
+        OR: [
+          ...(customerId ? [{ customerId }] : []),
+          ...(userEmail ? [{ email: { equals: userEmail, mode: 'insensitive' as const } }] : []),
+        ],
+      };
+    }
+
+    const returns = await this.prisma.returnRequest.findMany({
+      where,
+      include: {
+        items: true,
+        timeline: {
+          orderBy: { createdAt: 'desc' },
+        },
+        order: {
+          select: {
+            id: true,
+            number: true,
+            status: true,
+            total: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return ResponseHelper.success(
+      returns,
+      'Customer return requests retrieved successfully',
     );
   }
 }
