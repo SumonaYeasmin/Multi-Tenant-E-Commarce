@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { paymentMethods } from '@/data/shipping';
 import { useAdmin } from '@/contexts/AdminContext';
+import { useTenant } from '@/contexts/TenantContext';
+import { storeService } from '@/services/store-service';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Panel } from '@/components/dashboard/shared/Panel';
 import { GuardedButton } from '@/components/dashboard/shared/GuardedButton';
@@ -29,7 +31,25 @@ type Section = (typeof sections)[number];
 
 export default function AdminSettingsPage() {
   const { can } = useAdmin();
+  const { refetchTenant } = useTenant();
   const [section, setSection] = useState<Section>('General');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // General Store & Contact Details Form State
+  const [storeForm, setStoreForm] = useState({
+    name: 'Tanti',
+    tagline: 'Handloom & Contemporary Bangladeshi Fashion',
+    email: 'care@tanti.com.bd',
+    phone: '09612-826842',
+    whatsapp: '+880 1700-000000',
+    address: 'House 14, Road 27 (old), Dhanmondi, Dhaka 1209',
+    workingHours: 'Sat–Thu, 10 AM – 9 PM',
+    responseTime: 'Replies within 2 to 4 working hours',
+    supportTeam: 'Tanti Care team',
+    orderNumberFormat: 'TN-{number}',
+  });
+
   const [pm, setPm] = useState<Record<string, boolean>>({
     bkash: true,
     nagad: true,
@@ -37,6 +57,7 @@ export default function AdminSettingsPage() {
     stripe: true,
     cod: true,
   });
+
   const [flags, setFlags] = useState({
     guest: true,
     phoneOtp: true,
@@ -51,13 +72,85 @@ export default function AdminSettingsPage() {
     exchanges: true,
     finalSale: true,
   });
+
   const setFlag = (k: keyof typeof flags) => (v: boolean) =>
     setFlags({ ...flags, [k]: v });
+
+  // Load existing settings on mount
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        setIsLoading(true);
+        const res = await storeService.getOwnerSettings();
+        if (res && res.data) {
+          const d = res.data;
+          setStoreForm({
+            name: d.name || 'Tanti',
+            tagline: d.tagline || 'Handloom & Contemporary Bangladeshi Fashion',
+            email: d.contact?.email || 'care@tanti.com.bd',
+            phone: d.contact?.phone || '09612-826842',
+            whatsapp: d.contact?.whatsapp || '+880 1700-000000',
+            address:
+              d.contact?.address ||
+              'House 14, Road 27 (old), Dhanmondi, Dhaka 1209',
+            workingHours: d.contact?.workingHours || 'Sat–Thu, 10 AM – 9 PM',
+            responseTime:
+              d.contact?.responseTime || 'Replies within 2 to 4 working hours',
+            supportTeam: d.contact?.supportTeam || `${d.name || 'Tanti'} Care team`,
+            orderNumberFormat: d.settings?.orderNumberFormat || 'TN-{number}',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load store settings:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadSettings();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      if (section === 'General') {
+        await storeService.updateOwnerSettings({
+          name: storeForm.name,
+          tagline: storeForm.tagline,
+          contact: {
+            email: storeForm.email,
+            phone: storeForm.phone,
+            whatsapp: storeForm.whatsapp,
+            address: storeForm.address,
+            workingHours: storeForm.workingHours,
+            responseTime: storeForm.responseTime,
+            supportTeam: storeForm.supportTeam,
+          },
+          settings: {
+            orderNumberFormat: storeForm.orderNumberFormat,
+          },
+        });
+      } else {
+        await storeService.updateOwnerSettings({
+          settings: {
+            flags,
+            pm,
+          },
+        });
+      }
+
+      await refetchTenant();
+      toast.success(`${section} settings saved successfully`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to save settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <ModuleGate module="settings">
       <div className="w-full space-y-6">
-        <PageHeader title="Settings" description="Store-wide configuration." />
+        <PageHeader title="Settings" description="Store-wide configuration and public contact channels." />
         <div className="grid gap-6 md:grid-cols-[200px_1fr]">
           <nav
             aria-label="Settings sections"
@@ -85,18 +178,82 @@ export default function AdminSettingsPage() {
             className="space-y-6"
           >
             {section === 'General' && (
-              <Panel title="Store details">
+              <Panel title="Store & Public Contact Details">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Input label="Store name" defaultValue="Tanti" />
-                  <Input label="Contact email" defaultValue="hello@tanti.com.bd" />
-                  <Input label="Phone" defaultValue="09612-345678" />
                   <Input
-                    label="Business address"
-                    defaultValue="House 12, Road 27, Dhanmondi, Dhaka 1209"
+                    label="Store brand name"
+                    value={storeForm.name}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, name: e.target.value })
+                    }
                   />
+                  <Input
+                    label="Store tagline"
+                    value={storeForm.tagline}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, tagline: e.target.value })
+                    }
+                  />
+                  <Input
+                    label="Customer support email"
+                    type="email"
+                    value={storeForm.email}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, email: e.target.value })
+                    }
+                  />
+                  <Input
+                    label="Hotline / Phone number"
+                    value={storeForm.phone}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, phone: e.target.value })
+                    }
+                  />
+                  <Input
+                    label="WhatsApp number"
+                    value={storeForm.whatsapp}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, whatsapp: e.target.value })
+                    }
+                    placeholder="+880 1700-000000"
+                  />
+                  <Input
+                    label="Support team name"
+                    value={storeForm.supportTeam}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, supportTeam: e.target.value })
+                    }
+                    placeholder="e.g. Tanti Care team"
+                  />
+                  <Input
+                    label="Business & working hours"
+                    value={storeForm.workingHours}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, workingHours: e.target.value })
+                    }
+                    placeholder="e.g. Sat–Thu, 10 AM – 9 PM"
+                  />
+                  <Input
+                    label="Support response time note"
+                    value={storeForm.responseTime}
+                    onChange={(e) =>
+                      setStoreForm({ ...storeForm, responseTime: e.target.value })
+                    }
+                    placeholder="e.g. Replies within 2 to 4 working hours"
+                  />
+                  <div className="sm:col-span-2">
+                    <Input
+                      label="Flagship store / Office physical address"
+                      value={storeForm.address}
+                      onChange={(e) =>
+                        setStoreForm({ ...storeForm, address: e.target.value })
+                      }
+                      placeholder="Road, Area, City, Postal Code"
+                    />
+                  </div>
                   <Select
                     label="Currency"
-                    options={['BDT — Bangladeshi Taka (৳)']}
+                    options={['BDT — Bangladeshi Taka (৳)', 'USD — US Dollar ($)']}
                   />
                   <Select label="Timezone" options={['(GMT+06:00) Dhaka']} />
                   <Select
@@ -105,7 +262,13 @@ export default function AdminSettingsPage() {
                   />
                   <Input
                     label="Order number format"
-                    defaultValue="TN-{number}"
+                    value={storeForm.orderNumberFormat}
+                    onChange={(e) =>
+                      setStoreForm({
+                        ...storeForm,
+                        orderNumberFormat: e.target.value,
+                      })
+                    }
                     hint="Next order: TN-10498"
                   />
                 </div>
@@ -268,7 +431,8 @@ export default function AdminSettingsPage() {
               <GuardedButton
                 module="settings"
                 action="settings"
-                onClick={() => toast.success(`${section} settings saved`)}
+                loading={isSaving}
+                onClick={handleSave}
               >
                 Save
               </GuardedButton>

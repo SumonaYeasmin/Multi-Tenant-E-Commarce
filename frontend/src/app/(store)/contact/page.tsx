@@ -1,13 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CheckCircle2Icon, MailIcon, MapPinIcon, PhoneIcon, ClockIcon } from 'lucide-react';
+import {
+  CheckCircle2Icon,
+  MailIcon,
+  MapPinIcon,
+  PhoneIcon,
+  ClockIcon,
+  MessageSquareIcon,
+} from 'lucide-react';
+import { useTenant } from '@/contexts/TenantContext';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/button';
 
 export default function ContactPage() {
+  const { tenant } = useTenant();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -31,39 +40,108 @@ export default function ContactPage() {
     setStatus('sent');
   };
 
+  const supportTeam =
+    tenant.contact?.supportTeam || `${tenant.name} Care team`;
+  const responseTime =
+    tenant.contact?.responseTime || 'replies within 2 to 4 working hours';
+  const phone = tenant.contact?.phone || '09612-826842';
+  const email = tenant.contact?.email || 'care@tanti.com.bd';
+  const whatsapp = tenant.contact?.whatsapp;
+  const address =
+    tenant.contact?.address ||
+    'House 14, Road 27 (old), Dhanmondi, Dhaka 1209';
+  const hours = tenant.contact?.workingHours || 'Sat–Thu, 10 AM – 9 PM';
+
+  const cleanWhatsappNumber = whatsapp
+    ? whatsapp.replace(/[^0-9]/g, '')
+    : '';
+
   return (
     <div className="mx-auto grid max-w-7xl gap-16 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-8">
       <div>
-        <h1 className="font-display text-5xl">Get in touch</h1>
+        <h1 className="font-display text-5xl text-ink">Get in touch</h1>
         <p className="mt-3 max-w-md text-ink-soft">
-          Our Tanti Care team replies within 4 working hours. For order issues, including your
+          Our {supportTeam} {responseTime}. For order issues, including your
           order number helps us help you faster.
         </p>
+
         <dl className="mt-10 space-y-6 text-sm">
-          {[
-            [PhoneIcon, 'Call', '09612-826842'],
-            [MailIcon, 'Email', 'care@tanti.com.bd'],
-            [MapPinIcon, 'Flagship store', 'House 14, Road 27 (old), Dhanmondi, Dhaka 1209'],
-            [ClockIcon, 'Hours', 'Sat–Thu, 10 AM – 9 PM'],
-          ].map(([Icon, label, value]) => {
-            const I = Icon as typeof PhoneIcon;
-            return (
-              <div key={label as string} className="flex gap-4">
-                <I className="mt-0.5 h-5 w-5 text-ink-muted" aria-hidden />
-                <div>
-                  <dt className="text-ink-muted">{label as string}</dt>
-                  <dd className="mt-0.5 font-medium">{value as string}</dd>
-                </div>
+          {/* Call / Phone */}
+          <div className="flex gap-4">
+            <PhoneIcon className="mt-0.5 h-5 w-5 text-ink-muted shrink-0" aria-hidden />
+            <div>
+              <dt className="text-ink-muted">Call</dt>
+              <dd className="mt-0.5 font-medium text-ink">
+                <a href={`tel:${phone}`} className="hover:underline">
+                  {phone}
+                </a>
+              </dd>
+            </div>
+          </div>
+
+          {/* WhatsApp if available */}
+          {whatsapp && (
+            <div className="flex gap-4">
+              <MessageSquareIcon className="mt-0.5 h-5 w-5 text-success shrink-0" aria-hidden />
+              <div>
+                <dt className="text-ink-muted">WhatsApp</dt>
+                <dd className="mt-0.5 font-medium text-ink">
+                  <a
+                    href={`https://wa.me/${cleanWhatsappNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline text-success"
+                  >
+                    {whatsapp}
+                  </a>
+                </dd>
               </div>
-            );
-          })}
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="flex gap-4">
+            <MailIcon className="mt-0.5 h-5 w-5 text-ink-muted shrink-0" aria-hidden />
+            <div>
+              <dt className="text-ink-muted">Email</dt>
+              <dd className="mt-0.5 font-medium text-ink">
+                <a href={`mailto:${email}`} className="hover:underline">
+                  {email}
+                </a>
+              </dd>
+            </div>
+          </div>
+
+          {/* Store Address */}
+          <div className="flex gap-4">
+            <MapPinIcon className="mt-0.5 h-5 w-5 text-ink-muted shrink-0" aria-hidden />
+            <div>
+              <dt className="text-ink-muted">Flagship store</dt>
+              <dd className="mt-0.5 font-medium text-ink leading-relaxed">
+                {address}
+              </dd>
+            </div>
+          </div>
+
+          {/* Working Hours */}
+          <div className="flex gap-4">
+            <ClockIcon className="mt-0.5 h-5 w-5 text-ink-muted shrink-0" aria-hidden />
+            <div>
+              <dt className="text-ink-muted">Hours</dt>
+              <dd className="mt-0.5 font-medium text-ink">
+                {hours}
+              </dd>
+            </div>
+          </div>
         </dl>
       </div>
+
+      {/* Right Contact Form */}
       <div className="rounded-lg border border-line bg-surface p-6 sm:p-8">
         {status === 'sent' ? (
           <div className="flex flex-col items-center py-12 text-center" role="status">
             <CheckCircle2Icon className="h-10 w-10 text-success" aria-hidden />
-            <h2 className="mt-4 text-lg font-semibold">Message received</h2>
+            <h2 className="mt-4 text-lg font-semibold text-ink">Message received</h2>
             <p className="mt-1 text-sm text-ink-muted">
               Ticket T-2042 created. We’ll reply to {form.email} shortly.
             </p>
