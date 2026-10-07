@@ -325,11 +325,7 @@ function OrdersContent() {
             className="h-9 rounded-md border border-line bg-surface px-2.5 text-sm text-ink focus:outline-none"
           >
             <option value="all">All payment methods</option>
-            <option value="bkash">bKash</option>
-            <option value="nagad">Nagad</option>
-            <option value="sslcommerz">SSLCommerz</option>
-            <option value="stripe">Stripe</option>
-            <option value="cod">Cash on delivery</option>
+            <option value="cod">Cash on delivery (COD)</option>
           </select>
           <select
             aria-label="Channel filter"

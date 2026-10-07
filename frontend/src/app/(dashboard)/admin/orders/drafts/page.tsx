@@ -560,27 +560,13 @@ export default function DraftOrdersPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-ink mb-1.5">Payment Method</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'cod', label: 'Cash on Delivery' },
-                    { id: 'bkash', label: 'bKash' },
-                    { id: 'nagad', label: 'Nagad' },
-                    { id: 'sslcommerz', label: 'Card / Online' },
-                  ].map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setPaymentMethod(m.id as PaymentMethod)}
-                      className={`flex items-center gap-1.5 p-2 rounded-md border text-xs text-left cursor-pointer transition-colors ${
-                        paymentMethod === m.id
-                          ? 'border-clay bg-clay-soft/40 text-ink font-medium'
-                          : 'border-line hover:bg-canvas text-ink-muted'
-                      }`}
-                    >
-                      <PaymentMark method={m.id as PaymentMethod} />
-                      <span className="truncate">{m.label}</span>
-                    </button>
-                  ))}
+                <div className="flex items-center gap-2.5 p-3 rounded-md border border-clay/60 bg-clay-soft/30 text-ink">
+                  <PaymentMark method="cod" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-ink">Cash on Delivery (COD)</p>
+                    <p className="text-[11px] text-ink-muted">Payment collected at customer's doorstep</p>
+                  </div>
+                  <Badge tone="success">Default</Badge>
                 </div>
               </div>
 
@@ -663,7 +649,7 @@ export default function DraftOrdersPage() {
                 className="cursor-pointer"
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Send invoice with payment link
+                Create draft order
               </Button>
               <Button
                 fullWidth
