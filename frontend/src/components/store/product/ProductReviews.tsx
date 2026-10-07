@@ -207,11 +207,8 @@ export function ProductReviews({ product }: ProductReviewsProps) {
     if (!form.rating || form.rating < 1 || form.rating > 5) {
       errors.rating = 'Please select a star rating.';
     }
-    if (!form.title.trim() || form.title.trim().length < 3) {
-      errors.title = 'Please enter a review headline (at least 3 characters).';
-    }
-    if (!form.body.trim() || form.body.trim().length < 10) {
-      errors.body = 'Please share more details (at least 10 characters).';
+    if (!form.body.trim() || form.body.trim().length < 3) {
+      errors.body = 'Please share your thoughts (at least 3 characters).';
     }
     if (!user && !form.author.trim()) {
       errors.author = 'Please enter your name.';
@@ -223,18 +220,18 @@ export function ProductReviews({ product }: ProductReviewsProps) {
     setSubmitting(true);
     try {
       const authorName = user?.name || form.author.trim() || 'Customer';
-      const sizeNote = form.size
-        ? `${form.size} (${FIT_OPTIONS.find((f) => f.id === form.fit)?.label || 'True to size'})`
-        : FIT_OPTIONS.find((f) => f.id === form.fit)?.label;
+      const autoTitle =
+        form.body.trim().length > 40
+          ? `${form.body.trim().slice(0, 37)}...`
+          : form.body.trim() || `${form.rating} Star Review`;
 
       const payload = {
         productId: product.id,
         rating: form.rating,
-        title: form.title.trim(),
+        title: autoTitle,
         body: form.body.trim(),
         author: authorName,
         photos: form.photos,
-        size: sizeNote,
       };
 
       const res = await reviewService.createReview(payload);
@@ -670,23 +667,18 @@ export function ProductReviews({ product }: ProductReviewsProps) {
         </div>
       </div>
 
-      {/* Write a Review Modal Form */}
+      {/* Write a Review Modal Form - Clean, Fast, Simple */}
       <Modal
         open={isWriteModalOpen}
         onClose={() => !submitting && setIsWriteModalOpen(false)}
-        title="Write a Customer Review"
+        title="Write a Review"
         description={product.title}
-        size="lg"
+        size="md"
       >
-        <form onSubmit={handleSubmitReview} className="space-y-6 pt-2">
-          {/* Step 1: Star Rating Selector */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-ink flex items-center justify-between">
-              <span>Overall Rating *</span>
-              <span className="text-xs font-medium text-amber-600">
-                {RATING_LABELS[hoverRating || form.rating] || ''}
-              </span>
-            </label>
+        <form onSubmit={handleSubmitReview} className="space-y-5 pt-2">
+          {/* 1. Star Rating Selector */}
+          <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-subtle/50 border border-line/60 text-center space-y-1.5">
+            <span className="text-xs font-semibold text-ink-muted">Rate your experience</span>
             <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => {
                 const active = star <= (hoverRating || form.rating);
@@ -697,12 +689,12 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(0)}
                     onClick={() => setForm((prev) => ({ ...prev, rating: star }))}
-                    className="p-1 cursor-pointer transition-transform hover:scale-110 focus:outline-none"
+                    className="p-1 cursor-pointer transition-transform hover:scale-115 focus:outline-none"
                     aria-label={`${star} star`}
                   >
                     <Star
                       className={cn(
-                        'h-8 w-8 transition-colors',
+                        'h-9 w-9 transition-colors',
                         active ? 'fill-amber-400 text-amber-400' : 'text-line-strong'
                       )}
                     />
@@ -710,50 +702,18 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                 );
               })}
             </div>
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+              {RATING_LABELS[hoverRating || form.rating] || 'Select your rating'}
+            </span>
             {formErrors.rating && (
               <p className="text-xs text-rose-500 font-medium">{formErrors.rating}</p>
             )}
           </div>
 
-          {/* Step 2: Fit & Sizing Feedback */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink">Fit Sentiment</label>
-              <div className="grid grid-cols-3 gap-1.5">
-                {FIT_OPTIONS.map((f) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, fit: f.id }))}
-                    className={cn(
-                      'rounded-lg border px-2.5 py-2 text-xs font-medium transition-all cursor-pointer text-center',
-                      form.fit === f.id
-                        ? 'border-ink bg-ink text-canvas shadow-xs'
-                        : 'border-line bg-surface text-ink-soft hover:border-ink hover:text-ink'
-                    )}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink">Size Purchased / Option</label>
-              <input
-                type="text"
-                placeholder="e.g., M, 32, Free Size"
-                value={form.size}
-                onChange={(e) => setForm((prev) => ({ ...prev, size: e.target.value }))}
-                className="w-full h-9 rounded-lg border border-line bg-surface px-3 text-xs text-ink placeholder:text-ink-muted focus:border-ink focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Step 3: Author Name */}
+          {/* 2. Author Name (Only if not logged in) */}
           {!user && (
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink">Your Full Name *</label>
+              <label className="text-xs font-semibold text-ink">Your Name *</label>
               <Input
                 placeholder="e.g. Sarah Jenkins"
                 value={form.author}
@@ -763,55 +723,38 @@ export function ProductReviews({ product }: ProductReviewsProps) {
             </div>
           )}
 
-          {/* Step 4: Headline */}
+          {/* 3. Review Details Textarea */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-ink">Review Headline / Title *</label>
-            <Input
-              placeholder="e.g. Excellent fabric quality and fast delivery!"
-              value={form.title}
-              onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-              error={formErrors.title}
-            />
-          </div>
-
-          {/* Step 5: Body Details */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-ink">Review Details *</label>
-              <span className="text-[11px] text-ink-muted">
-                {form.body.length} characters (min 10)
-              </span>
-            </div>
+            <label className="text-xs font-semibold text-ink">Your Review *</label>
             <Textarea
-              placeholder="What did you love about this item? How did it fit? Would you recommend it?"
+              placeholder="What did you like or dislike? How was the quality, comfort, and delivery?"
               value={form.body}
               onChange={(e) => setForm((prev) => ({ ...prev, body: e.target.value }))}
               error={formErrors.body}
-              className="min-h-[100px]"
+              className="min-h-[120px] rounded-xl"
             />
           </div>
 
-          {/* Step 6: Photo Attachments */}
-          <div className="space-y-3">
+          {/* 4. Photo Attachments */}
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-ink flex items-center gap-1.5">
-                <Camera className="h-3.5 w-3.5" />
-                <span>Customer Photos (Optional, max 5)</span>
+                <Camera className="h-4 w-4 text-ink-muted" />
+                <span>Add Photos (Optional)</span>
               </label>
               <button
                 type="button"
                 onClick={() => setShowUrlInput((prev) => !prev)}
-                className="text-[11px] font-medium text-ink-muted hover:text-ink cursor-pointer"
+                className="text-[11px] font-semibold text-ink-muted hover:text-ink cursor-pointer"
               >
-                {showUrlInput ? 'Hide URL input' : '+ Add via URL'}
+                {showUrlInput ? 'Hide URL' : '+ Image Link'}
               </button>
             </div>
 
-            {/* Photo Upload Box */}
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-line-strong hover:border-ink bg-subtle/30 text-ink-muted hover:text-ink cursor-pointer transition-colors">
-                <Upload className="h-5 w-5 mb-1" />
-                <span className="text-[10px] font-semibold">Upload</span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <label className="flex h-16 w-16 flex-col items-center justify-center rounded-xl border-2 border-dashed border-line-strong hover:border-ink bg-subtle/30 text-ink-muted hover:text-ink cursor-pointer transition-colors shrink-0">
+                <Upload className="h-4 w-4 mb-0.5" />
+                <span className="text-[10px] font-bold">Photo</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -821,15 +764,14 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                 />
               </label>
 
-              {/* Uploaded Photos Preview */}
               {form.photos.map((photo, i) => (
-                <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border border-line group">
+                <div key={i} className="relative h-16 w-16 rounded-xl overflow-hidden border border-line group shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={photo} alt="" className="h-full w-full object-cover" />
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(i)}
-                    className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-rose-600"
+                    className="absolute top-1 right-1 rounded-full bg-black/80 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-rose-600"
                     aria-label="Remove photo"
                   >
                     <X className="h-3 w-3" />
@@ -838,14 +780,13 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               ))}
             </div>
 
-            {/* Direct URL Input fallback */}
             {showUrlInput && (
               <div className="flex gap-2 pt-1">
                 <Input
                   placeholder="Paste image URL (https://...)"
                   value={imageUrlInput}
                   onChange={(e) => setImageUrlInput(e.target.value)}
-                  className="text-xs"
+                  className="text-xs h-8.5"
                 />
                 <Button
                   type="button"
@@ -854,25 +795,14 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                   onClick={handleAddImageUrl}
                   className="cursor-pointer shrink-0"
                 >
-                  Add Link
+                  Add
                 </Button>
               </div>
             )}
           </div>
 
-          {/* Instant Publication Guarantee */}
-          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3.5 flex items-start gap-2.5 text-xs text-ink-soft">
-            <Sparkles className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-ink">Instant Live Publishing</p>
-              <p className="mt-0.5 text-ink-muted">
-                Your review will be posted and visible on this product immediately upon submission.
-              </p>
-            </div>
-          </div>
-
-          {/* Modal Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
+          {/* 5. Modal Footer Actions */}
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-line">
             <Button
               type="button"
               variant="ghost"
@@ -883,7 +813,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={submitting} className="cursor-pointer gap-2">
-              {submitting ? 'Publishing...' : 'Publish Review Instantly'}
+              {submitting ? 'Submitting…' : 'Submit Review'}
             </Button>
           </div>
         </form>

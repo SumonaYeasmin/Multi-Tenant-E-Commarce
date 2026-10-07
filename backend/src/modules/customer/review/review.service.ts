@@ -152,6 +152,12 @@ export class ReviewService {
       verifiedBuyer = purchaseCount > 0;
     }
 
+    const resolvedTitle =
+      dto.title?.trim() ||
+      (dto.body.trim().length > 40
+        ? `${dto.body.trim().slice(0, 37)}...`
+        : dto.body.trim() || `${dto.rating} Star Review`);
+
     // Direct creation with status: PUBLISHED for immediate visibility
     const review = await this.prisma.review.create({
       data: {
@@ -160,7 +166,7 @@ export class ReviewService {
         customerId: resolvedCustomerId,
         author: dto.author.trim(),
         rating: dto.rating,
-        title: dto.title.trim(),
+        title: resolvedTitle,
         body: dto.body.trim(),
         verified: verifiedBuyer,
         photos: dto.photos && Array.isArray(dto.photos) ? dto.photos : [],

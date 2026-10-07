@@ -39,14 +39,14 @@ export class CreateReviewDto {
   @Max(5, { message: 'Maximum rating is 5 stars' })
   rating: number;
 
-  @ApiProperty({
-    description: 'Review headline / summary',
+  @ApiPropertyOptional({
+    description: 'Optional review headline / summary',
     example: 'Exceptional handloom quality and fit!',
   })
   @IsString()
-  @IsNotEmpty({ message: 'Review headline is required' })
+  @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  title: string;
+  title?: string;
 
   @ApiProperty({
     description: 'Detailed review comments and feedback',
