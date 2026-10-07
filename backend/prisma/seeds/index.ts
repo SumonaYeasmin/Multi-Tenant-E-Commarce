@@ -7,6 +7,7 @@ import { seedBrands } from './brand.seed';
 import { seedCollections } from './collection.seed';
 import { seedProducts } from './product.seed';
 import { seedDiscounts } from './discount.seed';
+import { seedOrders } from './order.seed';
 
 const connectionString =
     process.env.DATABASE_URL || process.env['DATABASE_URL'];
@@ -26,6 +27,7 @@ async function main() {
     await seedCollections(prisma);
     await seedProducts(prisma);
     await seedDiscounts(prisma);
+    await seedOrders(prisma);
 
     console.log('--- Database Seeding Completed Successfully! ---');
 }

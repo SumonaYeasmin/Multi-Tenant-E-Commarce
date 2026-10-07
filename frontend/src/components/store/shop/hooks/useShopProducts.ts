@@ -12,6 +12,7 @@ import { collectionService } from '@/services/collection-service';
 import { brandService } from '@/services/brand-service';
 import { categoryService } from '@/services/category-service';
 import { images } from '@/data/images';
+import { analyticsService } from '@/services/analytics-service';
 import type { CollectionItem } from '@/types/collection';
 import type { BrandItem } from '@/types/brand';
 import type { CategoryItemData } from '@/types/commerce';
@@ -192,6 +193,13 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
     }
     return { base: list, suggestion: null };
   }, [products, mode, q, category, collection, brand, sub]);
+
+  // Record customer search query event for analytics
+  useEffect(() => {
+    if (mode === 'search' && q.trim().length >= 2) {
+      analyticsService.logCustomerSearch(q.trim(), base.length);
+    }
+  }, [mode, q, base.length]);
 
   // 2. Compute dynamic facets counts contextualized by active filters
   const facets = useMemo(() => {
