@@ -3,6 +3,7 @@ import { CartModule } from './cart/cart.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
+import { ReturnModule } from './return/return.module';
 
 @Module({
   imports: [
@@ -10,12 +11,14 @@ import { OrderModule } from './order/order.module';
     WishlistModule,
     AddressModule,
     OrderModule,
+    ReturnModule,
   ],
   exports: [
     CartModule,
     WishlistModule,
     AddressModule,
     OrderModule,
+    ReturnModule,
   ],
 })
 export class CustomerModule {}
