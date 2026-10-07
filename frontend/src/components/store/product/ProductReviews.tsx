@@ -90,7 +90,8 @@ export function ProductReviews({ product }: ProductReviewsProps) {
 
   // Load reviews from live backend API
   const fetchReviews = useCallback(async () => {
-    if (!product?.id) return;
+    const productKey = product?.slug || product?.id;
+    if (!productKey) return;
     setLoading(true);
     try {
       const query: ProductReviewsQuery = {
@@ -101,7 +102,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
         limit: 50,
       };
 
-      const res = await reviewService.getProductReviews(product.id, query);
+      const res = await reviewService.getProductReviews(productKey, query);
       if (res?.data) {
         setReviews(res.data.reviews || []);
         if (res.data.stats) {
@@ -113,7 +114,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
     } finally {
       setLoading(false);
     }
-  }, [product?.id, starFilter, photosOnly, sortBy, sortOrder]);
+  }, [product?.slug, product?.id, starFilter, photosOnly, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchReviews();
@@ -226,7 +227,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
           : form.body.trim() || `${form.rating} Star Review`;
 
       const payload = {
-        productId: product.id,
+        productId: product.slug || product.id,
         rating: form.rating,
         title: autoTitle,
         body: form.body.trim(),

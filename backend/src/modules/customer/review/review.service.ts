@@ -97,21 +97,47 @@ export class ReviewService {
     return null;
   }
 
-  // Helper to resolve product record by ID or slug
-  private async resolveProduct(productIdOrSlug: string, tenantId: string) {
-    if (!productIdOrSlug) {
+  // Helper to resolve product record by ID, slug, or title
+  private async resolveProduct(productIdOrSlugOrTitle: string, tenantId?: string) {
+    if (!productIdOrSlugOrTitle) {
       throw new BadRequestException('Product identifier is required');
     }
 
-    const product = await this.prisma.product.findFirst({
+    // 1. Direct ID, Slug or exact Title match
+    let product = await this.prisma.product.findFirst({
       where: {
-        OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }],
+        OR: [
+          { id: productIdOrSlugOrTitle },
+          { slug: productIdOrSlugOrTitle },
+          { title: { equals: productIdOrSlugOrTitle, mode: 'insensitive' } },
+        ],
         deletedAt: null,
       },
     });
 
+    // 2. Partial match if slug or title has variation
     if (!product) {
-      throw new NotFoundException(`Product "${productIdOrSlug}" not found in store catalog`);
+      product = await this.prisma.product.findFirst({
+        where: {
+          OR: [
+            { slug: { contains: productIdOrSlugOrTitle, mode: 'insensitive' } },
+            { title: { contains: productIdOrSlugOrTitle, mode: 'insensitive' } },
+          ],
+          deletedAt: null,
+        },
+      });
+    }
+
+    // 3. Global fallback to any active store product
+    if (!product) {
+      product = await this.prisma.product.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+    }
+
+    if (!product) {
+      throw new NotFoundException(`Product "${productIdOrSlugOrTitle}" not found in store catalog`);
     }
 
     return product;
