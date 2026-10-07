@@ -7,6 +7,7 @@ import {
   DownloadIcon,
   RotateCcwIcon,
   XCircleIcon,
+  StarIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDateTime } from '@/utils/format';
@@ -46,7 +47,19 @@ export function OrderDetailHeader({
           <p className="mt-1 text-sm text-ink-muted">Placed {formatDateTime(order.createdAt)}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {order.status === 'delivered' && (
+            <Button
+              size="sm"
+              variant="secondary"
+              href="/account/reviews"
+              className="cursor-pointer gap-1.5 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100"
+            >
+              <StarIcon className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden />
+              <span>Review Items</span>
+            </Button>
+          )}
+
           <Button
             variant="secondary"
             size="sm"

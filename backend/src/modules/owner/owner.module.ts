@@ -9,6 +9,8 @@ import { DiscountModule } from './discount/discount.module';
 import { OrderModule } from './order/order.module';
 import { CustomerModule } from './customer/customer.module';
 import { ReturnModule } from './return/return.module';
+import { ReviewModule } from './review/review.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { ReturnModule } from './return/return.module';
     OrderModule,
     CustomerModule,
     ReturnModule,
+    ReviewModule,
+    SettingsModule,
   ],
   exports: [
     CategoryModule,
@@ -34,7 +38,10 @@ import { ReturnModule } from './return/return.module';
     OrderModule,
     CustomerModule,
     ReturnModule,
+    ReviewModule,
+    SettingsModule,
   ],
 })
 export class OwnerModule {}
+
 
