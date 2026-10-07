@@ -276,6 +276,11 @@ export function ProductReviews({ product }: ProductReviewsProps) {
 
   const totalReviewsCount = stats.totalReviews || 0;
   const avgRatingNumber = stats.averageRating || 5.0;
+  const isAdmin =
+    user?.role === 'OWNER' ||
+    user?.role === 'ADMIN' ||
+    user?.role === 'SUPER_ADMIN' ||
+    user?.role === 'STAFF';
 
   return (
     <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-32">
@@ -294,18 +299,29 @@ export function ProductReviews({ product }: ProductReviewsProps) {
           </p>
         </div>
 
-        <Button
-          onClick={() => {
-            if (user?.name) {
-              setForm((prev) => ({ ...prev, author: user.name }));
-            }
-            setIsWriteModalOpen(true);
-          }}
-          className="cursor-pointer gap-2 shadow-sm shrink-0"
-        >
-          <Sparkles className="h-4 w-4" />
-          Write a Review
-        </Button>
+        {isAdmin ? (
+          <Button
+            href="/admin/reviews"
+            variant="secondary"
+            className="cursor-pointer gap-2 shadow-xs shrink-0 text-xs font-semibold"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Manage in Admin Dashboard
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              if (user?.name) {
+                setForm((prev) => ({ ...prev, author: user.name }));
+              }
+              setIsWriteModalOpen(true);
+            }}
+            className="cursor-pointer gap-2 shadow-sm shrink-0"
+          >
+            <Sparkles className="h-4 w-4" />
+            Write a Review
+          </Button>
+        )}
       </div>
 
       {/* Main Grid: Left Scorecard & Right Reviews Feed */}

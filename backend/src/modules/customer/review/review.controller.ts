@@ -42,7 +42,8 @@ export class ReviewController {
   ) {
     const tenantId = tenantHeader || user?.tenantId;
     const userId = user?.id || user?.sub;
-    return this.reviewService.createReview(tenantId, userId, dto);
+    const userRole = user?.role;
+    return this.reviewService.createReview(tenantId, userId, userRole, dto);
   }
 
   // 2. Fetch all published reviews for a product with statistics and filters

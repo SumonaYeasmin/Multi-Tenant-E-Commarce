@@ -1,12 +1,13 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateReviewDto, ReviewQueryDto } from './dto';
-import { ReviewStatus } from '../../../../prisma/generated/client';
+import { ReviewStatus, UserRole } from '../../../../prisma/generated/client';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 
 @Injectable()
@@ -105,21 +106,11 @@ export class ReviewService {
     const product = await this.prisma.product.findFirst({
       where: {
         OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }],
-        tenantId,
         deletedAt: null,
       },
     });
 
     if (!product) {
-      // Fallback search across tenants if multi-tenant testing
-      const globalProduct = await this.prisma.product.findFirst({
-        where: {
-          OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }],
-          deletedAt: null,
-        },
-      });
-      if (globalProduct) return globalProduct;
-
       throw new NotFoundException(`Product "${productIdOrSlug}" not found in store catalog`);
     }
 
@@ -130,20 +121,33 @@ export class ReviewService {
   async createReview(
     tenantId: string | undefined,
     userId: string | null | undefined,
+    userRole: string | undefined,
     dto: CreateReviewDto,
   ) {
+    // Prevent Admins, Owners, and Staff from writing customer reviews
+    if (
+      userRole === UserRole.OWNER ||
+      userRole === 'OWNER' ||
+      userRole === 'ADMIN' ||
+      userRole === 'SUPER_ADMIN' ||
+      userRole === 'STAFF'
+    ) {
+      throw new ForbiddenException(
+        'Store administrators and staff cannot submit customer reviews. Customer reviews are meant for shoppers. Admins can view and reply to reviews from the Admin Dashboard.',
+      );
+    }
+
     const resolvedTenantId = await this.resolveTenantId(tenantId);
     const resolvedCustomerId = await this.resolveCustomerId(userId, resolvedTenantId);
     const product = await this.resolveProduct(dto.productId, resolvedTenantId);
 
     // Verify if customer is a verified buyer of this product
-    let verifiedBuyer = true;
+    let verifiedBuyer = false;
     if (resolvedCustomerId) {
       const purchaseCount = await this.prisma.orderItem.count({
         where: {
           productId: product.id,
           order: {
-            tenantId: resolvedTenantId,
             customerId: resolvedCustomerId,
             deletedAt: null,
           },
@@ -161,7 +165,7 @@ export class ReviewService {
     // Direct creation with status: PUBLISHED for immediate visibility
     const review = await this.prisma.review.create({
       data: {
-        tenantId: resolvedTenantId,
+        tenantId: product.tenantId || resolvedTenantId,
         productId: product.id,
         customerId: resolvedCustomerId,
         author: dto.author.trim(),
@@ -214,7 +218,6 @@ export class ReviewService {
 
     const where: any = {
       productId: product.id,
-      tenantId: resolvedTenantId,
       status: ReviewStatus.PUBLISHED,
       deletedAt: null,
     };
@@ -239,7 +242,6 @@ export class ReviewService {
       this.prisma.review.findMany({
         where: {
           productId: product.id,
-          tenantId: resolvedTenantId,
           status: ReviewStatus.PUBLISHED,
           deletedAt: null,
         },
