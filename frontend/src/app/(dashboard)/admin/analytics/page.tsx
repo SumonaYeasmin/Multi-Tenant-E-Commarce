@@ -18,8 +18,6 @@ import {
 import {
   salesSeries as mockSalesSeries,
   kpis as mockKpis,
-  funnel,
-  salesByPayment as mockSalesByPayment,
   salesByRegion as mockSalesByRegion,
   salesByChannel as mockSalesByChannel,
   topSearches,
@@ -77,11 +75,6 @@ export default function AdminAnalyticsPage() {
     ['Discounts', formatBDT(mockKpis.discounts), '+11%'],
     ['Shipping revenue', formatBDT(mockKpis.shippingRevenue), '+9%'],
     ['Cart abandonment', `${mockKpis.cartAbandonment}%`, '−1.4 pt'],
-  ];
-
-  const shares: [string, { name: string; value: number }[]][] = [
-    ['Sales by payment method', mockSalesByPayment],
-    ['Traffic source', mockSalesByChannel],
   ];
 
   return (
@@ -215,32 +208,6 @@ export default function AdminAnalyticsPage() {
         </dl>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Panel title="Conversion funnel">
-            <ol className="space-y-3">
-              {funnel.map((f, i) => {
-                const pct = (f.value / funnel[0].value) * 100;
-                return (
-                  <li key={f.stage}>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-ink font-medium">{f.stage}</span>
-                      <span className="tabular-nums text-ink-muted">
-                        {formatNumber(f.value)}
-                        {i > 0 &&
-                          ` · ${((f.value / funnel[i - 1].value) * 100).toFixed(0)}%`}
-                      </span>
-                    </div>
-                    <div className="mt-1 h-2 rounded-full bg-subtle">
-                      <div
-                        className="h-full rounded-full bg-ink"
-                        style={{ width: `${Math.max(pct, 2)}%` }}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </Panel>
-
           {/* Real Database Connected: Sales by District */}
           <Panel
             title="Sales by district"
@@ -301,29 +268,28 @@ export default function AdminAnalyticsPage() {
             </div>
           </Panel>
 
-          {shares.map(([title, data]) => (
-            <Panel key={title} title={title}>
-              <ul className="space-y-2.5">
-                {data.map((d) => (
-                  <li
-                    key={d.name}
-                    className="grid grid-cols-[130px_1fr_40px] items-center gap-3 text-sm"
-                  >
-                    <span className="text-ink">{d.name}</span>
-                    <div className="h-2 rounded-full bg-subtle">
-                      <div
-                        className="h-full rounded-full bg-clay"
-                        style={{ width: `${d.value}%` }}
-                      />
-                    </div>
-                    <span className="text-right tabular-nums text-ink-muted">
-                      {d.value}%
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          ))}
+          {/* Traffic Source */}
+          <Panel title="Traffic source">
+            <ul className="space-y-2.5">
+              {mockSalesByChannel.map((d) => (
+                <li
+                  key={d.name}
+                  className="grid grid-cols-[130px_1fr_40px] items-center gap-3 text-sm"
+                >
+                  <span className="text-ink">{d.name}</span>
+                  <div className="h-2 rounded-full bg-subtle">
+                    <div
+                      className="h-full rounded-full bg-clay"
+                      style={{ width: `${d.value}%` }}
+                    />
+                  </div>
+                  <span className="text-right tabular-nums text-ink-muted">
+                    {d.value}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Panel>
 
           <Panel
             title="Top searches"
