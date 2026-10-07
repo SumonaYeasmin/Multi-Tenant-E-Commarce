@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import {
   OrderStatus,
   PaymentStatus,
@@ -19,44 +19,52 @@ export class OrderQueryDto {
   search?: string;
 
   @ApiPropertyOptional({
-    enum: OrderStatus,
+    example: 'unfulfilled',
+    description: 'Tab filter: all, unfulfilled, unpaid, packed, shipped, returns, closed',
+  })
+  @IsString()
+  @IsOptional()
+  tab?: string;
+
+  @ApiPropertyOptional({
     description: 'Filter orders by order status (e.g. PENDING_PAYMENT, CONFIRMED, PROCESSING, PACKED, SHIPPED, DELIVERED, CANCELLED)',
   })
-  @IsEnum(OrderStatus)
+  @IsString()
   @IsOptional()
-  status?: OrderStatus;
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
+  status?: string;
 
   @ApiPropertyOptional({
-    enum: PaymentStatus,
     description: 'Filter orders by payment status (PENDING, PAID, FAILED, REFUNDED)',
   })
-  @IsEnum(PaymentStatus)
+  @IsString()
   @IsOptional()
-  paymentStatus?: PaymentStatus;
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
+  paymentStatus?: string;
 
   @ApiPropertyOptional({
-    enum: FulfillmentStatus,
     description: 'Filter orders by fulfillment status (UNFULFILLED, PARTIALLY_FULFILLED, FULFILLED)',
   })
-  @IsEnum(FulfillmentStatus)
+  @IsString()
   @IsOptional()
-  fulfillmentStatus?: FulfillmentStatus;
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
+  fulfillmentStatus?: string;
 
   @ApiPropertyOptional({
-    enum: PaymentMethod,
     description: 'Filter orders by payment method (BKASH, NAGAD, SSLCOMMERZ, STRIPE, COD)',
   })
-  @IsEnum(PaymentMethod)
+  @IsString()
   @IsOptional()
-  paymentMethod?: PaymentMethod;
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
+  paymentMethod?: string;
 
   @ApiPropertyOptional({
-    enum: OrderChannel,
     description: 'Filter orders by sales channel (ONLINE, MANUAL)',
   })
-  @IsEnum(OrderChannel)
+  @IsString()
   @IsOptional()
-  channel?: OrderChannel;
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase().replace(/\s+/g, '_') : value))
+  channel?: string;
 
   @ApiPropertyOptional({
     example: '2026-10-01',
@@ -85,14 +93,14 @@ export class OrderQueryDto {
   page?: number = 1;
 
   @ApiPropertyOptional({
-    default: 20,
+    default: 50,
     description: 'Number of orders per page',
   })
   @IsInt()
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  limit?: number = 20;
+  limit?: number = 50;
 
   @ApiPropertyOptional({
     default: 'createdAt',
