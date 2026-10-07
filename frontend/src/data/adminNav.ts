@@ -55,7 +55,7 @@ export const adminNav: { group: string; items: AdminNavItem[] }[] = [
           { to: '/admin/orders/abandoned', label: 'Abandoned checkouts' }
         ]
       },
-      { to: '/admin/returns', label: 'Returns & refunds', icon: RotateCcw, module: 'returns' },
+      { to: '/admin/returns', label: 'Returns & exchanges', icon: RotateCcw, module: 'returns' },
       { to: '/admin/payments', label: 'Payments', icon: CreditCard, module: 'payments' }
     ]
   },

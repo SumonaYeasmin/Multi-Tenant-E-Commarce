@@ -64,6 +64,7 @@ export interface AddOrderNotePayload {
 // Query parameters for fetching owner orders with filtering and pagination
 export interface OwnerOrderQueryParams {
   search?: string;
+  tab?: string;
   status?: string;
   paymentStatus?: string;
   fulfillmentStatus?: string;
@@ -280,7 +281,8 @@ export const orderService = {
   async getOwnerOrders(params: OwnerOrderQueryParams = {}): Promise<ApiResponse<OwnerOrdersResponseData>> {
     const query = new URLSearchParams();
     if (params.search?.trim()) query.set('search', params.search.trim());
-    if (params.status && params.status !== 'all') query.set('status', params.status.toUpperCase());
+    if (params.tab && params.tab !== 'all') query.set('tab', params.tab);
+    else if (params.status && params.status !== 'all') query.set('tab', params.status);
     if (params.paymentStatus && params.paymentStatus !== 'all') query.set('paymentStatus', params.paymentStatus.toUpperCase());
     if (params.fulfillmentStatus && params.fulfillmentStatus !== 'all') query.set('fulfillmentStatus', params.fulfillmentStatus.toUpperCase());
     if (params.paymentMethod && params.paymentMethod !== 'all') query.set('paymentMethod', params.paymentMethod.toUpperCase());

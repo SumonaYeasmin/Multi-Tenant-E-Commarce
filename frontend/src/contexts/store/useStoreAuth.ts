@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Address, Customer } from '@/types/commerce';
-import { customers as seedCustomers } from '@/data/customers';
 import { authService } from '@/services/auth';
 import { addressService } from '@/services/address-service';
 import type { User } from './types';
@@ -39,8 +38,8 @@ export function useStoreAuth() {
   });
 
   const [isAddressesLoading, setIsAddressesLoading] = useState<boolean>(false);
-  const [storeCredit] = useState(450);
-  const [customers, setCustomers] = useState<Customer[]>(seedCustomers);
+  const [storeCredit] = useState(0);
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   // Helper to load addresses from backend database for authenticated users
   const loadAddressesFromBackend = useCallback(async () => {
