@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
-import { QueryReturnDto } from './dto/query-return.dto';
+import { QueryReturnDto, UpdateReturnStatusDto } from './dto';
 import { ReturnStatus } from '../../../../prisma/generated/client';
 
 @Injectable()
@@ -250,5 +250,114 @@ export class ReturnService {
       'Return request details retrieved successfully',
     );
   }
+
+  // PATCH /api/v1/owner/returns/:id/status - Update return status, inspection notes, and append audit timeline
+  async updateStatus(
+    id: string,
+    dto: UpdateReturnStatusDto,
+    tenantId?: string,
+    adminUser?: any,
+  ) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const existing = await this.prisma.returnRequest.findFirst({
+      where: {
+        id,
+        tenantId: targetTenantId,
+        deletedAt: null,
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Return request with identifier "${id}" not found`);
+    }
+
+    const adminName = adminUser?.name || adminUser?.email || 'Store Admin';
+
+    let statusLabel = `Return status updated to ${dto.status.replace(/_/g, ' ').toLowerCase()}`;
+    if (dto.status === ReturnStatus.APPROVED) {
+      statusLabel = 'Return request approved';
+    } else if (dto.status === ReturnStatus.REJECTED) {
+      statusLabel = 'Return request rejected';
+    } else if (dto.status === ReturnStatus.IN_TRANSIT) {
+      statusLabel = 'Return item is in transit';
+    } else if (dto.status === ReturnStatus.RECEIVED) {
+      statusLabel = 'Returned item received and inspected';
+    } else if (dto.status === ReturnStatus.REFUNDED) {
+      statusLabel = 'Refund processed and completed';
+    } else if (dto.status === ReturnStatus.EXCHANGED) {
+      statusLabel = 'Exchange / Replacement dispatched';
+    }
+
+    const updatedReturn = await this.prisma.$transaction(async (tx) => {
+      const returnRequest = await tx.returnRequest.update({
+        where: { id: existing.id },
+        data: {
+          status: dto.status,
+          ...(dto.inspectionNote !== undefined ? { inspectionNote: dto.inspectionNote } : {}),
+          timeline: {
+            create: {
+              label: statusLabel,
+              by: adminName,
+              note: dto.note || dto.inspectionNote || undefined,
+            },
+          },
+        },
+        include: {
+          items: true,
+          timeline: {
+            orderBy: { createdAt: 'desc' },
+          },
+          order: {
+            select: {
+              id: true,
+              number: true,
+              status: true,
+              paymentStatus: true,
+              fulfillmentStatus: true,
+              total: true,
+              subtotal: true,
+              discount: true,
+              shipping: true,
+              createdAt: true,
+              customerName: true,
+              email: true,
+              phone: true,
+              shippingAddress: true,
+              items: true,
+              customer: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  phone: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // If refunded, append timeline note to associated order as well
+      if (dto.status === ReturnStatus.REFUNDED) {
+        await tx.orderTimeline.create({
+          data: {
+            orderId: existing.orderId,
+            label: `Return #${existing.id.slice(0, 8)} refund processed`,
+            by: adminName,
+            note: dto.note || dto.inspectionNote || undefined,
+          },
+        });
+      }
+
+      return returnRequest;
+    });
+
+    return ResponseHelper.success(
+      updatedReturn,
+      'Return request status updated successfully',
+    );
+  }
 }
+
 
