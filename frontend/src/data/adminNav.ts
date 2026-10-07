@@ -10,6 +10,7 @@ import {
   Warehouse,
   Users,
   Star,
+  MessageSquare,
   Percent,
   Megaphone,
   Truck,
@@ -78,7 +79,8 @@ export const adminNav: { group: string; items: AdminNavItem[] }[] = [
     group: 'Customers',
     items: [
       { to: '/admin/customers', label: 'Customers', icon: Users, module: 'customers' },
-      { to: '/admin/reviews', label: 'Reviews', icon: Star, module: 'reviews' }
+      { to: '/admin/reviews', label: 'Reviews', icon: Star, module: 'reviews' },
+      { to: '/admin/messages', label: 'Inquiries & Messages', icon: MessageSquare, module: 'customers' }
     ]
   },
   {

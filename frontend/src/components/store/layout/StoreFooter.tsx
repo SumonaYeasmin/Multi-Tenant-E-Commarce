@@ -119,7 +119,7 @@ export function StoreFooter() {
             ))}
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-canvas/60">
-            <span>© 2026 {tenant.name} · {tenant.contact.address}</span>
+            <span>© 2026 {tenant.name} · {tenant.contact?.address}</span>
             <Link href="/policies/privacy" className="hover:text-canvas">
               Privacy
             </Link>

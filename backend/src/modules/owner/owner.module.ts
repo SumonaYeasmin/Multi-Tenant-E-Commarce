@@ -11,6 +11,8 @@ import { CustomerModule } from './customer/customer.module';
 import { ReturnModule } from './return/return.module';
 import { ReviewModule } from './review/review.module';
 import { SettingsModule } from './settings/settings.module';
+import { OwnerSupportModule } from './support/support.module';
+import { OwnerAnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { SettingsModule } from './settings/settings.module';
     ReturnModule,
     ReviewModule,
     SettingsModule,
+    OwnerSupportModule,
+    OwnerAnalyticsModule,
   ],
   exports: [
     CategoryModule,
@@ -40,6 +44,8 @@ import { SettingsModule } from './settings/settings.module';
     ReturnModule,
     ReviewModule,
     SettingsModule,
+    OwnerSupportModule,
+    OwnerAnalyticsModule,
   ],
 })
 export class OwnerModule {}
