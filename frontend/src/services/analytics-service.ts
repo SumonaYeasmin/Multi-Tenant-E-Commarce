@@ -14,6 +14,12 @@ export interface DistrictSalesItem {
   value: number;
 }
 
+export interface SearchQueryItem {
+  term: string;
+  count: number;
+  results: number;
+}
+
 export interface AnalyticsOverviewResponse {
   salesByRegion: DistrictSalesItem[];
   salesSeries: { date: string; sales: number; prev: number; orders: number }[];
@@ -48,6 +54,32 @@ export const analyticsService = {
       return salesByRegion;
     } catch {
       return salesByRegion;
+    }
+  },
+
+  // Fetch real top search queries from PostgreSQL
+  async getTopSearches(): Promise<SearchQueryItem[]> {
+    try {
+      const res: any = await apiClient.get('/owner/analytics/top-searches');
+      if (res && res.data && Array.isArray(res.data)) {
+        return res.data;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  },
+
+  // Log customer search query from storefront
+  async logCustomerSearch(term: string, results: number = 0) {
+    if (!term || term.trim().length < 2) return;
+    try {
+      return await apiClient.post('/customer/search/log', {
+        term: term.trim(),
+        results,
+      });
+    } catch {
+      // Non-blocking fire-and-forget
     }
   },
 
@@ -86,9 +118,5 @@ export const analyticsService = {
 
   async getSalesByChannel() {
     return salesByChannel;
-  },
-
-  async getTopSearches() {
-    return topSearches;
   },
 };

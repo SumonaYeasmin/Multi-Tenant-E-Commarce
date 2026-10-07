@@ -255,4 +255,62 @@ export class AnalyticsService {
       'Analytics overview retrieved successfully',
     );
   }
+
+  // 3. Get Real Top Searches from PostgreSQL
+  async getTopSearches(tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const logs = await this.prisma.searchQueryLog.findMany({
+      where: {
+        tenantId: targetTenantId,
+      },
+      orderBy: {
+        count: 'desc',
+      },
+      take: 10,
+    });
+
+    const formatted = logs.map((l) => ({
+      term: l.term,
+      count: l.count,
+      results: l.results,
+    }));
+
+    return ResponseHelper.success(
+      formatted,
+      'Top searches retrieved successfully',
+    );
+  }
+
+  // 4. Record or increment search query
+  async recordSearchQuery(term: string, resultsCount: number, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+    const cleanTerm = term.trim().toLowerCase();
+    if (!cleanTerm) return null;
+
+    const log = await this.prisma.searchQueryLog.upsert({
+      where: {
+        tenantId_term: {
+          tenantId: targetTenantId,
+          term: cleanTerm,
+        },
+      },
+      create: {
+        tenantId: targetTenantId,
+        term: cleanTerm,
+        count: 1,
+        results: resultsCount,
+        lastSearchedAt: new Date(),
+      },
+      update: {
+        count: {
+          increment: 1,
+        },
+        results: resultsCount,
+        lastSearchedAt: new Date(),
+      },
+    });
+
+    return ResponseHelper.success(log, 'Search query recorded');
+  }
 }

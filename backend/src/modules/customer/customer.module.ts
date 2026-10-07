@@ -7,6 +7,7 @@ import { ReturnModule } from './return/return.module';
 import { ReviewModule } from './review/review.module';
 import { StoreModule } from './store/store.module';
 import { CustomerSupportModule } from './support/support.module';
+import { CustomerSearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CustomerSupportModule } from './support/support.module';
     ReviewModule,
     StoreModule,
     CustomerSupportModule,
+    CustomerSearchModule,
   ],
   exports: [
     CartModule,
@@ -28,6 +30,7 @@ import { CustomerSupportModule } from './support/support.module';
     ReviewModule,
     StoreModule,
     CustomerSupportModule,
+    CustomerSearchModule,
   ],
 })
 export class CustomerModule {}

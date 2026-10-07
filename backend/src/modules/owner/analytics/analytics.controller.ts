@@ -66,4 +66,22 @@ export class AnalyticsController {
     const tenantId = tenantHeader || user?.tenantId;
     return this.analyticsService.getAnalyticsOverview(query.range, tenantId);
   }
+
+  // 3. Get Real Top Searches from PostgreSQL
+  @Get('top-searches')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get top customer search queries and zero-result search metrics',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Top searches retrieved successfully',
+  })
+  async getTopSearches(
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.analyticsService.getTopSearches(tenantId);
+  }
 }

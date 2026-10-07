@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, RotateCw } from 'lucide-react';
 import {
   Area,
   ComposedChart,
@@ -20,7 +20,6 @@ import {
   kpis as mockKpis,
   salesByRegion as mockSalesByRegion,
   salesByChannel as mockSalesByChannel,
-  topSearches,
 } from '@/data/analytics';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Panel } from '@/components/dashboard/shared/Panel';
@@ -28,7 +27,11 @@ import { GuardedButton } from '@/components/dashboard/shared/GuardedButton';
 import { ModuleGate } from '@/components/dashboard/shared/ModuleGate';
 import { formatBDT, formatCompactBDT, formatNumber } from '@/utils/format';
 import { cn } from '@/utils/cn';
-import { analyticsService, DistrictSalesItem } from '@/services/analytics-service';
+import {
+  analyticsService,
+  DistrictSalesItem,
+  SearchQueryItem,
+} from '@/services/analytics-service';
 
 const ranges = ['Today', '7 days', '30 days', '90 days'] as const;
 const axisTick = { fontSize: 11, fill: '#8A8378' };
@@ -38,6 +41,8 @@ export default function AdminAnalyticsPage() {
   const [compare, setCompare] = useState(true);
   const [regionData, setRegionData] = useState<DistrictSalesItem[]>(mockSalesByRegion);
   const [isLoadingRegion, setIsLoadingRegion] = useState(false);
+  const [searchesData, setSearchesData] = useState<SearchQueryItem[]>([]);
+  const [isLoadingSearches, setIsLoadingSearches] = useState(false);
 
   // Fetch real database sales by district whenever date range changes
   useEffect(() => {
@@ -65,6 +70,32 @@ export default function AdminAnalyticsPage() {
       mounted = false;
     };
   }, [range]);
+
+  // Fetch real database top searches from PostgreSQL with auto-polling
+  const fetchTopSearches = useCallback(async (showLoader = false) => {
+    try {
+      if (showLoader) setIsLoadingSearches(true);
+      const data = await analyticsService.getTopSearches();
+      if (Array.isArray(data)) {
+        setSearchesData(data);
+      }
+    } catch (err) {
+      console.error('Failed to load real top searches:', err);
+    } finally {
+      if (showLoader) setIsLoadingSearches(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTopSearches(true);
+
+    // Auto-refresh every 4 seconds so searches appear in real-time
+    const interval = setInterval(() => {
+      fetchTopSearches(false);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [fetchTopSearches]);
 
   const secondary = [
     ['Orders', formatNumber(mockKpis.orders), '+18%'],
@@ -291,41 +322,72 @@ export default function AdminAnalyticsPage() {
             </ul>
           </Panel>
 
+          {/* Real Database Connected: Top Searches */}
           <Panel
             title="Top searches"
             description="Zero-result searches are flagged so you can add products or synonyms"
+            actions={
+              <div className="flex items-center gap-2">
+                {isLoadingSearches ? (
+                  <div className="flex items-center gap-1 text-xs text-ink-muted">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Syncing...</span>
+                  </div>
+                ) : (
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    ● Real-time
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => fetchTopSearches(true)}
+                  title="Refresh search queries"
+                  className="rounded p-1 text-ink-muted hover:bg-subtle hover:text-ink transition-colors cursor-pointer"
+                >
+                  <RotateCw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            }
             flush
             className="lg:col-span-2"
           >
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-line text-left text-xs text-ink-muted">
-                  <th className="px-5 py-2 font-medium">Term</th>
-                  <th className="px-5 py-2 text-right font-medium">Searches</th>
-                  <th className="px-5 py-2 text-right font-medium">Results</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {topSearches.map((s) => (
-                  <tr key={s.term} className="hover:bg-subtle/30">
-                    <td className="px-5 py-2 font-medium text-ink">{s.term}</td>
-                    <td className="px-5 py-2 text-right tabular-nums text-ink">
-                      {formatNumber(s.count)}
-                    </td>
-                    <td
-                      className={cn(
-                        'px-5 py-2 text-right tabular-nums',
-                        s.results === 0
-                          ? 'font-medium text-red-600 dark:text-red-400'
-                          : 'text-ink'
-                      )}
-                    >
-                      {s.results === 0 ? 'No results' : s.results}
-                    </td>
+            {searchesData.length === 0 ? (
+              <div className="px-5 py-8 text-center text-xs text-ink-muted">
+                No customer search queries recorded yet. Type any word in the storefront search bar to test live tracking.
+              </div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-line text-left text-xs text-ink-muted">
+                    <th className="px-5 py-2 font-medium">Term</th>
+                    <th className="px-5 py-2 text-right font-medium">Searches</th>
+                    <th className="px-5 py-2 text-right font-medium">Results</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-line">
+                  {searchesData.map((s) => (
+                    <tr key={s.term} className="hover:bg-subtle/30 transition-colors">
+                      <td className="px-5 py-2 font-medium text-ink capitalize">
+                        {s.term}
+                      </td>
+                      <td className="px-5 py-2 text-right tabular-nums text-ink font-semibold">
+                        {formatNumber(s.count)}
+                      </td>
+                      <td
+                        className={cn(
+                          'px-5 py-2 text-right tabular-nums',
+                          s.results === 0
+                            ? 'font-medium text-red-600 dark:text-red-400'
+                            : 'text-ink'
+                        )}
+                      >
+                        {s.results === 0 ? 'No results' : s.results}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </Panel>
         </div>
       </div>
