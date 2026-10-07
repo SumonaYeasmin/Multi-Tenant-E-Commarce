@@ -51,8 +51,7 @@ export const adminNav: { group: string; items: AdminNavItem[] }[] = [
         icon: ShoppingCart,
         module: 'orders',
         children: [
-          { to: '/admin/orders/drafts', label: 'Draft orders', action: 'create' },
-          { to: '/admin/orders/abandoned', label: 'Abandoned checkouts' }
+          { to: '/admin/orders/drafts', label: 'Draft orders', action: 'create' }
         ]
       },
       { to: '/admin/returns', label: 'Returns & exchanges', icon: RotateCcw, module: 'returns' },

@@ -84,9 +84,19 @@ function OrdersContent() {
       });
 
       if (res?.data?.orders) {
-        setLiveOrders(res.data.orders);
+        const backendOrders = res.data.orders;
+        const backendOrderKeys = new Set(backendOrders.map((o: Order) => o.number || o.id));
+        const localOnlyOrders = (storeOrders || []).filter(
+          (o) => !backendOrderKeys.has(o.number) && !backendOrderKeys.has(o.id)
+        );
+        const combined = [...backendOrders, ...localOnlyOrders];
+        setLiveOrders(combined);
         if (res.data.counts) {
-          setServerCounts(res.data.counts);
+          setServerCounts({
+            ...res.data.counts,
+            all: res.data.counts.all + localOnlyOrders.length,
+            unfulfilled: res.data.counts.unfulfilled + localOnlyOrders.filter((o) => o.fulfillmentStatus === 'unfulfilled').length,
+          });
         }
       } else {
         setLiveOrders(storeOrders);
@@ -315,11 +325,7 @@ function OrdersContent() {
             className="h-9 rounded-md border border-line bg-surface px-2.5 text-sm text-ink focus:outline-none"
           >
             <option value="all">All payment methods</option>
-            <option value="bkash">bKash</option>
-            <option value="nagad">Nagad</option>
-            <option value="sslcommerz">SSLCommerz</option>
-            <option value="stripe">Stripe</option>
-            <option value="cod">Cash on delivery</option>
+            <option value="cod">Cash on delivery (COD)</option>
           </select>
           <select
             aria-label="Channel filter"
