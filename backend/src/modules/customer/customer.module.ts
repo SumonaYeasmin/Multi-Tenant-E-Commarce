@@ -6,6 +6,8 @@ import { OrderModule } from './order/order.module';
 import { ReturnModule } from './return/return.module';
 import { ReviewModule } from './review/review.module';
 import { StoreModule } from './store/store.module';
+import { CustomerSupportModule } from './support/support.module';
+import { CustomerSearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { StoreModule } from './store/store.module';
     ReturnModule,
     ReviewModule,
     StoreModule,
+    CustomerSupportModule,
+    CustomerSearchModule,
   ],
   exports: [
     CartModule,
@@ -25,6 +29,8 @@ import { StoreModule } from './store/store.module';
     ReturnModule,
     ReviewModule,
     StoreModule,
+    CustomerSupportModule,
+    CustomerSearchModule,
   ],
 })
 export class CustomerModule {}
