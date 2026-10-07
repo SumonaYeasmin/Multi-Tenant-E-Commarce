@@ -332,7 +332,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               </button>
             ))}
           </div>
-          <div className="relative order-1 overflow-hidden rounded-lg bg-subtle sm:order-2 border border-line">
+          <div className="relative order-1 overflow-hidden rounded-lg bg-subtle sm:order-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={product.images[image] || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80'}
