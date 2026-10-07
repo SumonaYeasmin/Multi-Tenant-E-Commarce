@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsBoolean, IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsIn, IsInt, IsOptional, Max, Min, IsString } from 'class-validator';
 
 export class ReviewQueryDto {
   @ApiPropertyOptional({
@@ -41,18 +41,33 @@ export class ReviewQueryDto {
     description: 'Filter reviews that contain photos only',
     example: true,
   })
-  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true || value === 1 || value === '1') return true;
+    if (value === 'false' || value === false || value === 0 || value === '0') return false;
+    return undefined;
+  })
   @IsBoolean()
   @IsOptional()
   withPhotosOnly?: boolean;
 
   @ApiPropertyOptional({
     description: 'Sort criteria for reviews',
-    enum: ['recent', 'rating_high', 'rating_low', 'helpful'],
+    enum: ['recent', 'rating_high', 'rating_low', 'helpful', 'createdAt', 'rating'],
     default: 'recent',
     example: 'recent',
   })
-  @IsIn(['recent', 'rating_high', 'rating_low', 'helpful'])
+  @IsIn(['recent', 'rating_high', 'rating_low', 'helpful', 'createdAt', 'rating'])
   @IsOptional()
-  sortBy?: 'recent' | 'rating_high' | 'rating_low' | 'helpful' = 'recent';
+  sortBy?: 'recent' | 'rating_high' | 'rating_low' | 'helpful' | 'createdAt' | 'rating' = 'recent';
+
+  @ApiPropertyOptional({
+    description: 'Sort direction order',
+    enum: ['asc', 'desc'],
+    default: 'desc',
+    example: 'desc',
+  })
+  @IsIn(['asc', 'desc'])
+  @IsOptional()
+  sortOrder?: 'asc' | 'desc' = 'desc';
 }
+

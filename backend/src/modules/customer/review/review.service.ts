@@ -103,13 +103,16 @@ export class ReviewService {
       throw new BadRequestException('Product identifier is required');
     }
 
+    const clean = productIdOrSlugOrTitle.trim();
+
     // 1. Direct ID, Slug or exact Title match
     let product = await this.prisma.product.findFirst({
       where: {
         OR: [
-          { id: productIdOrSlugOrTitle },
-          { slug: productIdOrSlugOrTitle },
-          { title: { equals: productIdOrSlugOrTitle, mode: 'insensitive' } },
+          { id: clean },
+          { slug: clean },
+          { slug: clean.toLowerCase() },
+          { title: { equals: clean, mode: 'insensitive' } },
         ],
         deletedAt: null,
       },
@@ -120,19 +123,11 @@ export class ReviewService {
       product = await this.prisma.product.findFirst({
         where: {
           OR: [
-            { slug: { contains: productIdOrSlugOrTitle, mode: 'insensitive' } },
-            { title: { contains: productIdOrSlugOrTitle, mode: 'insensitive' } },
+            { slug: { contains: clean, mode: 'insensitive' } },
+            { title: { contains: clean, mode: 'insensitive' } },
           ],
           deletedAt: null,
         },
-      });
-    }
-
-    // 3. Global fallback to any active store product
-    if (!product) {
-      product = await this.prisma.product.findFirst({
-        where: { deletedAt: null },
-        orderBy: { createdAt: 'asc' },
       });
     }
 
@@ -229,17 +224,23 @@ export class ReviewService {
     const product = await this.resolveProduct(productIdOrSlug, resolvedTenantId);
 
     const page = query.page && query.page > 0 ? query.page : 1;
-    const limit = query.limit && query.limit > 0 ? query.limit : 20;
+    const limit = query.limit && query.limit > 0 ? query.limit : 50;
     const skip = (page - 1) * limit;
 
     // Sorting order determination
     let orderBy: any = { createdAt: 'desc' };
-    if (query.sortBy === 'rating_high') {
+    const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc';
+
+    if (query.sortBy === 'rating_high' || (query.sortBy === 'rating' && sortOrder === 'desc')) {
       orderBy = { rating: 'desc' };
-    } else if (query.sortBy === 'rating_low') {
+    } else if (query.sortBy === 'rating_low' || (query.sortBy === 'rating' && sortOrder === 'asc')) {
       orderBy = { rating: 'asc' };
     } else if (query.sortBy === 'helpful') {
-      orderBy = { helpful: 'desc' };
+      orderBy = { helpful: sortOrder };
+    } else if (query.sortBy === 'createdAt') {
+      orderBy = { createdAt: sortOrder };
+    } else if (query.sortBy === 'recent') {
+      orderBy = { createdAt: 'desc' };
     }
 
     const where: any = {

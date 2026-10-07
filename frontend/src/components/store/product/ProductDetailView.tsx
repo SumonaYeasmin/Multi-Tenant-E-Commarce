@@ -170,15 +170,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
   const wished = wishlist.includes(product.id);
   const off = discountPercent(product);
 
-  const completeTheLook = products
-    .filter(
-      (p) =>
-        p.id !== product.id &&
-        p.status === 'published' &&
-        p.collections.some((c) => product.collections.includes(c)) &&
-        p.category !== product.category
-    )
-    .slice(0, 3);
   const related = products
     .filter(
       (p) =>
@@ -604,18 +595,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
           </div>
         </div>
       </div>
-
-      {/* Complete The Look */}
-      {completeTheLook.length > 0 && (
-        <section className="mt-20" aria-labelledby="ctl-h">
-          <SectionHeading id="ctl-h" title="Complete the look" />
-          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
-            {completeTheLook.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Product Reviews */}
       <div className="mt-20 border-t border-line pt-12">

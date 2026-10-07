@@ -237,23 +237,6 @@ export function ProductReviews({ product }: ProductReviewsProps) {
 
       const res = await reviewService.createReview(payload);
       if (res?.data) {
-        // Direct instant publishing: add newly published review to the list immediately
-        setReviews((prev) => [res.data, ...prev]);
-        setStats((prev) => {
-          const newTotal = prev.totalReviews + 1;
-          const currentSum = prev.averageRating * prev.totalReviews;
-          const newAvg = Number(((currentSum + form.rating) / newTotal).toFixed(1));
-          const newDist = { ...prev.distribution };
-          newDist[form.rating] = (newDist[form.rating] || 0) + 1;
-          return {
-            ...prev,
-            totalReviews: newTotal,
-            averageRating: newAvg,
-            distribution: newDist,
-            withPhotosCount: form.photos.length > 0 ? prev.withPhotosCount + 1 : prev.withPhotosCount,
-          };
-        });
-
         toast.success('Your review has been published instantly! 🎉');
         setIsWriteModalOpen(false);
         setForm({
@@ -266,6 +249,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
           photos: [],
         });
         setFormErrors({});
+        await fetchReviews();
       }
     } catch (err: any) {
       console.error('Failed to submit review:', err);

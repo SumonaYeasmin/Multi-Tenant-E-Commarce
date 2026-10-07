@@ -99,7 +99,7 @@ export const reviewService = {
     if (query.sortOrder) params.set('sortOrder', query.sortOrder);
 
     const qs = params.toString();
-    const endpoint = `/customer/products/${productId}/reviews${qs ? `?${qs}` : ''}`;
+    const endpoint = `/customer/products/${encodeURIComponent(productId)}/reviews${qs ? `?${qs}` : ''}`;
 
     try {
       const res = await apiClient.get<ApiResponse<any>>(endpoint);
@@ -124,38 +124,27 @@ export const reviewService = {
           },
         };
       }
-      throw new Error('No data received');
-    } catch {
-      // Fallback for offline/seed mock testing
-      const matching = seedReviews.filter((r) => r.productId === productId);
-      const total = matching.length;
-      const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-      let sum = 0;
-      matching.forEach((r) => {
-        const s = Math.min(5, Math.max(1, r.rating));
-        (distribution as any)[s] = ((distribution as any)[s] || 0) + 1;
-        sum += s;
-      });
-      const avg = total > 0 ? Number((sum / total).toFixed(1)) : 5.0;
-
+      throw new Error('No data received from reviews API');
+    } catch (error: any) {
+      console.warn(`[review-service] Failed to fetch product reviews for "${productId}":`, error?.message || error);
       return {
-        success: true,
+        success: false,
         data: {
-          reviews: matching.map(mapBackendReviewToFrontend),
+          reviews: [],
           stats: {
-            totalReviews: total,
-            averageRating: avg,
-            distribution,
-            withPhotosCount: matching.filter((r) => r.photos && r.photos.length > 0).length,
+            totalReviews: 0,
+            averageRating: 5.0,
+            distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+            withPhotosCount: 0,
           },
           pagination: {
-            total,
+            total: 0,
             page: 1,
             limit: 20,
             totalPages: 1,
           },
         },
-        message: 'Loaded mock reviews',
+        message: error?.message || 'Failed to load reviews',
       };
     }
   },
