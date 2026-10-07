@@ -10,13 +10,13 @@ export class CreateContactMessageDto {
   @IsNotEmpty({ message: 'Name is required' })
   name: string;
 
-  @ApiProperty({
-    description: 'Customer contact email address',
+  @ApiPropertyOptional({
+    description: 'Customer contact email address (optional)',
     example: 'karim@example.com',
   })
   @IsEmail({}, { message: 'Please provide a valid email address' })
-  @IsNotEmpty({ message: 'Email is required' })
-  email: string;
+  @IsOptional()
+  email?: string;
 
   @ApiPropertyOptional({
     description: 'Customer contact phone number or WhatsApp',

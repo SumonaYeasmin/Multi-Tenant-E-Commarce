@@ -10,12 +10,9 @@ import {
   Clock,
   MessageSquare,
   Send,
-  Sparkles,
   ShieldCheck,
-  User,
-  Hash,
-  ArrowUpRight,
   Check,
+  User,
 } from 'lucide-react';
 import { useTenant } from '@/contexts/TenantContext';
 import { supportService } from '@/services/support-service';
@@ -27,9 +24,7 @@ import { cn } from '@/lib/utils';
 const TOPICS = [
   { id: 'Order enquiry', label: 'Order enquiry', icon: '📦' },
   { id: 'Returns & exchanges', label: 'Returns & exchanges', icon: '🔄' },
-  { id: 'Payment issue', label: 'Payment issue', icon: '💳' },
   { id: 'Product question', label: 'Product question', icon: '🏷️' },
-  { id: 'Wholesale', label: 'Wholesale inquiry', icon: '🤝' },
   { id: 'Other', label: 'Other questions', icon: '✨' },
 ];
 
@@ -37,17 +32,15 @@ export default function ContactPage() {
   const { tenant } = useTenant();
   const [form, setForm] = useState({
     name: '',
-    email: '',
     phone: '',
     topic: 'Order enquiry',
-    order: '',
     message: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState<{
     ticketId: string;
-    email: string;
+    phone: string;
   } | null>(null);
 
   const phone = tenant.contact?.phone || '09612-826842';
@@ -62,21 +55,11 @@ export default function ContactPage() {
   const responseTime =
     tenant.contact?.responseTime || 'replies within 2 to 4 working hours';
 
-  const cleanWhatsappNumber = whatsapp
-    ? whatsapp.replace(/[^0-9]/g, '')
-    : '8801700000000';
-
-  const directWhatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=${encodeURIComponent(
-    `Hello ${tenant.name}! I have an inquiry regarding: ${form.topic}${
-      form.order ? ` (Order: ${form.order})` : ''
-    }. ${form.message ? `\nMessage: ${form.message}` : ''}`
-  )}`;
-
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = 'Please enter your name';
-    if (!/^\S+@\S+\.\S+$/.test(form.email))
-      errs.email = 'Please enter a valid email address';
+    if (!form.phone.trim())
+      errs.phone = 'Please enter your phone or WhatsApp number';
     if (!form.message.trim() || form.message.trim().length < 5)
       errs.message = 'Please tell us a little more (at least 5 characters)';
     setErrors(errs);
@@ -91,17 +74,17 @@ export default function ContactPage() {
       setIsSubmitting(true);
       const res = await supportService.sendContactMessage({
         name: form.name.trim(),
-        email: form.email.trim(),
-        phone: form.phone.trim() || undefined,
+        phone: form.phone.trim(),
+        email: '',
         topic: form.topic,
-        orderNumber: form.order.trim() || undefined,
         message: form.message.trim(),
       });
 
-      const ticketId = res.data?.ticketId || `TK-${Date.now().toString().slice(-6)}`;
+      const ticketId =
+        res.data?.ticketId || `TK-${Date.now().toString().slice(-6)}`;
       setSubmittedTicket({
         ticketId,
-        email: form.email,
+        phone: form.phone,
       });
       toast.success('Your message has been sent to our customer care team!');
     } catch (err: any) {
@@ -125,10 +108,10 @@ export default function ContactPage() {
             Get in touch with us
           </h1>
           <p className="mt-3 max-w-md text-sm text-ink-soft leading-relaxed">
-            Our {supportTeam} {responseTime}. For existing orders, including your order number helps us assist you faster.
+            Our {supportTeam} {responseTime}. We are always here to assist you with your orders and questions.
           </p>
 
-          <dl className="mt-8 space-y-5 text-sm">
+          <dl className="mt-8 space-y-4 text-sm">
             {/* Phone */}
             <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-subtle text-ink">
@@ -150,23 +133,11 @@ export default function ContactPage() {
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <dt className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
-                    WhatsApp Chat
-                  </dt>
-                  <span className="rounded-full bg-emerald-200/60 dark:bg-emerald-800/60 px-2 py-0.5 text-[10px] font-semibold text-emerald-900 dark:text-emerald-100">
-                    Instant
-                  </span>
-                </div>
+                <dt className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
+                  WhatsApp Support
+                </dt>
                 <dd className="mt-0.5 font-semibold text-emerald-900 dark:text-emerald-100">
-                  <a
-                    href={directWhatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 hover:underline"
-                  >
-                    {whatsapp} <ArrowUpRight className="h-3.5 w-3.5" />
-                  </a>
+                  {whatsapp}
                 </dd>
               </div>
             </div>
@@ -217,7 +188,7 @@ export default function ContactPage() {
         {/* Security badge */}
         <div className="mt-8 flex items-center gap-2 text-xs text-ink-muted">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          <span>All inquiries are encrypted and assigned a direct tracking ticket.</span>
+          <span>All inquiries are directly forwarded to our store management desk.</span>
         </div>
       </div>
 
@@ -244,16 +215,6 @@ export default function ContactPage() {
               </p>
             </div>
           </div>
-
-          <a
-            href={directWhatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-full bg-[#25D366] hover:bg-[#20bd5a] px-3.5 py-1.5 text-xs font-semibold text-white shadow transition-transform hover:scale-105"
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            WhatsApp
-          </a>
         </div>
 
         {/* WhatsApp Message Area */}
@@ -278,20 +239,18 @@ export default function ContactPage() {
                 </span>
               </p>
               <p className="mt-3 max-w-sm text-xs text-ink-soft leading-relaxed">
-                Our support desk has received your ticket. A confirmation and response will be sent to <b>{submittedTicket.email}</b>.
+                Our support desk has received your ticket. We will reach out to your phone/WhatsApp at <b>{submittedTicket.phone}</b>.
               </p>
 
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <div className="mt-8 flex justify-center">
                 <Button
                   variant="secondary"
                   onClick={() => {
                     setSubmittedTicket(null);
                     setForm({
                       name: '',
-                      email: '',
                       phone: '',
                       topic: 'Order enquiry',
-                      order: '',
                       message: '',
                     });
                   }}
@@ -299,14 +258,6 @@ export default function ContactPage() {
                 >
                   Send another inquiry
                 </Button>
-                <a
-                  href={directWhatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md bg-[#25D366] hover:bg-[#20bd5a] px-4 py-2 text-sm font-medium text-white shadow transition-colors"
-                >
-                  <MessageSquare className="h-4 w-4" /> Open in WhatsApp
-                </a>
               </div>
             </div>
           ) : (
@@ -316,7 +267,7 @@ export default function ContactPage() {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
                   Select Inquiry Topic
                 </label>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-2">
                   {TOPICS.map((t) => {
                     const isSelected = form.topic === t.id;
                     return (
@@ -339,7 +290,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Customer Inputs Grid */}
+              {/* Customer Inputs Grid (Name & Phone only) */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
                   label="Your Name *"
@@ -349,24 +300,11 @@ export default function ContactPage() {
                   placeholder="e.g. Rahim Ahmed"
                 />
                 <Input
-                  label="Your Email Address *"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  error={errors.email}
-                  placeholder="rahim@example.com"
-                />
-                <Input
-                  label="Phone / WhatsApp (Optional)"
+                  label="Phone / WhatsApp Number *"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  error={errors.phone}
                   placeholder="017xxxxxxxx"
-                />
-                <Input
-                  label="Order Number (Optional)"
-                  value={form.order}
-                  onChange={(e) => setForm({ ...form, order: e.target.value })}
-                  placeholder="TN-10xxx"
                 />
               </div>
 
@@ -383,30 +321,22 @@ export default function ContactPage() {
                 <Textarea
                   rows={4}
                   value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, message: e.target.value })
+                  }
                   error={errors.message}
-                  placeholder="Write your message here... (e.g. I would like to exchange my size or inquire about shipping time)"
+                  placeholder="Write your message here... (e.g. I would like to check size availability or delivery timeline)"
                   className="bg-transparent border-0 focus:ring-0 p-0 resize-none text-sm placeholder:text-ink-muted"
                 />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                <a
-                  href={directWhatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-600/30 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50 transition-colors cursor-pointer"
-                >
-                  <MessageSquare className="h-4 w-4 text-emerald-600" />
-                  Chat on WhatsApp directly
-                </a>
-
+              {/* Action Button */}
+              <div className="flex justify-end pt-2">
                 <Button
                   type="submit"
                   size="lg"
                   loading={isSubmitting}
-                  className="w-full sm:w-auto bg-[#075E54] hover:bg-[#128C7E] text-white font-medium px-6 py-2.5 cursor-pointer shadow-md"
+                  className="w-full sm:w-auto bg-[#075E54] hover:bg-[#128C7E] text-white font-medium px-8 py-2.5 cursor-pointer shadow-md"
                 >
                   <Send className="h-4 w-4 mr-2" /> Send Message
                 </Button>

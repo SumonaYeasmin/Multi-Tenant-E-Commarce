@@ -36,8 +36,11 @@ export class CustomerSupportService {
     authenticatedUserId?: string,
   ) {
     const targetTenantId = await this.resolveTenantId(tenantId);
-    const email = dto.email.trim().toLowerCase();
     const name = dto.name.trim();
+    const phone = dto.phone?.trim() || null;
+    const email =
+      dto.email?.trim().toLowerCase() ||
+      (phone ? `${phone.replace(/[^0-9]/g, '')}@phone.store` : `guest-${Date.now()}@guest.store`);
 
     // Find or create customer profile
     let customer = await this.prisma.customerProfile.findUnique({
@@ -55,14 +58,14 @@ export class CustomerSupportService {
           tenantId: targetTenantId,
           name,
           email,
-          phone: dto.phone?.trim() || null,
+          phone,
           userId: authenticatedUserId || null,
         },
       });
-    } else if (dto.phone && !customer.phone) {
+    } else if (phone && !customer.phone) {
       await this.prisma.customerProfile.update({
         where: { id: customer.id },
-        data: { phone: dto.phone.trim() },
+        data: { phone },
       });
     }
 
