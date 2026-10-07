@@ -5,6 +5,7 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -56,5 +57,21 @@ export class ReturnController {
     const tenantId = tenantHeader || user?.tenantId;
     const userId = user?.id || user?.sub;
     return this.returnService.getCustomerReturns(tenantId, userId, orderId);
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Get specific return request details by ID' })
+  @ApiResponse({ status: 200, description: 'Return request details retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Return request not found' })
+  async getReturnById(
+    @Param('id') id: string,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    const userId = user?.id || user?.sub;
+    return this.returnService.getReturnById(id, tenantId, userId);
   }
 }

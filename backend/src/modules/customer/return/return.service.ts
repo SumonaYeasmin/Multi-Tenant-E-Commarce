@@ -206,4 +206,66 @@ export class ReturnService {
       'Customer return requests retrieved successfully',
     );
   }
+
+  // GET /api/v1/customer/returns/:id - Retrieve specific return request details and timeline
+  async getReturnById(id: string, tenantId?: string, userId?: string) {
+    const resolvedTenantId = await this.resolveTenantId(tenantId);
+    const customerId = await this.resolveCustomerId(userId, resolvedTenantId);
+
+    let userEmail: string | undefined;
+    if (userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+      userEmail = user?.email || undefined;
+    }
+
+    const returnRequest = await this.prisma.returnRequest.findFirst({
+      where: {
+        id,
+        tenantId: resolvedTenantId,
+        deletedAt: null,
+        ...(customerId || userEmail
+          ? {
+              order: {
+                OR: [
+                  ...(customerId ? [{ customerId }] : []),
+                  ...(userEmail
+                    ? [{ email: { equals: userEmail, mode: 'insensitive' as const } }]
+                    : []),
+                ],
+              },
+            }
+          : {}),
+      },
+      include: {
+        items: true,
+        timeline: {
+          orderBy: { createdAt: 'desc' },
+        },
+        order: {
+          select: {
+            id: true,
+            number: true,
+            status: true,
+            paymentStatus: true,
+            fulfillmentStatus: true,
+            total: true,
+            createdAt: true,
+            shippingAddress: true,
+          },
+        },
+      },
+    });
+
+    if (!returnRequest) {
+      throw new NotFoundException('Return request');
+    }
+
+    return ResponseHelper.success(
+      returnRequest,
+      'Return request details retrieved successfully',
+    );
+  }
 }
