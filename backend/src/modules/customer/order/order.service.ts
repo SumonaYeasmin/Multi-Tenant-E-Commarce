@@ -136,13 +136,39 @@ export class OrderService {
       throw new BadRequestException('Order must contain at least one item');
     }
 
-    // Step 3: Generate sequential unique order number
+    // Step 3: Check valid product and variant IDs in database to prevent foreign key constraint violations
+    const validProductIds = new Set<string>();
+    const validVariantIds = new Set<string>();
+
+    const productIdsToCheck = dto.items
+      .map((i) => i.productId)
+      .filter((id): id is string => Boolean(id));
+    if (productIdsToCheck.length > 0) {
+      const existingProducts = await this.prisma.product.findMany({
+        where: { id: { in: productIdsToCheck }, tenantId: resolvedTenantId, deletedAt: null },
+        select: { id: true },
+      });
+      existingProducts.forEach((p) => validProductIds.add(p.id));
+    }
+
+    const variantIdsToCheck = dto.items
+      .map((i) => i.variantId)
+      .filter((id): id is string => Boolean(id));
+    if (variantIdsToCheck.length > 0) {
+      const existingVariants = await this.prisma.productVariant.findMany({
+        where: { id: { in: variantIdsToCheck } },
+        select: { id: true },
+      });
+      existingVariants.forEach((v) => validVariantIds.add(v.id));
+    }
+
+    // Step 4: Generate sequential unique order number
     const orderNumber = await this.generateOrderNumber(resolvedTenantId);
     const isCod = dto.paymentMethod === PaymentMethod.COD;
 
-    // Step 4: Execute database transaction for atomic order creation
+    // Step 5: Execute database transaction for atomic order creation
     const createdOrder = await this.prisma.$transaction(async (tx) => {
-      // 4.1: Create main order record with linked address, items, and timeline
+      // 5.1: Create main order record with linked address, items, and timeline
       const order = await tx.order.create({
         data: {
           tenantId: resolvedTenantId,
@@ -180,11 +206,11 @@ export class OrderService {
             },
           },
 
-          // Link line items
+          // Link line items with safe foreign keys
           items: {
             create: dto.items.map((item) => ({
-              productId: item.productId,
-              variantId: item.variantId,
+              productId: item.productId && validProductIds.has(item.productId) ? item.productId : null,
+              variantId: item.variantId && validVariantIds.has(item.variantId) ? item.variantId : null,
               title: item.title,
               image: item.image,
               color: item.color,
@@ -217,9 +243,9 @@ export class OrderService {
         },
       });
 
-      // 4.2: Decrement inventory stock for each purchased variant
+      // 5.2: Decrement inventory stock for each purchased variant if valid in database
       for (const item of dto.items) {
-        if (item.variantId) {
+        if (item.variantId && validVariantIds.has(item.variantId)) {
           await tx.productVariant.updateMany({
             where: {
               id: item.variantId,

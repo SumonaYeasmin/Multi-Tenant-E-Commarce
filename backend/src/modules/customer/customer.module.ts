@@ -4,6 +4,8 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
 import { ReturnModule } from './return/return.module';
+import { ReviewModule } from './review/review.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { ReturnModule } from './return/return.module';
     AddressModule,
     OrderModule,
     ReturnModule,
+    ReviewModule,
+    StoreModule,
   ],
   exports: [
     CartModule,
@@ -19,6 +23,8 @@ import { ReturnModule } from './return/return.module';
     AddressModule,
     OrderModule,
     ReturnModule,
+    ReviewModule,
+    StoreModule,
   ],
 })
 export class CustomerModule {}

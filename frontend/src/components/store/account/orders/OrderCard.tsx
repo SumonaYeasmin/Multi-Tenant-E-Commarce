@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Star } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/button';
 import { orderStatusMeta } from '@/utils/status';
@@ -58,7 +59,18 @@ export function OrderCard({ order, onReorder }: OrderCardProps) {
           {order.items.map((item) => item.title).join(', ')}
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {order.status === 'delivered' && (
+            <Button
+              size="sm"
+              variant="secondary"
+              href={`/account/reviews`}
+              className="cursor-pointer gap-1 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100"
+            >
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span>Review Items</span>
+            </Button>
+          )}
           <Button
             size="sm"
             variant="secondary"

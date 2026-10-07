@@ -170,15 +170,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
   const wished = wishlist.includes(product.id);
   const off = discountPercent(product);
 
-  const completeTheLook = products
-    .filter(
-      (p) =>
-        p.id !== product.id &&
-        p.status === 'published' &&
-        p.collections.some((c) => product.collections.includes(c)) &&
-        p.category !== product.category
-    )
-    .slice(0, 3);
   const related = products
     .filter(
       (p) =>
@@ -341,7 +332,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               </button>
             ))}
           </div>
-          <div className="relative order-1 overflow-hidden rounded-lg bg-subtle sm:order-2 border border-line">
+          <div className="relative order-1 overflow-hidden rounded-lg bg-subtle sm:order-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={product.images[image] || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80'}
@@ -604,18 +595,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
           </div>
         </div>
       </div>
-
-      {/* Complete The Look */}
-      {completeTheLook.length > 0 && (
-        <section className="mt-20" aria-labelledby="ctl-h">
-          <SectionHeading id="ctl-h" title="Complete the look" />
-          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
-            {completeTheLook.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Product Reviews */}
       <div className="mt-20 border-t border-line pt-12">
