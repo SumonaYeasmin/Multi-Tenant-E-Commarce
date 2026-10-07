@@ -4,6 +4,7 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
+  Param,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -48,4 +49,26 @@ export class ReturnController {
     const tenantId = tenantHeader || user?.tenantId;
     return this.returnService.findAll(query, tenantId);
   }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get single return request details by ID with timeline, items, and photos',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return request details retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Owner role required' })
+  @ApiResponse({ status: 404, description: 'Return request not found' })
+  async getReturnById(
+    @Param('id') id: string,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.returnService.findOne(id, tenantId);
+  }
 }
+

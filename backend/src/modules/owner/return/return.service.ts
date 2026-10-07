@@ -195,4 +195,60 @@ export class ReturnService {
       'Store return requests retrieved successfully',
     );
   }
+
+  // GET /api/v1/owner/returns/:id - Retrieve detailed return request with photos, items, inspection note, and timeline
+  async findOne(id: string, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const returnRequest = await this.prisma.returnRequest.findFirst({
+      where: {
+        id,
+        tenantId: targetTenantId,
+        deletedAt: null,
+      },
+      include: {
+        items: true,
+        timeline: {
+          orderBy: { createdAt: 'asc' },
+        },
+        order: {
+          select: {
+            id: true,
+            number: true,
+            status: true,
+            paymentStatus: true,
+            fulfillmentStatus: true,
+            total: true,
+            subtotal: true,
+            discount: true,
+            shipping: true,
+            createdAt: true,
+            customerName: true,
+            email: true,
+            phone: true,
+            shippingAddress: true,
+            items: true,
+            customer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!returnRequest) {
+      throw new NotFoundException(`Return request with identifier "${id}" not found`);
+    }
+
+    return ResponseHelper.success(
+      returnRequest,
+      'Return request details retrieved successfully',
+    );
+  }
 }
+
