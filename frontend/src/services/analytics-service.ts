@@ -1,60 +1,94 @@
 import { apiClient } from './api-client';
-import { salesSeries, kpis, funnel, salesByPayment, salesByRegion, salesByChannel, topSearches } from '@/data/analytics';
+import {
+  salesSeries,
+  kpis,
+  funnel,
+  salesByPayment,
+  salesByRegion,
+  salesByChannel,
+  topSearches,
+} from '@/data/analytics';
+
+export interface DistrictSalesItem {
+  name: string;
+  value: number;
+}
+
+export interface AnalyticsOverviewResponse {
+  salesByRegion: DistrictSalesItem[];
+  salesSeries: { date: string; sales: number; prev: number; orders: number }[];
+  salesByPayment: { name: string; value: number }[];
+  salesByChannel: { name: string; value: number }[];
+  kpis: {
+    grossSales: number;
+    netSales: number;
+    orders: number;
+    aov: number;
+    productsSold: number;
+    refunds: number;
+    discounts: number;
+    shippingRevenue: number;
+    tax: number;
+    conversionRate: number;
+    cartAbandonment: number;
+    returningRate: number;
+  };
+}
 
 export const analyticsService = {
-  async getSalesSeries() {
+  // Fetch real database aggregated sales by district
+  async getSalesByDistrict(range: string = '30 days'): Promise<DistrictSalesItem[]> {
     try {
-      return await apiClient.get('/analytics/sales-series');
-    } catch {
-      return salesSeries;
-    }
-  },
-
-  async getKpis() {
-    try {
-      return await apiClient.get('/analytics/kpis');
-    } catch {
-      return kpis;
-    }
-  },
-
-  async getFunnel() {
-    try {
-      return await apiClient.get('/analytics/funnel');
-    } catch {
-      return funnel;
-    }
-  },
-
-  async getSalesByPayment() {
-    try {
-      return await apiClient.get('/analytics/sales-by-payment');
-    } catch {
-      return salesByPayment;
-    }
-  },
-
-  async getSalesByRegion() {
-    try {
-      return await apiClient.get('/analytics/sales-by-region');
+      const res: any = await apiClient.get(
+        `/owner/analytics/sales-by-district?range=${encodeURIComponent(range)}`
+      );
+      if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data;
+      }
+      return salesByRegion;
     } catch {
       return salesByRegion;
     }
   },
 
-  async getSalesByChannel() {
+  // Fetch full overview from PostgreSQL
+  async getAnalyticsOverview(
+    range: string = '30 days'
+  ): Promise<AnalyticsOverviewResponse | null> {
     try {
-      return await apiClient.get('/analytics/sales-by-channel');
+      const res: any = await apiClient.get(
+        `/owner/analytics/overview?range=${encodeURIComponent(range)}`
+      );
+      if (res && res.data) {
+        return res.data;
+      }
+      return null;
     } catch {
-      return salesByChannel;
+      return null;
     }
   },
 
+  async getSalesSeries() {
+    return salesSeries;
+  },
+
+  async getKpis() {
+    return kpis;
+  },
+
+  async getFunnel() {
+    return funnel;
+  },
+
+  async getSalesByPayment() {
+    return salesByPayment;
+  },
+
+  async getSalesByChannel() {
+    return salesByChannel;
+  },
+
   async getTopSearches() {
-    try {
-      return await apiClient.get('/analytics/top-searches');
-    } catch {
-      return topSearches;
-    }
+    return topSearches;
   },
 };

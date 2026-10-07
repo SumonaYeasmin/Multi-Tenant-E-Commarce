@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Download } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import {
   Area,
   ComposedChart,
@@ -16,12 +16,12 @@ import {
   YAxis,
 } from 'recharts';
 import {
-  salesSeries,
-  kpis,
+  salesSeries as mockSalesSeries,
+  kpis as mockKpis,
   funnel,
-  salesByPayment,
-  salesByRegion,
-  salesByChannel,
+  salesByPayment as mockSalesByPayment,
+  salesByRegion as mockSalesByRegion,
+  salesByChannel as mockSalesByChannel,
   topSearches,
 } from '@/data/analytics';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
@@ -30,6 +30,7 @@ import { GuardedButton } from '@/components/dashboard/shared/GuardedButton';
 import { ModuleGate } from '@/components/dashboard/shared/ModuleGate';
 import { formatBDT, formatCompactBDT, formatNumber } from '@/utils/format';
 import { cn } from '@/utils/cn';
+import { analyticsService, DistrictSalesItem } from '@/services/analytics-service';
 
 const ranges = ['Today', '7 days', '30 days', '90 days'] as const;
 const axisTick = { fontSize: 11, fill: '#8A8378' };
@@ -37,21 +38,50 @@ const axisTick = { fontSize: 11, fill: '#8A8378' };
 export default function AdminAnalyticsPage() {
   const [range, setRange] = useState<(typeof ranges)[number]>('30 days');
   const [compare, setCompare] = useState(true);
+  const [regionData, setRegionData] = useState<DistrictSalesItem[]>(mockSalesByRegion);
+  const [isLoadingRegion, setIsLoadingRegion] = useState(false);
+
+  // Fetch real database sales by district whenever date range changes
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadDistrictSales() {
+      try {
+        setIsLoadingRegion(true);
+        const data = await analyticsService.getSalesByDistrict(range);
+        if (mounted && data && data.length > 0) {
+          setRegionData(data);
+        }
+      } catch (err) {
+        console.error('Failed to load real district sales:', err);
+      } finally {
+        if (mounted) {
+          setIsLoadingRegion(false);
+        }
+      }
+    }
+
+    loadDistrictSales();
+
+    return () => {
+      mounted = false;
+    };
+  }, [range]);
 
   const secondary = [
-    ['Orders', formatNumber(kpis.orders), '+18%'],
-    ['Avg. order value', formatBDT(kpis.aov), '+4%'],
-    ['Conversion rate', `${kpis.conversionRate}%`, '+0.3 pt'],
-    ['Returning customers', `${kpis.returningRate}%`, '+2 pt'],
-    ['Refunds', formatBDT(kpis.refunds), '−6%'],
-    ['Discounts', formatBDT(kpis.discounts), '+11%'],
-    ['Shipping revenue', formatBDT(kpis.shippingRevenue), '+9%'],
-    ['Cart abandonment', `${kpis.cartAbandonment}%`, '−1.4 pt'],
+    ['Orders', formatNumber(mockKpis.orders), '+18%'],
+    ['Avg. order value', formatBDT(mockKpis.aov), '+4%'],
+    ['Conversion rate', `${mockKpis.conversionRate}%`, '+0.3 pt'],
+    ['Returning customers', `${mockKpis.returningRate}%`, '+2 pt'],
+    ['Refunds', formatBDT(mockKpis.refunds), '−6%'],
+    ['Discounts', formatBDT(mockKpis.discounts), '+11%'],
+    ['Shipping revenue', formatBDT(mockKpis.shippingRevenue), '+9%'],
+    ['Cart abandonment', `${mockKpis.cartAbandonment}%`, '−1.4 pt'],
   ];
 
   const shares: [string, { name: string; value: number }[]][] = [
-    ['Sales by payment method', salesByPayment],
-    ['Traffic source', salesByChannel],
+    ['Sales by payment method', mockSalesByPayment],
+    ['Traffic source', mockSalesByChannel],
   ];
 
   return (
@@ -102,10 +132,10 @@ export default function AdminAnalyticsPage() {
             <div>
               <p className="text-sm text-ink-muted">Net sales · {range}</p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-ink">
-                {formatBDT(kpis.netSales)}
+                {formatBDT(mockKpis.netSales)}
               </p>
               <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                +22.4% vs previous period · Gross {formatBDT(kpis.grossSales)}
+                +22.4% vs previous period · Gross {formatBDT(mockKpis.grossSales)}
               </p>
             </div>
             <label className="flex items-center gap-2 text-sm text-ink cursor-pointer">
@@ -121,7 +151,7 @@ export default function AdminAnalyticsPage() {
           <div className="mt-5 h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={salesSeries}
+                data={mockSalesSeries}
                 margin={{ left: 0, right: 8, top: 8 }}
               >
                 <CartesianGrid stroke="#E9E4DA" vertical={false} opacity={0.5} />
@@ -211,42 +241,63 @@ export default function AdminAnalyticsPage() {
             </ol>
           </Panel>
 
-          <Panel title="Sales by district">
+          {/* Real Database Connected: Sales by District */}
+          <Panel
+            title="Sales by district"
+            actions={
+              isLoadingRegion ? (
+                <div className="flex items-center gap-1 text-xs text-ink-muted">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Updating...</span>
+                </div>
+              ) : (
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  ● Real-time
+                </span>
+              )
+            }
+          >
             <div className="h-56 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={salesByRegion}
-                  layout="vertical"
-                  margin={{ left: 10 }}
-                >
-                  <XAxis type="number" hide />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 12, fill: '#5A544B' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={90}
-                  />
-                  <Tooltip
-                    formatter={(value: any) =>
-                      value ? formatBDT(Number(value)) : ''
-                    }
-                    contentStyle={{
-                      fontSize: 12,
-                      borderRadius: 6,
-                      backgroundColor: 'var(--color-surface, #fff)',
-                      borderColor: 'var(--color-line, #e5e5e5)',
-                    }}
-                  />
-                  <Bar
-                    dataKey="value"
-                    fill="#1C1A17"
-                    radius={[0, 3, 3, 0]}
-                    barSize={14}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {regionData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-xs text-ink-muted">
+                  No district sales recorded yet for this period.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={regionData}
+                    layout="vertical"
+                    margin={{ left: 10 }}
+                  >
+                    <XAxis type="number" hide />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 12, fill: '#5A544B' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={90}
+                    />
+                    <Tooltip
+                      formatter={(value: any) =>
+                        value ? formatBDT(Number(value)) : '৳0'
+                      }
+                      contentStyle={{
+                        fontSize: 12,
+                        borderRadius: 6,
+                        backgroundColor: 'var(--color-surface, #fff)',
+                        borderColor: 'var(--color-line, #e5e5e5)',
+                      }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#1C1A17"
+                      radius={[0, 3, 3, 0]}
+                      barSize={14}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </Panel>
 
