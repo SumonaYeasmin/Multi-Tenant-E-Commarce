@@ -19,6 +19,7 @@ import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatDateTime } from '@/utils/format';
 import { FaqEditorDrawer, FaqItemData } from '@/components/dashboard/admin/content/FaqEditorDrawer';
+import { ContactEditorDrawer } from '@/components/dashboard/admin/content/ContactEditorDrawer';
 import { faqService } from '@/services/faq-service';
 import { cn } from '@/utils/cn';
 
@@ -36,7 +37,8 @@ export default function AdminContentPage() {
   const [publishMode, setPublishMode] = useState('Publish now');
   const page = cmsPages.find((p) => p.id === editing);
 
-  // FAQ Editor state
+  // FAQ & Contact Editor state
+  const [contactOpen, setContactOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
   const [faqTitle, setFaqTitle] = useState('Help & FAQ');
   const [faqCategories, setFaqCategories] = useState<string[]>([
@@ -204,6 +206,8 @@ export default function AdminContentPage() {
                     onClick={() => {
                       if (p.id === 'pg3' || p.slug === '/faq' || p.title.toLowerCase() === 'faq') {
                         setFaqOpen(true);
+                      } else if (p.id === 'pg2' || p.slug === '/contact' || p.title.toLowerCase() === 'contact') {
+                        setContactOpen(true);
                       } else {
                         setEditing(p.id);
                       }
@@ -389,6 +393,12 @@ export default function AdminContentPage() {
           items={faqList}
           onSave={handleSaveFaq}
           initialTitle={faqTitle}
+        />
+
+        {/* Dedicated Contact Us Page Editor Drawer */}
+        <ContactEditorDrawer
+          open={contactOpen}
+          onClose={() => setContactOpen(false)}
         />
 
 
