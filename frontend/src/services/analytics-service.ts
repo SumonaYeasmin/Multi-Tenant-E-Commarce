@@ -1,4 +1,5 @@
 import { apiClient } from './api-client';
+import { authService } from './auth/auth.service';
 import {
   salesSeries,
   kpis,
@@ -70,9 +71,16 @@ export const analyticsService = {
     }
   },
 
-  // Log customer search query from storefront
+  // Log customer search query from storefront (Admin searches are ignored)
   async logCustomerSearch(term: string, results: number = 0) {
     if (!term || term.trim().length < 2) return;
+
+    // Do NOT count searches performed by Admin / Store Owner
+    const role = authService.getUserRole();
+    if (role === 'OWNER') {
+      return;
+    }
+
     try {
       return await apiClient.post('/customer/search/log', {
         term: term.trim(),

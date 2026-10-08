@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SearchService } from './search.service';
@@ -24,7 +25,8 @@ export class SearchController {
   async logSearch(
     @Body() dto: LogSearchDto,
     @Headers('x-tenant-id') tenantHeader?: string,
+    @Req() req?: any,
   ) {
-    return this.searchService.logSearch(dto, tenantHeader);
+    return this.searchService.logSearch(dto, tenantHeader, req?.user);
   }
 }

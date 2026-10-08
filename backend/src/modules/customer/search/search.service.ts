@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { LogSearchDto } from './dto/log-search.dto';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
+import { UserRole } from '../../../../prisma/generated/client';
 
 @Injectable()
 export class SearchService {
@@ -29,7 +30,13 @@ export class SearchService {
     return defaultTenant.id;
   }
 
-  async logSearch(dto: LogSearchDto, tenantId?: string) {
+  async logSearch(dto: LogSearchDto, tenantId?: string, user?: any) {
+    // 1. Ignore searches conducted by Store Admin / Owner
+    if (user && (user.role === UserRole.OWNER || user.role === 'OWNER')) {
+      this.logger.debug(`Ignored admin search query: "${dto.term}"`);
+      return ResponseHelper.success(null, 'Admin search ignored');
+    }
+
     const targetTenantId = await this.resolveTenantId(tenantId);
     const cleanTerm = dto.term.trim().toLowerCase();
 
