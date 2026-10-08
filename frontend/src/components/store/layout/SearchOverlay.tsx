@@ -19,7 +19,6 @@ export function SearchOverlay() {
   const [q, setQ] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const live = products.filter((p) => p.status === 'published');
-  const lastDebouncedRef = useRef<string>('');
 
   useEffect(() => {
     if (searchOpen) {
@@ -30,25 +29,12 @@ export function SearchOverlay() {
       return () => document.removeEventListener('keydown', onKey);
     }
     setQ('');
-    lastDebouncedRef.current = '';
   }, [searchOpen, setSearchOpen]);
 
   const { results, suggestion } = useMemo(
     () => searchProducts(live, q),
     [live, q]
   );
-
-  // Automatically log live search when customer pauses typing (min 3 chars, 800ms debounce)
-  useEffect(() => {
-    const clean = q.trim().toLowerCase();
-    if (clean.length >= 3 && lastDebouncedRef.current !== clean) {
-      const timer = setTimeout(() => {
-        lastDebouncedRef.current = clean;
-        analyticsService.logCustomerSearch(clean, results.length);
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [q, results.length]);
 
   const matchingCats =
     q.length > 1
@@ -65,11 +51,13 @@ export function SearchOverlay() {
     .filter(Boolean)
     .slice(0, 4);
 
+  // Triggered when an intentional search query or suggestion is selected
   const go = (term: string) => {
     const clean = term.trim().toLowerCase();
     setSearchOpen(false);
     if (clean.length >= 2) {
-      analyticsService.logCustomerSearch(clean, results.length);
+      const matchCount = searchProducts(live, clean).results.length;
+      analyticsService.logCustomerSearch(clean, matchCount);
     }
     router.push(`/search?q=${encodeURIComponent(term)}`);
   };
@@ -165,10 +153,7 @@ export function SearchOverlay() {
                                 <Link
                                   key={p.id}
                                   href={`/products/${p.slug}`}
-                                  onClick={() => {
-                                    if (q.trim()) analyticsService.logCustomerSearch(q.trim(), results.length);
-                                    close();
-                                  }}
+                                  onClick={close}
                                   className="group"
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -196,7 +181,7 @@ export function SearchOverlay() {
                         Did you mean{' '}
                         <button
                           type="button"
-                          onClick={() => setQ(suggestion)}
+                          onClick={() => go(suggestion)}
                           className="font-medium text-clay underline cursor-pointer"
                         >
                           {suggestion}
@@ -215,7 +200,7 @@ export function SearchOverlay() {
                             key={c.key}
                             href={`/shop?category=${c.key}`}
                             onClick={() => {
-                              if (q.trim()) analyticsService.logCustomerSearch(q.trim(), results.length);
+                              analyticsService.logCustomerSearch(c.name, results.length);
                               close();
                             }}
                             className="rounded-full bg-subtle px-3 py-1 text-xs font-medium text-ink hover:bg-ink hover:text-canvas transition-colors"
@@ -233,7 +218,9 @@ export function SearchOverlay() {
                             key={p.id}
                             href={`/products/${p.slug}`}
                             onClick={() => {
-                              if (q.trim()) analyticsService.logCustomerSearch(q.trim(), results.length);
+                              if (q.trim()) {
+                                analyticsService.logProductClick(q.trim());
+                              }
                               close();
                             }}
                             className="group block"

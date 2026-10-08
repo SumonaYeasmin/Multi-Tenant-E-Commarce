@@ -5,11 +5,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SearchService } from './search.service';
 import { LogSearchDto } from './dto/log-search.dto';
+import { LogClickDto } from './dto/log-click.dto';
 
 @ApiTags('(Customer) Search')
 @Controller('customer/search')
@@ -25,7 +25,23 @@ export class SearchController {
   async logSearch(
     @Body() dto: LogSearchDto,
     @Headers('x-tenant-id') tenantHeader?: string,
+    @Headers('authorization') authHeader?: string,
   ) {
-    return this.searchService.logSearch(dto, tenantHeader);
+    return this.searchService.logSearch(dto, tenantHeader, authHeader);
+  }
+
+  @Post('click')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Log product click resulting from a search query',
+  })
+  @ApiResponse({ status: 200, description: 'Product click logged successfully' })
+  async logClick(
+    @Body() dto: LogClickDto,
+    @Headers('x-tenant-id') tenantHeader?: string,
+    @Headers('authorization') authHeader?: string,
+  ) {
+    return this.searchService.logClick(dto, tenantHeader, authHeader);
   }
 }
+
