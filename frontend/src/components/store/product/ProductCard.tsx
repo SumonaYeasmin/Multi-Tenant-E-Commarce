@@ -2,12 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { EyeIcon, HeartIcon, ScaleIcon } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 import type { Product } from '@/types/commerce';
 import { discountPercent, productPrice, variantStockState } from '@/utils/pricing';
 import { formatBDT } from '@/utils/format';
 import { cn } from '@/utils/cn';
+import { analyticsService } from '@/services/analytics-service';
 
 export function ProductCard({
   product,
@@ -16,6 +18,15 @@ export function ProductCard({
   product: Product;
   layout?: 'grid' | 'list';
 }) {
+  const searchParams = useSearchParams();
+  const searchQ = searchParams?.get('q');
+
+  const handleProductClick = () => {
+    if (searchQ && searchQ.trim()) {
+      analyticsService.logProductClick(searchQ.trim());
+    }
+  };
+
   const {
     wishlist,
     toggleWishlist,
@@ -49,7 +60,12 @@ export function ProductCard({
       )}
     >
       <div className="relative overflow-hidden rounded-md bg-subtle">
-        <Link href={`/products/${product.slug}`} aria-label={product.title} className="block relative">
+        <Link
+          href={`/products/${product.slug}`}
+          onClick={handleProductClick}
+          aria-label={product.title}
+          className="block relative"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.images[0] || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80'}
@@ -130,7 +146,11 @@ export function ProductCard({
       <div className={cn(layout === 'grid' ? 'mt-3' : 'py-1')}>
         <p className="text-xs text-ink-muted">{product.brand}</p>
         <h3 className="mt-0.5 text-sm font-medium leading-snug">
-          <Link href={`/products/${product.slug}`} className="hover:underline text-ink">
+          <Link
+            href={`/products/${product.slug}`}
+            onClick={handleProductClick}
+            className="hover:underline text-ink"
+          >
             {product.title}
           </Link>
         </h3>
