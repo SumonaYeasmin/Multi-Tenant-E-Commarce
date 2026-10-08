@@ -12,7 +12,6 @@ import {
   Send,
   ShieldCheck,
   Check,
-  User,
 } from 'lucide-react';
 import { useTenant } from '@/contexts/TenantContext';
 import { supportService } from '@/services/support-service';
@@ -99,8 +98,9 @@ export default function ContactPage() {
       {/* Left Column: Direct Info & Channels */}
       <div className="flex flex-col justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          {/* Live Customer Support Badge in clean white theme */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface px-3.5 py-1 text-xs font-semibold text-ink shadow-2xs">
+            <span className="h-2 w-2 rounded-full bg-ink-muted animate-pulse" />
             Live Customer Support
           </div>
 
@@ -113,7 +113,7 @@ export default function ContactPage() {
 
           <dl className="mt-8 space-y-4 text-sm">
             {/* Phone */}
-            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20 shadow-2xs">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-subtle text-ink">
                 <Phone className="h-5 w-5" />
               </div>
@@ -128,8 +128,8 @@ export default function ContactPage() {
             </div>
 
             {/* WhatsApp */}
-            <div className="flex gap-4 rounded-xl border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 transition-all hover:border-emerald-500/40">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-sm">
+            <div className="flex gap-4 rounded-xl border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 transition-all hover:border-emerald-500/40 shadow-2xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div className="flex-1">
@@ -143,7 +143,7 @@ export default function ContactPage() {
             </div>
 
             {/* Email */}
-            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20 shadow-2xs">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-subtle text-ink">
                 <Mail className="h-5 w-5" />
               </div>
@@ -158,7 +158,7 @@ export default function ContactPage() {
             </div>
 
             {/* Address */}
-            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20 shadow-2xs">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-subtle text-ink">
                 <MapPin className="h-5 w-5" />
               </div>
@@ -171,7 +171,7 @@ export default function ContactPage() {
             </div>
 
             {/* Hours */}
-            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20">
+            <div className="flex gap-4 rounded-xl border border-line bg-surface/60 p-4 transition-all hover:border-ink/20 shadow-2xs">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-subtle text-ink">
                 <Clock className="h-5 w-5" />
               </div>
@@ -187,44 +187,44 @@ export default function ContactPage() {
 
         {/* Security badge */}
         <div className="mt-8 flex items-center gap-2 text-xs text-ink-muted">
-          <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          <ShieldCheck className="h-4 w-4 text-ink-muted" />
           <span>All inquiries are directly forwarded to our store management desk.</span>
         </div>
       </div>
 
-      {/* Right Column: WhatsApp-Styled Live Messaging Form */}
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-xl">
-        {/* WhatsApp-Inspired Chat Header Bar */}
-        <div className="flex items-center justify-between bg-[#075E54] dark:bg-[#0c4039] px-6 py-4 text-white">
+      {/* Right Column: Support Messaging Form Card */}
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-md">
+        {/* Support Header Bar in Clean White Theme */}
+        <div className="flex items-center justify-between border-b border-line bg-surface px-6 py-4 text-ink">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#128C7E] font-display text-lg font-semibold text-white shadow-inner">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-subtle font-display text-lg font-semibold text-ink border border-line-strong">
                 {tenant.name.slice(0, 1)}
               </div>
-              <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-[#075E54] bg-[#25D366]" />
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-surface bg-emerald-500" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h2 className="font-semibold leading-tight text-white">
+                <h2 className="font-semibold leading-tight text-ink">
                   {tenant.name} Support
                 </h2>
-                <CheckCircle2 className="h-4 w-4 fill-emerald-400 text-[#075E54]" />
+                <CheckCircle2 className="h-4 w-4 text-ink" />
               </div>
-              <p className="text-xs text-emerald-100/80">
+              <p className="text-xs text-ink-muted">
                 Online · Direct Messaging Desk
               </p>
             </div>
           </div>
         </div>
 
-        {/* WhatsApp Message Area */}
-        <div className="bg-[#EFEAE2]/40 dark:bg-stone-900/40 p-6 sm:p-8">
+        {/* Message Form Body */}
+        <div className="bg-surface p-6 sm:p-8">
           {submittedTicket ? (
             <div className="flex flex-col items-center py-10 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-                <CheckCircle2 className="h-10 w-10" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-subtle text-ink border border-line">
+                <CheckCircle2 className="h-10 w-10 text-ink" />
               </div>
-              <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-emerald-600">
+              <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-ink">
                 <Check className="h-3.5 w-3.5" />
                 <Check className="-ml-2 h-3.5 w-3.5" />
                 Message Delivered
@@ -234,7 +234,7 @@ export default function ContactPage() {
               </h3>
               <p className="mt-1 text-sm text-ink-muted">
                 Reference ID:{' '}
-                <span className="font-mono font-semibold text-clay">
+                <span className="font-mono font-semibold text-ink">
                   #{submittedTicket.ticketId.slice(0, 8).toUpperCase()}
                 </span>
               </p>
@@ -254,7 +254,7 @@ export default function ContactPage() {
                       message: '',
                     });
                   }}
-                  className="cursor-pointer"
+                  className="cursor-pointer border border-line-strong bg-surface text-ink hover:bg-subtle"
                 >
                   Send another inquiry
                 </Button>
@@ -278,8 +278,8 @@ export default function ContactPage() {
                         className={cn(
                           'flex items-center gap-2 rounded-xl border p-2.5 text-left text-xs font-medium transition-all cursor-pointer',
                           isSelected
-                            ? 'border-emerald-600 bg-emerald-50 text-emerald-900 shadow-sm dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-500'
-                            : 'border-line bg-surface hover:border-ink/20 text-ink'
+                            ? 'border-ink bg-subtle text-ink font-semibold shadow-xs'
+                            : 'border-line bg-surface hover:border-ink/30 text-ink'
                         )}
                       >
                         <span className="text-base">{t.icon}</span>
@@ -308,8 +308,8 @@ export default function ContactPage() {
                 />
               </div>
 
-              {/* WhatsApp Message Bubble Style Textarea */}
-              <div className="relative rounded-xl border border-emerald-600/30 bg-surface p-4 shadow-sm">
+              {/* Message Textarea Box */}
+              <div className="relative rounded-xl border border-line-strong bg-surface p-4 shadow-2xs focus-within:border-ink transition-colors">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-ink">
                     Type Your Message *
@@ -330,13 +330,13 @@ export default function ContactPage() {
                 />
               </div>
 
-              {/* Action Button */}
+              {/* Action Button: Solid Black */}
               <div className="flex justify-end pt-2">
                 <Button
                   type="submit"
                   size="lg"
                   loading={isSubmitting}
-                  className="w-full sm:w-auto bg-[#075E54] hover:bg-[#128C7E] text-white font-medium px-8 py-2.5 cursor-pointer shadow-md"
+                  className="w-full sm:w-auto bg-black hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 text-white font-medium px-8 py-2.5 cursor-pointer shadow-xs transition-colors"
                 >
                   <Send className="h-4 w-4 mr-2" /> Send Message
                 </Button>

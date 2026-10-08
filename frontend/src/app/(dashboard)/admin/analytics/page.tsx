@@ -89,10 +89,10 @@ export default function AdminAnalyticsPage() {
   useEffect(() => {
     fetchTopSearches(true);
 
-    // Auto-refresh every 4 seconds so searches appear in real-time
+    // Auto-refresh every 3 seconds so customer searches appear in real-time
     const interval = setInterval(() => {
       fetchTopSearches(false);
-    }, 4000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [fetchTopSearches]);
@@ -359,29 +359,33 @@ export default function AdminAnalyticsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-ink-muted">
-                    <th className="px-5 py-2 font-medium">Term</th>
-                    <th className="px-5 py-2 text-right font-medium">Searches</th>
-                    <th className="px-5 py-2 text-right font-medium">Results</th>
+                    <th className="px-5 py-2.5 font-medium">Search</th>
+                    <th className="px-5 py-2.5 text-right font-medium">Searches</th>
+                    <th className="px-5 py-2.5 text-right font-medium">Products Found</th>
+                    <th className="px-5 py-2.5 text-right font-medium">Product Clicks</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
                   {searchesData.map((s) => (
                     <tr key={s.term} className="hover:bg-subtle/30 transition-colors">
-                      <td className="px-5 py-2 font-medium text-ink capitalize">
+                      <td className="px-5 py-2.5 font-medium text-ink capitalize">
                         {s.term}
                       </td>
-                      <td className="px-5 py-2 text-right tabular-nums text-ink font-semibold">
+                      <td className="px-5 py-2.5 text-right tabular-nums text-ink font-semibold">
                         {formatNumber(s.count)}
                       </td>
                       <td
                         className={cn(
-                          'px-5 py-2 text-right tabular-nums',
+                          'px-5 py-2.5 text-right tabular-nums font-medium',
                           s.results === 0
-                            ? 'font-medium text-red-600 dark:text-red-400'
+                            ? 'text-red-600 dark:text-red-400'
                             : 'text-ink'
                         )}
                       >
-                        {s.results === 0 ? 'No results' : s.results}
+                        {s.results === 0 ? '0 (No results)' : formatNumber(s.results)}
+                      </td>
+                      <td className="px-5 py-2.5 text-right tabular-nums text-ink font-semibold">
+                        {formatNumber(s.clicks || 0)}
                       </td>
                     </tr>
                   ))}

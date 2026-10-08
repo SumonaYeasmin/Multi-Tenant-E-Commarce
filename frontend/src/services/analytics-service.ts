@@ -1,4 +1,5 @@
 import { apiClient } from './api-client';
+import { authService } from './auth/auth.service';
 import {
   salesSeries,
   kpis,
@@ -9,6 +10,8 @@ import {
   topSearches,
 } from '@/data/analytics';
 
+import { getAuthRole } from './auth/auth.storage';
+
 export interface DistrictSalesItem {
   name: string;
   value: number;
@@ -18,6 +21,7 @@ export interface SearchQueryItem {
   term: string;
   count: number;
   results: number;
+  clicks: number;
 }
 
 export interface AnalyticsOverviewResponse {
@@ -42,6 +46,20 @@ export interface AnalyticsOverviewResponse {
 }
 
 export const analyticsService = {
+  // Check if current session belongs to an admin/owner
+  isAdminUser(): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+      const role = getAuthRole();
+      if (role && ['OWNER', 'ADMIN', 'MANAGER', 'STAFF', 'SUPER_ADMIN'].includes(role.toUpperCase())) {
+        return true;
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  },
+
   // Fetch real database aggregated sales by district
   async getSalesByDistrict(range: string = '30 days'): Promise<DistrictSalesItem[]> {
     try {
@@ -70,13 +88,33 @@ export const analyticsService = {
     }
   },
 
-  // Log customer search query from storefront
+  // Log intentional customer search query from storefront (Enter key, suggestion click)
   async logCustomerSearch(term: string, results: number = 0) {
-    if (!term || term.trim().length < 2) return;
+    if (this.isAdminUser()) return; // Exclude admin from customer metrics
+
+    const cleanTerm = term ? term.trim().toLowerCase() : '';
+    if (!cleanTerm || cleanTerm.length < 2) return;
+
     try {
       return await apiClient.post('/customer/search/log', {
-        term: term.trim(),
+        term: cleanTerm,
         results,
+      });
+    } catch {
+      // Non-blocking fire-and-forget
+    }
+  },
+
+  // Log product click originating from a search term query
+  async logProductClick(term: string) {
+    if (this.isAdminUser()) return; // Exclude admin from customer metrics
+
+    const cleanTerm = term ? term.trim().toLowerCase() : '';
+    if (!cleanTerm || cleanTerm.length < 2) return;
+
+    try {
+      return await apiClient.post('/customer/search/click', {
+        term: cleanTerm,
       });
     } catch {
       // Non-blocking fire-and-forget

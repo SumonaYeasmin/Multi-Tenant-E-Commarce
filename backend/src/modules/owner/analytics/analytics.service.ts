@@ -260,20 +260,19 @@ export class AnalyticsService {
   async getTopSearches(tenantId?: string) {
     const targetTenantId = await this.resolveTenantId(tenantId);
 
-    const logs = await this.prisma.searchQueryLog.findMany({
-      where: {
-        tenantId: targetTenantId,
-      },
-      orderBy: {
-        count: 'desc',
-      },
-      take: 10,
-    });
+    const logs: any[] = await this.prisma.$queryRaw`
+      SELECT "term", "count", "results", "clicks"
+      FROM search_query_logs
+      WHERE "tenantId" = ${targetTenantId}
+      ORDER BY "count" DESC, "lastSearchedAt" DESC
+      LIMIT 15
+    `;
 
     const formatted = logs.map((l) => ({
       term: l.term,
-      count: l.count,
-      results: l.results,
+      count: Number(l.count) || 0,
+      results: Number(l.results) || 0,
+      clicks: Number(l.clicks) || 0,
     }));
 
     return ResponseHelper.success(
@@ -288,29 +287,18 @@ export class AnalyticsService {
     const cleanTerm = term.trim().toLowerCase();
     if (!cleanTerm) return null;
 
-    const log = await this.prisma.searchQueryLog.upsert({
-      where: {
-        tenantId_term: {
-          tenantId: targetTenantId,
-          term: cleanTerm,
-        },
-      },
-      create: {
-        tenantId: targetTenantId,
-        term: cleanTerm,
-        count: 1,
-        results: resultsCount,
-        lastSearchedAt: new Date(),
-      },
-      update: {
-        count: {
-          increment: 1,
-        },
-        results: resultsCount,
-        lastSearchedAt: new Date(),
-      },
-    });
+    const now = new Date();
+    await this.prisma.$executeRaw`
+      INSERT INTO search_query_logs ("id", "tenantId", "term", "count", "results", "clicks", "lastSearchedAt", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${targetTenantId}, ${cleanTerm}, 1, ${resultsCount}, 0, ${now}, ${now}, ${now})
+      ON CONFLICT ("tenantId", "term")
+      DO UPDATE SET
+        "count" = search_query_logs."count" + 1,
+        "results" = ${resultsCount},
+        "lastSearchedAt" = ${now},
+        "updatedAt" = ${now}
+    `;
 
-    return ResponseHelper.success(log, 'Search query recorded');
+    return ResponseHelper.success({ term: cleanTerm }, 'Search query recorded');
   }
 }

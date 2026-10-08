@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useStore } from '@/contexts/StoreContext';
 import { brands, collections } from '@/data/products';
@@ -194,10 +194,13 @@ export function useShopProducts(mode: ShopMode = 'shop', slug?: string) {
     return { base: list, suggestion: null };
   }, [products, mode, q, category, collection, brand, sub]);
 
-  // Record customer search query event for analytics
+  // Record customer search query event for analytics exactly ONCE per intentional search submission
+  const lastLoggedSearchRef = useRef<string>('');
   useEffect(() => {
-    if (mode === 'search' && q.trim().length >= 2) {
-      analyticsService.logCustomerSearch(q.trim(), base.length);
+    const cleanQ = q.trim().toLowerCase();
+    if (mode === 'search' && cleanQ.length >= 2 && lastLoggedSearchRef.current !== cleanQ) {
+      lastLoggedSearchRef.current = cleanQ;
+      analyticsService.logCustomerSearch(cleanQ, base.length);
     }
   }, [mode, q, base.length]);
 
