@@ -36,18 +36,6 @@ export function SearchOverlay() {
     [live, q]
   );
 
-  // Automatically log live search as customer types (600ms debounce)
-  useEffect(() => {
-    const trimmed = q.trim();
-    if (!trimmed || trimmed.length < 2) return;
-
-    const timer = setTimeout(() => {
-      analyticsService.logCustomerSearch(trimmed, results.length);
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [q, results.length]);
-
   const matchingCats =
     q.length > 1
       ? categories.filter(
@@ -65,8 +53,6 @@ export function SearchOverlay() {
 
   const go = (term: string) => {
     setSearchOpen(false);
-    // Log search event fire-and-forget for analytics
-    analyticsService.logCustomerSearch(term, results.length);
     router.push(`/search?q=${encodeURIComponent(term)}`);
   };
 
