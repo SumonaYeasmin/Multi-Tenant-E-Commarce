@@ -25,8 +25,7 @@ export class SearchController {
   async logSearch(
     @Body() dto: LogSearchDto,
     @Headers('x-tenant-id') tenantHeader?: string,
-    @Req() req?: any,
   ) {
-    return this.searchService.logSearch(dto, tenantHeader, req?.user);
+    return this.searchService.logSearch(dto, tenantHeader);
   }
 }

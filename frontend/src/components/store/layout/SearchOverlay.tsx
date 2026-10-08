@@ -19,6 +19,7 @@ export function SearchOverlay() {
   const [q, setQ] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const live = products.filter((p) => p.status === 'published');
+  const lastDebouncedRef = useRef<string>('');
 
   useEffect(() => {
     if (searchOpen) {
@@ -29,12 +30,25 @@ export function SearchOverlay() {
       return () => document.removeEventListener('keydown', onKey);
     }
     setQ('');
+    lastDebouncedRef.current = '';
   }, [searchOpen, setSearchOpen]);
 
   const { results, suggestion } = useMemo(
     () => searchProducts(live, q),
     [live, q]
   );
+
+  // Automatically log live search when customer pauses typing (min 3 chars, 800ms debounce)
+  useEffect(() => {
+    const clean = q.trim().toLowerCase();
+    if (clean.length >= 3 && lastDebouncedRef.current !== clean) {
+      const timer = setTimeout(() => {
+        lastDebouncedRef.current = clean;
+        analyticsService.logCustomerSearch(clean, results.length);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [q, results.length]);
 
   const matchingCats =
     q.length > 1
@@ -52,7 +66,11 @@ export function SearchOverlay() {
     .slice(0, 4);
 
   const go = (term: string) => {
+    const clean = term.trim().toLowerCase();
     setSearchOpen(false);
+    if (clean.length >= 2) {
+      analyticsService.logCustomerSearch(clean, results.length);
+    }
     router.push(`/search?q=${encodeURIComponent(term)}`);
   };
 
@@ -147,7 +165,10 @@ export function SearchOverlay() {
                                 <Link
                                   key={p.id}
                                   href={`/products/${p.slug}`}
-                                  onClick={close}
+                                  onClick={() => {
+                                    if (q.trim()) analyticsService.logCustomerSearch(q.trim(), results.length);
+                                    close();
+                                  }}
                                   className="group"
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -193,7 +214,10 @@ export function SearchOverlay() {
                           <Link
                             key={c.key}
                             href={`/shop?category=${c.key}`}
-                            onClick={close}
+                            onClick={() => {
+                              if (q.trim()) analyticsService.logCustomerSearch(q.trim(), results.length);
+                              close();
+                            }}
                             className="rounded-full bg-subtle px-3 py-1 text-xs font-medium text-ink hover:bg-ink hover:text-canvas transition-colors"
                           >
                             {c.name}
@@ -208,7 +232,10 @@ export function SearchOverlay() {
                           <Link
                             key={p.id}
                             href={`/products/${p.slug}`}
-                            onClick={close}
+                            onClick={() => {
+                              if (q.trim()) analyticsService.logCustomerSearch(q.trim(), results.length);
+                              close();
+                            }}
                             className="group block"
                           >
                             <div className="aspect-[3/4] overflow-hidden rounded bg-subtle border border-line">

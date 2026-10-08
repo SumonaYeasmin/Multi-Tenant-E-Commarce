@@ -71,19 +71,14 @@ export const analyticsService = {
     }
   },
 
-  // Log customer search query from storefront (Admin searches are ignored)
+  // Log customer search query from storefront
   async logCustomerSearch(term: string, results: number = 0) {
-    if (!term || term.trim().length < 2) return;
-
-    // Do NOT count searches performed by Admin / Store Owner
-    const role = authService.getUserRole();
-    if (role === 'OWNER') {
-      return;
-    }
+    const cleanTerm = term ? term.trim().toLowerCase() : '';
+    if (!cleanTerm || cleanTerm.length < 3) return;
 
     try {
       return await apiClient.post('/customer/search/log', {
-        term: term.trim(),
+        term: cleanTerm,
         results,
       });
     } catch {
