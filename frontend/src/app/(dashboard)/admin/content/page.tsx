@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Plus, Edit3, HelpCircle } from 'lucide-react';
 import { cmsPages, menus } from '@/data/admin';
@@ -19,6 +19,7 @@ import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatDateTime } from '@/utils/format';
 import { FaqEditorDrawer, FaqItemData } from '@/components/dashboard/admin/content/FaqEditorDrawer';
+import { faqService } from '@/services/faq-service';
 import { cn } from '@/utils/cn';
 
 type Tab = 'pages' | 'blog' | 'navigation' | 'faq';
@@ -55,13 +56,48 @@ export default function AdminContentPage() {
       }))
   );
   const [activeFaqFilter, setActiveFaqFilter] = useState<string>('all');
+  const [loadingFaqs, setLoadingFaqs] = useState(false);
+
+  // Fetch real FAQs from backend on mount
+  useEffect(() => {
+    let isMounted = true;
+    async function loadFaqs() {
+      try {
+        setLoadingFaqs(true);
+        const data = await faqService.getOwnerFaqs();
+        if (isMounted && data && data.length > 0) {
+          const mapped: FaqItemData[] = data.map((item) => ({
+            id: item.id,
+            category: item.category,
+            q: item.question,
+            a: item.answer,
+          }));
+          setFaqList(mapped);
+
+          // Update unique categories list
+          const uniqueCats = Array.from(new Set(mapped.map((it) => it.category)));
+          if (uniqueCats.length > 0) {
+            setFaqCategories(uniqueCats);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching FAQs:', err);
+      } finally {
+        if (isMounted) setLoadingFaqs(false);
+      }
+    }
+    loadFaqs();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredFaqs =
     activeFaqFilter === 'all'
       ? faqList
       : faqList.filter((f) => f.category === activeFaqFilter);
 
-  const handleSaveFaq = (data: {
+  const handleSaveFaq = async (data: {
     title: string;
     categories: string[];
     items: FaqItemData[];
@@ -71,6 +107,31 @@ export default function AdminContentPage() {
     setFaqTitle(data.title);
     setFaqCategories(data.categories);
     setFaqList(data.items);
+
+    try {
+      // Sync to real backend database atomically
+      const payload = data.items.map((item, idx) => ({
+        category: item.category,
+        question: item.q,
+        answer: item.a,
+        order: idx,
+      }));
+
+      const saved = await faqService.batchSaveFaqs(payload);
+      if (saved && saved.length > 0) {
+        setFaqList(
+          saved.map((item) => ({
+            id: item.id,
+            category: item.category,
+            q: item.question,
+            a: item.answer,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error('Failed to sync FAQs to backend:', err);
+      toast.error('Failed to sync FAQs to database');
+    }
   };
 
   return (

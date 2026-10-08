@@ -156,8 +156,8 @@ export function FaqEditorDrawer({
     toast.success('FAQ item removed');
   };
 
-  // Save / Publish
-  const handleSave = (isPublish: boolean) => {
+  // Save
+  const handleSave = () => {
     if (!title.trim()) {
       toast.error('Please enter a page title');
       return;
@@ -172,17 +172,17 @@ export function FaqEditorDrawer({
       title: title.trim(),
       categories,
       items,
-      visibility: isPublish ? visibility : 'Draft',
+      visibility,
       publishAt: visibility === 'Schedule' ? publishAt : undefined,
     });
 
     onClose();
     toast.success(
-      isPublish
-        ? visibility === 'Publish now'
-          ? 'FAQ page published successfully'
-          : `FAQ page scheduled for ${publishAt}`
-        : 'FAQ page draft saved successfully'
+      visibility === 'Publish now'
+        ? 'FAQ page published successfully'
+        : visibility === 'Schedule'
+        ? `FAQ page scheduled for ${publishAt}`
+        : 'FAQ page saved as draft'
     );
   };
 
@@ -209,17 +209,10 @@ export function FaqEditorDrawer({
           </button>
           <button
             type="button"
-            onClick={() => handleSave(false)}
-            className="rounded-md border border-neutral-300 dark:border-neutral-700 bg-surface px-4 py-2 text-sm font-medium text-ink hover:bg-subtle transition-colors cursor-pointer shadow-2xs"
+            onClick={handleSave}
+            className="rounded-md bg-black px-6 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-colors cursor-pointer shadow-2xs"
           >
-            Save draft
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSave(true)}
-            className="rounded-md bg-black px-5 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-colors cursor-pointer shadow-2xs"
-          >
-            {visibility === 'Publish now' ? 'Publish' : visibility === 'Schedule' ? 'Schedule' : 'Save'}
+            Save
           </button>
         </div>
       }
@@ -380,29 +373,6 @@ export function FaqEditorDrawer({
                           placeholder="Use the Track order page with your order number and phone number, or see live status in My Account -> Orders. You will also receive SMS updates at every step."
                           className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-surface px-3 py-2 text-sm text-ink focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:focus:border-white transition-colors resize-y leading-relaxed"
                         />
-                      </div>
-
-                      {/* Category select */}
-                      <div>
-                        <label className="block text-xs font-normal text-ink mb-1.5">
-                          Category select
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={item.category}
-                            onChange={(e) =>
-                              handleUpdateItem(item.id, 'category', e.target.value)
-                            }
-                            className="h-10 w-full appearance-none rounded-md border border-neutral-300 dark:border-neutral-700 bg-surface pl-3 pr-9 text-sm text-ink focus:border-black focus:outline-none focus:ring-1 focus:ring-black cursor-pointer"
-                          >
-                            {categories.map((c) => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-                        </div>
                       </div>
                     </div>
                   )}
