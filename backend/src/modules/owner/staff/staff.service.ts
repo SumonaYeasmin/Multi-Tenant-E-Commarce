@@ -22,15 +22,33 @@ export class StaffService {
 
   // Helper to resolve tenant context safely
   private async resolveTenantId(tenantId?: string): Promise<string> {
-    if (tenantId) return tenantId;
+    if (tenantId) {
+      const existing = await this.prisma.tenant.findUnique({
+        where: { id: tenantId },
+      });
+      if (existing) return existing.id;
+    }
+
     const defaultTenant = await this.prisma.tenant.findFirst({
       where: { deletedAt: null },
       orderBy: { createdAt: 'asc' },
     });
-    if (!defaultTenant) {
-      throw new NotFoundException('Store tenant context not found');
+
+    if (defaultTenant) {
+      return defaultTenant.id;
     }
-    return defaultTenant.id;
+
+    // Auto-create default tenant if DB is freshly reset
+    const createdTenant = await this.prisma.tenant.create({
+      data: {
+        name: 'Tanti Fashion',
+        slug: 'tanti',
+        currency: 'BDT',
+        currencySymbol: '৳',
+      },
+    });
+
+    return createdTenant.id;
   }
 
   // Auto-seed default standard roles for a tenant if none exist

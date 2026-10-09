@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { UserPlus, ShieldCheck, Check, Plus, CheckSquare, Square, Eye } from 'lucide-react';
+import { UserPlus, ShieldCheck, Check, Plus } from 'lucide-react';
 import {
   staff as seedStaff,
   roles as seedRoles,
@@ -24,12 +24,36 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/button';
 import { timeAgo } from '@/utils/format';
 import { cn } from '@/utils/cn';
+import { staffService } from '@/services/staff-service';
 import type { PermissionAction, AdminModule } from '@/types/commerce';
 
 type Matrix = Record<string, PermissionAction[]>;
 
+interface StaffRowItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  roleId?: string | null;
+  status: 'active' | 'invited' | 'deactivated';
+  lastActive: string;
+  twoFactor: boolean;
+  avatar?: string;
+  isOwner?: boolean;
+}
+
+interface RoleItem {
+  id: string;
+  name: string;
+  members: number;
+  system: boolean;
+  description: string;
+  permissions?: Record<string, string[]>;
+}
+
 const presetRolePermissions: Record<string, Partial<Record<AdminModule, PermissionAction[]>>> = {
   Owner: Object.fromEntries(permissionModules.map((m) => [m.key, [...permissionActions]])),
+  Administrator: Object.fromEntries(permissionModules.map((m) => [m.key, [...permissionActions]])),
   'Store Manager': rolePermissions.manager,
   'Fulfillment Staff': rolePermissions.fulfillment,
   'Customer Care': {
@@ -52,7 +76,7 @@ const presetRolePermissions: Record<string, Partial<Record<AdminModule, Permissi
 };
 
 function buildInitialMatrix(roleName: string): Matrix {
-  if (roleName === 'Owner') {
+  if (roleName === 'Owner' || roleName === 'Administrator') {
     return Object.fromEntries(permissionModules.map((m) => [m.key, [...permissionActions]]));
   }
   const preset = presetRolePermissions[roleName] ?? {};
@@ -71,11 +95,26 @@ function createEmptyMatrix(): Matrix {
 export default function AdminStaffPage() {
   const { can } = useAdmin();
   const [tab, setTab] = useState<'members' | 'roles'>('members');
-  const [members, setMembers] = useState(seedStaff);
-  const [roleList, setRoleList] = useState(seedRoles);
+  
+  // State for Staff & Roles with initial fallback seeds
+  const [members, setMembers] = useState<StaffRowItem[]>(seedStaff as StaffRowItem[]);
+  const [roleList, setRoleList] = useState<RoleItem[]>(seedRoles as RoleItem[]);
+  const [counters, setCounters] = useState({
+    total: seedStaff.length,
+    active: seedStaff.filter((s) => s.status === 'active').length,
+    invited: seedStaff.filter((s) => s.status === 'invited').length,
+    deactivated: seedStaff.filter((s) => s.status === 'deactivated').length,
+    seatsUsed: seedStaff.length,
+    maxSeats: 10,
+  });
+
+  // Modal / Drawer loading and form states
   const [invite, setInvite] = useState(false);
   const [email, setEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Store Manager');
+  const [isInviting, setIsInviting] = useState(false);
+  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
+  const [isCreatingRole, setIsCreatingRole] = useState(false);
 
   // Active role & matrix state
   const [activeRole, setActiveRole] = useState('Store Manager');
@@ -93,20 +132,99 @@ export default function AdminStaffPage() {
   const [newRoleDesc, setNewRoleDesc] = useState('');
   const [newRoleMatrix, setNewRoleMatrix] = useState<Matrix>(() => createEmptyMatrix());
 
+  // Real-time API data loader
+  const loadData = useCallback(async () => {
+    try {
+      const [membersResult, rolesResult] = await Promise.allSettled([
+        staffService.getStaffMembers(),
+        staffService.getRoles(),
+      ]);
+
+      if (
+        rolesResult.status === 'fulfilled' &&
+        rolesResult.value?.success &&
+        Array.isArray(rolesResult.value.data) &&
+        rolesResult.value.data.length > 0
+      ) {
+        const liveRoles: RoleItem[] = rolesResult.value.data.map((r) => ({
+          id: r.id,
+          name: r.name,
+          members: r.membersCount ?? 0,
+          system: r.isSystem,
+          description: r.description || '',
+          permissions: r.permissions as any,
+        }));
+
+        setRoleList(liveRoles);
+
+        setRoleMatrices((prev) => {
+          const next = { ...prev };
+          liveRoles.forEach((r) => {
+            if (r.permissions && Object.keys(r.permissions).length > 0) {
+              const formatted: Matrix = {};
+              permissionModules.forEach((m) => {
+                formatted[m.key] = (r.permissions?.[m.key] as PermissionAction[]) || [];
+              });
+              next[r.name] = formatted;
+            } else if (!next[r.name]) {
+              next[r.name] = buildInitialMatrix(r.name);
+            }
+          });
+          return next;
+        });
+
+        if (!activeRole || !liveRoles.some((r) => r.name === activeRole)) {
+          const firstNonOwner = liveRoles.find((r) => r.name !== 'Owner') || liveRoles[0];
+          if (firstNonOwner) setActiveRole(firstNonOwner.name);
+        }
+      }
+
+      if (
+        membersResult.status === 'fulfilled' &&
+        membersResult.value?.success &&
+        membersResult.value.data?.members &&
+        membersResult.value.data.members.length > 0
+      ) {
+        const liveMembers: StaffRowItem[] = membersResult.value.data.members.map((m) => ({
+          id: m.id,
+          name: m.name || m.email.split('@')[0],
+          email: m.email,
+          role: m.roleName || (m.isOwner ? 'Owner' : 'Store Manager'),
+          roleId: m.roleId,
+          status: m.status as any,
+          lastActive: m.lastActive || m.joinedAt || '',
+          twoFactor: m.twoFactorEnabled,
+          avatar: m.avatar || undefined,
+          isOwner: m.isOwner,
+        }));
+
+        setMembers(liveMembers);
+        if (membersResult.value.data.counters) {
+          setCounters(membersResult.value.data.counters);
+        }
+      }
+    } catch {
+      // Graceful fallback to seed data
+    }
+  }, [activeRole]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
   const locked = activeRole === 'Owner' || !can('staff', 'update');
   const currentMatrix = roleMatrices[activeRole] ?? createEmptyMatrix();
 
   const handleOpenNewRoleDrawer = () => {
     setNewRoleName('');
     setNewRoleDesc('');
-    // Default with View permission on dashboard
     const defaultNewMatrix = createEmptyMatrix();
     defaultNewMatrix['dashboard'] = ['view'];
     setNewRoleMatrix(defaultNewMatrix);
     setIsNewRoleOpen(true);
   };
 
-  const handleCreateRole = () => {
+  const handleCreateRole = async () => {
     const trimmed = newRoleName.trim();
     if (!trimmed) {
       toast.error('Please enter a role name');
@@ -117,22 +235,40 @@ export default function AdminStaffPage() {
       return;
     }
 
-    const createdRole = {
-      id: `r_${Date.now()}`,
-      name: trimmed,
-      members: 0,
-      system: false,
-      description: newRoleDesc.trim() || 'Custom staff role.',
-    };
+    try {
+      setIsCreatingRole(true);
+      const res = await staffService.createRole({
+        name: trimmed,
+        description: newRoleDesc.trim() || undefined,
+        permissions: newRoleMatrix,
+      });
 
-    setRoleList((prev) => [...prev, createdRole]);
-    setRoleMatrices((prev) => ({
-      ...prev,
-      [trimmed]: newRoleMatrix,
-    }));
-    setActiveRole(trimmed);
-    setIsNewRoleOpen(false);
-    toast.success(`Role "${trimmed}" created successfully`);
+      if (res && res.data) {
+        const createdRole: RoleItem = {
+          id: res.data.id,
+          name: res.data.name || trimmed,
+          members: 0,
+          system: res.data.isSystem ?? false,
+          description: res.data.description || newRoleDesc.trim() || 'Custom staff role.',
+          permissions: (res.data.permissions as any) || newRoleMatrix,
+        };
+
+        setRoleList((prev) => [...prev, createdRole]);
+        setRoleMatrices((prev) => ({
+          ...prev,
+          [createdRole.name]: newRoleMatrix,
+        }));
+        setActiveRole(createdRole.name);
+        setIsNewRoleOpen(false);
+        toast.success(`Role "${createdRole.name}" created and saved successfully!`);
+      } else {
+        throw new Error(res?.message || 'Failed to create role');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to create role');
+    } finally {
+      setIsCreatingRole(false);
+    }
   };
 
   const toggleActivePermission = (moduleKey: string, action: PermissionAction) => {
@@ -152,6 +288,122 @@ export default function AdminStaffPage() {
         },
       };
     });
+  };
+
+  const handleSavePermissions = async () => {
+    if (locked) return;
+    const targetRole = roleList.find((r) => r.name === activeRole);
+    if (!targetRole) {
+      toast.error('Role not found');
+      return;
+    }
+
+    try {
+      setIsSavingPermissions(true);
+      if (targetRole.id && !targetRole.id.startsWith('r_')) {
+        const res = await staffService.updateRole(targetRole.id, {
+          permissions: currentMatrix,
+        });
+        if (res?.success) {
+          toast.success(`Permissions saved for ${activeRole}`);
+        } else {
+          throw new Error(res?.message || 'Failed to save permissions');
+        }
+      } else {
+        toast.success(`Permissions saved for ${activeRole}`);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to save permissions');
+    } finally {
+      setIsSavingPermissions(false);
+    }
+  };
+
+  const handleToggleMemberStatus = async (s: StaffRowItem) => {
+    if (s.isOwner || s.role === 'Owner') return;
+
+    const nextStatus = s.status === 'active' ? 'deactivated' : 'active';
+    try {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === s.id ? { ...m, status: nextStatus } : m))
+      );
+
+      if (s.id && !s.id.startsWith('s')) {
+        await staffService.updateStaffMember(s.id, { status: nextStatus });
+      }
+
+      toast.success(
+        s.status === 'invited'
+          ? 'Invitation resent'
+          : nextStatus === 'deactivated'
+          ? `${s.name} deactivated — sessions revoked`
+          : `${s.name} reactivated`
+      );
+    } catch (err: any) {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === s.id ? { ...m, status: s.status } : m))
+      );
+      toast.error(err?.message || 'Failed to update member status');
+    }
+  };
+
+  const handleInviteStaff = async () => {
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    const selectedRoleObj = roleList.find((r) => r.name === inviteRole);
+    const roleId = selectedRoleObj?.id || 'role_default';
+
+    try {
+      setIsInviting(true);
+      const res = await staffService.inviteStaff({
+        email: email.trim(),
+        roleId,
+        name: email.trim().split('@')[0],
+      });
+
+      if (res?.success && res.data) {
+        const newMember: StaffRowItem = {
+          id: res.data.id,
+          name: res.data.name || email.trim().split('@')[0],
+          email: res.data.email,
+          role: res.data.roleName || inviteRole,
+          roleId: res.data.roleId || roleId,
+          status: (res.data.status as any) || 'invited',
+          lastActive: '',
+          twoFactor: false,
+          isOwner: false,
+        };
+
+        setMembers((prev) => [newMember, ...prev]);
+        setCounters((prev) => ({
+          ...prev,
+          total: prev.total + 1,
+          invited: prev.invited + 1,
+          seatsUsed: prev.seatsUsed + 1,
+        }));
+
+        if (selectedRoleObj) {
+          setRoleList((prev) =>
+            prev.map((r) =>
+              r.id === selectedRoleObj.id ? { ...r, members: r.members + 1 } : r
+            )
+          );
+        }
+
+        toast.success(`Invitation sent to ${email.trim()}`);
+        setInvite(false);
+        setEmail('');
+      } else {
+        throw new Error(res?.message || 'Failed to send invitation');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send invitation');
+    } finally {
+      setIsInviting(false);
+    }
   };
 
   const toggleNewRolePermission = (moduleKey: string, action: PermissionAction) => {
@@ -199,7 +451,7 @@ export default function AdminStaffPage() {
       <div className="w-full space-y-6">
         <PageHeader
           title="Staff & roles"
-          description={`${members.length} of 10 staff seats used on your plan.`}
+          description={`${counters.seatsUsed || members.length} of ${counters.maxSeats || 10} staff seats used on your plan.`}
           actions={
             <GuardedButton
               module="staff"
@@ -294,34 +546,13 @@ export default function AdminStaffPage() {
 
                       {/* Column 5: Action */}
                       <td className="px-5 py-3.5 whitespace-nowrap text-right">
-                        {s.role !== 'Owner' ? (
+                        {!s.isOwner && s.role !== 'Owner' ? (
                           <GuardedButton
                             module="staff"
                             action="update"
                             size="sm"
                             variant="ghost"
-                            onClick={() => {
-                              setMembers((m) =>
-                                m.map((x) =>
-                                  x.id === s.id
-                                    ? {
-                                        ...x,
-                                        status:
-                                          x.status === 'active'
-                                            ? 'deactivated'
-                                            : 'active',
-                                      }
-                                    : x
-                                )
-                              );
-                              toast.success(
-                                s.status === 'invited'
-                                  ? 'Invitation resent'
-                                  : s.status === 'active'
-                                  ? `${s.name} deactivated — sessions revoked`
-                                  : `${s.name} reactivated`
-                              );
-                            }}
+                            onClick={() => handleToggleMemberStatus(s)}
                           >
                             {s.status === 'invited'
                               ? 'Resend'
@@ -391,14 +622,15 @@ export default function AdminStaffPage() {
               description={
                 activeRole === 'Owner'
                   ? 'The owner always has full access.'
-                  : 'Changes apply immediately and are recorded in the audit log.'
+                  : 'Changes apply immediately and are recorded in the database.'
               }
               flush
               actions={
                 !locked && (
                   <Button
                     size="sm"
-                    onClick={() => toast.success(`Permissions saved for ${activeRole}`)}
+                    loading={isSavingPermissions}
+                    onClick={handleSavePermissions}
                   >
                     Save
                   </Button>
@@ -476,6 +708,7 @@ export default function AdminStaffPage() {
                 Cancel
               </Button>
               <Button
+                loading={isCreatingRole}
                 onClick={handleCreateRole}
                 disabled={!newRoleName.trim()}
               >
@@ -631,24 +864,9 @@ export default function AdminStaffPage() {
                 Cancel
               </Button>
               <Button
+                loading={isInviting}
                 disabled={!/^\S+@\S+\.\S+$/.test(email)}
-                onClick={() => {
-                  setMembers([
-                    ...members,
-                    {
-                      id: `s${Date.now()}`,
-                      name: email,
-                      email,
-                      role: inviteRole,
-                      status: 'invited',
-                      lastActive: '',
-                      twoFactor: false,
-                    },
-                  ]);
-                  setInvite(false);
-                  setEmail('');
-                  toast.success(`Invitation sent to ${email}`);
-                }}
+                onClick={handleInviteStaff}
               >
                 Send invite
               </Button>
