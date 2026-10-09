@@ -8,7 +8,13 @@ import * as crypto from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 import { UserRole, UserStatus } from '../../../../prisma/generated/client';
-import { QueryStaffDto, InviteStaffDto, UpdateStaffDto } from './dto';
+import {
+  QueryStaffDto,
+  InviteStaffDto,
+  UpdateStaffDto,
+  CreateRoleDto,
+  UpdateRoleDto,
+} from './dto';
 
 @Injectable()
 export class StaffService {
@@ -567,6 +573,193 @@ export class StaffService {
     return ResponseHelper.success(
       null,
       `Staff member "${staffName}" removed successfully from store`,
+    );
+  }
+
+  // 5. Get all store roles and their granular permission matrices
+  async getRoles(tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+    await this.ensureDefaultRoles(targetTenantId);
+
+    const roles = await this.prisma.tenantRole.findMany({
+      where: { tenantId: targetTenantId },
+      include: {
+        _count: {
+          select: {
+            members: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
+      orderBy: [
+        { isSystem: 'desc' },
+        { createdAt: 'asc' },
+      ],
+    });
+
+    const formattedRoles = roles.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      isSystem: r.isSystem,
+      permissions: r.permissions,
+      membersCount: r._count.members,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+
+    return ResponseHelper.success(
+      formattedRoles,
+      'Store roles and permission matrices retrieved successfully',
+    );
+  }
+
+  // 6. Create a new custom role with permissions matrix
+  async createRole(dto: CreateRoleDto, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const roleName = dto.name.trim();
+    if (!roleName) {
+      throw new BadRequestException('Role name is required');
+    }
+
+    const existingRole = await this.prisma.tenantRole.findFirst({
+      where: {
+        tenantId: targetTenantId,
+        name: { equals: roleName, mode: 'insensitive' },
+      },
+    });
+
+    if (existingRole) {
+      throw new BadRequestException(`Role with name "${roleName}" already exists`);
+    }
+
+    const createdRole = await this.prisma.tenantRole.create({
+      data: {
+        tenantId: targetTenantId,
+        name: roleName,
+        description: dto.description?.trim() || null,
+        isSystem: false,
+        permissions: dto.permissions || {},
+      },
+    });
+
+    return ResponseHelper.created(
+      {
+        ...createdRole,
+        membersCount: 0,
+      },
+      `Custom role "${createdRole.name}" created successfully`,
+    );
+  }
+
+  // 7. Update role metadata or permission matrix
+  async updateRole(roleId: string, dto: UpdateRoleDto, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const existingRole = await this.prisma.tenantRole.findFirst({
+      where: { id: roleId, tenantId: targetTenantId },
+    });
+
+    if (!existingRole) {
+      throw new NotFoundException(`Role with ID "${roleId}" not found`);
+    }
+
+    let updatedName = existingRole.name;
+    if (dto.name && dto.name.trim() !== existingRole.name) {
+      if (existingRole.isSystem) {
+        throw new BadRequestException('System default role names cannot be renamed');
+      }
+      const duplicate = await this.prisma.tenantRole.findFirst({
+        where: {
+          tenantId: targetTenantId,
+          name: { equals: dto.name.trim(), mode: 'insensitive' },
+          id: { not: roleId },
+        },
+      });
+      if (duplicate) {
+        throw new BadRequestException(`Another role named "${dto.name.trim()}" already exists`);
+      }
+      updatedName = dto.name.trim();
+    }
+
+    const updatedRole = await this.prisma.tenantRole.update({
+      where: { id: roleId },
+      data: {
+        name: updatedName,
+        description:
+          dto.description !== undefined
+            ? dto.description?.trim() || null
+            : existingRole.description,
+        permissions:
+          dto.permissions !== undefined
+            ? (dto.permissions as any)
+            : (existingRole.permissions as any),
+      },
+    });
+
+    const membersCount = await this.prisma.tenantMember.count({
+      where: {
+        tenantId: targetTenantId,
+        roleId: roleId,
+        deletedAt: null,
+      },
+    });
+
+    return ResponseHelper.success(
+      {
+        id: updatedRole.id,
+        name: updatedRole.name,
+        description: updatedRole.description,
+        isSystem: updatedRole.isSystem,
+        permissions: updatedRole.permissions,
+        membersCount,
+        createdAt: updatedRole.createdAt,
+        updatedAt: updatedRole.updatedAt,
+      },
+      `Role "${updatedRole.name}" permissions updated successfully`,
+    );
+  }
+
+  // 8. Delete a custom role
+  async deleteRole(roleId: string, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const existingRole = await this.prisma.tenantRole.findFirst({
+      where: { id: roleId, tenantId: targetTenantId },
+      include: {
+        _count: {
+          select: {
+            members: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
+    });
+
+    if (!existingRole) {
+      throw new NotFoundException(`Role with ID "${roleId}" not found`);
+    }
+
+    if (existingRole.isSystem) {
+      throw new BadRequestException('System default roles cannot be deleted');
+    }
+
+    if (existingRole._count.members > 0) {
+      throw new BadRequestException(
+        `Cannot delete role "${existingRole.name}" because it is currently assigned to ${existingRole._count.members} staff member(s). Reassign them first.`,
+      );
+    }
+
+    await this.prisma.tenantRole.delete({
+      where: { id: roleId },
+    });
+
+    return ResponseHelper.success(
+      null,
+      `Role "${existingRole.name}" deleted successfully`,
     );
   }
 }

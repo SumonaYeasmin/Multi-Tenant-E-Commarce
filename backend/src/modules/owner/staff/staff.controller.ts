@@ -19,7 +19,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { StaffService } from './staff.service';
-import { QueryStaffDto, InviteStaffDto, UpdateStaffDto } from './dto';
+import {
+  QueryStaffDto,
+  InviteStaffDto,
+  UpdateStaffDto,
+  CreateRoleDto,
+  UpdateRoleDto,
+} from './dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
@@ -153,5 +159,117 @@ export class StaffController {
   ) {
     const tenantId = tenantHeader || user?.tenantId;
     return this.staffService.removeStaffMember(id, tenantId, user);
+  }
+
+  // 5. Get all store roles and their granular permission matrices
+  @Get('roles')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'List all store roles with assigned member counts and permission matrices',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Roles and permissions retrieved successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Owner login token required',
+  })
+  async getRoles(
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.getRoles(tenantId);
+  }
+
+  // 6. Create a new custom staff role with permission matrix
+  @Post('roles')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Create a new custom staff role with modular permission matrix',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Custom role created successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation failed or role name exists',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Owner login token required',
+  })
+  async createRole(
+    @Body() dto: CreateRoleDto,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.createRole(dto, tenantId);
+  }
+
+  // 7. Update role metadata or permission matrix
+  @Patch('roles/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update role details or granular permission matrix',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Role permissions updated successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot rename system default role or name collision',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Owner login token required',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Role not found',
+  })
+  async updateRole(
+    @Param('id') id: string,
+    @Body() dto: UpdateRoleDto,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.updateRole(id, dto, tenantId);
+  }
+
+  // 8. Delete a custom staff role
+  @Delete('roles/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete a custom staff role (System default roles cannot be deleted)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Custom role deleted successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot delete system default role or role with assigned members',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Owner login token required',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Role not found',
+  })
+  async deleteRole(
+    @Param('id') id: string,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.deleteRole(id, tenantId);
   }
 }
