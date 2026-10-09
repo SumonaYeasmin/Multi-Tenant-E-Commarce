@@ -41,16 +41,17 @@ function LoginFormContent() {
 
       const res = await authService.login({ email, password });
 
-      // Determine destination according to RBAC role
+      // Determine destination according to RBAC role and dynamic redirect
       const user = res.data?.user;
+      const redirectUrl = (res.data as any)?.redirectUrl;
       const role = (user?.role || authService.getUserRole() || '').toUpperCase();
       const isOwnerOrAdmin = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(role);
 
-      let targetUrl = isOwnerOrAdmin ? '/admin' : '/account';
+      let targetUrl = redirectUrl || (isOwnerOrAdmin ? '/admin' : '/account');
 
       if (next && !next.startsWith('/login') && !next.startsWith('/register')) {
         if (isOwnerOrAdmin) {
-          targetUrl = next.startsWith('/account') ? '/admin' : next;
+          targetUrl = next.startsWith('/account') ? (redirectUrl || '/admin') : next;
         } else {
           targetUrl = next.startsWith('/admin') ? '/account' : next;
         }

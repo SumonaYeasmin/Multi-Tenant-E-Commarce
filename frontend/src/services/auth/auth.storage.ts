@@ -1,11 +1,10 @@
 // Session storage manager using access_token and refresh_token cookies
 import { getCookie, setCookie, deleteCookie } from '@/utils/cookies';
 import { parseJwtPayload } from '@/utils/jwt';
-import type { StoredUser, UserRole, JwtPayload } from '@/types';
+import type { StoredUser, UserRole } from '@/types';
 
 // Re-export for compatibility
 export { parseJwtPayload };
-
 
 // Persist tokens in cookies exclusively
 export function setAuthSession(session: {
@@ -84,13 +83,23 @@ export function getAuthUser(): StoredUser | null {
   if (!payload) return null;
 
   const name = payload.name || payload.email?.split('@')[0] || 'User';
+  const isOwner = Boolean(payload.isOwner || payload.role === 'OWNER');
+  const isStaff = Boolean(
+    payload.staffRole ||
+    (payload.permissions && Object.keys(payload.permissions).length > 0) ||
+    ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'STAFF', 'MANAGER'].includes(payload.role)
+  );
+  const effectiveRole = isOwner ? 'OWNER' : (isStaff ? 'STAFF' : payload.role || 'CUSTOMER');
 
   return {
     id: payload.sub,
     name,
     email: payload.email,
-    role: (payload.role as UserRole) || 'CUSTOMER',
+    role: effectiveRole as UserRole,
     tenantId: payload.tenantId,
+    isOwner,
+    staffRole: payload.staffRole,
+    permissions: payload.permissions || {},
   };
 }
 
@@ -100,6 +109,11 @@ export function getAuthRole(): UserRole | null {
   const token = getAuthToken() || getRefreshToken();
   if (!token) return null;
   const payload = parseJwtPayload(token);
+  if (!payload) return null;
+  if (payload.isOwner || (payload.role as any) === 'OWNER') return 'OWNER' as UserRole;
+  if (payload.staffRole || (payload.permissions && Object.keys(payload.permissions).length > 0) || (payload.role as any) === 'STAFF') {
+    return 'STAFF' as UserRole;
+  }
   return (payload?.role as UserRole) || null;
 }
 
@@ -132,4 +146,3 @@ export function hasValidRefreshToken(): boolean {
 
   return true;
 }
-

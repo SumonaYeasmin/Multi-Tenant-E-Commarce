@@ -5,6 +5,43 @@ import { parseJwtPayload } from './utils/jwt';
 // Staff roles permitted on the admin dashboard
 const STAFF_ROLES = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'];
 
+// Helper to resolve first allowed route for staff based on JWT permissions
+function resolveFirstAllowedRoute(perms?: Record<string, string[]>): string {
+  if (!perms || typeof perms !== 'object') return '/admin';
+  const priorityOrder: Array<[string, string]> = [
+    ['payments', '/admin/payments'],
+    ['orders', '/admin/orders'],
+    ['returns', '/admin/returns'],
+    ['products', '/admin/products'],
+    ['categories', '/admin/categories'],
+    ['collections', '/admin/collections'],
+    ['brands', '/admin/brands'],
+    ['inventory', '/admin/inventory'],
+    ['customers', '/admin/customers'],
+    ['reviews', '/admin/reviews'],
+    ['discounts', '/admin/discounts'],
+    ['marketing', '/admin/marketing'],
+    ['shipping', '/admin/shipping'],
+    ['theme', '/admin/theme'],
+    ['content', '/admin/content'],
+    ['media', '/admin/media'],
+    ['analytics', '/admin/analytics'],
+    ['reports', '/admin/reports'],
+    ['staff', '/admin/staff'],
+    ['settings', '/admin/settings'],
+    ['notifications', '/admin/notifications'],
+    ['integrations', '/admin/integrations'],
+    ['dashboard', '/admin'],
+  ];
+
+  for (const [mod, route] of priorityOrder) {
+    if (perms[mod] && perms[mod].includes('view')) {
+      return route;
+    }
+  }
+  return '/admin';
+}
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -26,7 +63,22 @@ export function proxy(request: NextRequest) {
   const canAuthenticate = isAuthenticated || hasValidRefreshToken;
   const activePayload = isAuthenticated ? jwtPayload : (hasValidRefreshToken ? refreshPayload : null);
   const userRole = (activePayload?.role || '').toUpperCase();
-  const isStaff = STAFF_ROLES.includes(userRole);
+
+  const isStaff = Boolean(
+    activePayload?.staffRole ||
+    (activePayload?.permissions && Object.keys(activePayload.permissions).length > 0) ||
+    STAFF_ROLES.includes(userRole)
+  );
+
+  const isOwner = Boolean(
+    activePayload?.isOwner ||
+    userRole === 'OWNER' ||
+    userRole === 'SUPER_ADMIN' ||
+    (userRole === 'ADMIN' && !activePayload?.staffRole)
+  );
+
+  const isStaffOrOwner = isOwner || isStaff;
+  const defaultAdminRoute = isOwner ? '/admin' : resolveFirstAllowedRoute(activePayload?.permissions);
 
   const isAdminRoute = pathname.startsWith('/admin');
   const isAccountRoute = pathname.startsWith('/account');
@@ -44,12 +96,12 @@ export function proxy(request: NextRequest) {
   }
 
   // Cross-role boundary redirects for authenticated users
-  if (isAdminRoute && !isStaff) {
+  if (isAdminRoute && !isStaffOrOwner) {
     return NextResponse.redirect(new URL('/account', request.url));
   }
 
-  if (isAccountRoute && isStaff) {
-    return NextResponse.redirect(new URL('/admin', request.url));
+  if (isAccountRoute && isStaffOrOwner) {
+    return NextResponse.redirect(new URL(defaultAdminRoute, request.url));
   }
 
   // Auth pages (/login, /register): redirect already-authenticated users
@@ -58,8 +110,8 @@ export function proxy(request: NextRequest) {
     const destination =
       nextParam && !nextParam.startsWith('/login') && !nextParam.startsWith('/register')
         ? nextParam
-        : isStaff
-        ? '/admin'
+        : isStaffOrOwner
+        ? defaultAdminRoute
         : '/account';
     return NextResponse.redirect(new URL(destination, request.url));
   }
