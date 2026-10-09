@@ -8,7 +8,7 @@ import * as crypto from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
 import { UserRole, UserStatus } from '../../../../prisma/generated/client';
-import { QueryStaffDto, InviteStaffDto } from './dto';
+import { QueryStaffDto, InviteStaffDto, UpdateStaffDto } from './dto';
 
 @Injectable()
 export class StaffService {
@@ -380,6 +380,137 @@ export class StaffService {
     return ResponseHelper.created(
       formatted,
       `Staff member "${formatted.name}" added successfully as "${formatted.role}"`,
+    );
+  }
+
+  // 3. Update staff member role, status (active/deactivated), or basic details
+  async updateStaffMember(
+    memberId: string,
+    dto: UpdateStaffDto,
+    tenantId?: string,
+    adminUser?: any,
+  ) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const existingMember = await this.prisma.tenantMember.findFirst({
+      where: {
+        id: memberId,
+        tenantId: targetTenantId,
+        deletedAt: null,
+      },
+      include: {
+        user: true,
+        role: true,
+      },
+    });
+
+    if (!existingMember) {
+      throw new NotFoundException(`Staff member with ID "${memberId}" not found`);
+    }
+
+    if (existingMember.isOwner && dto.status === 'deactivated') {
+      throw new BadRequestException('Store owner account cannot be deactivated');
+    }
+
+    // 1. Resolve role if roleId or roleName is provided
+    let newRoleId = existingMember.roleId;
+    if (dto.roleId) {
+      const role = await this.prisma.tenantRole.findFirst({
+        where: { id: dto.roleId, tenantId: targetTenantId },
+      });
+      if (!role) {
+        throw new NotFoundException(`Role with ID "${dto.roleId}" not found`);
+      }
+      newRoleId = role.id;
+    } else if (dto.roleName) {
+      const role = await this.prisma.tenantRole.findFirst({
+        where: {
+          tenantId: targetTenantId,
+          name: { equals: dto.roleName.trim(), mode: 'insensitive' },
+        },
+      });
+      if (!role) {
+        throw new NotFoundException(`Role "${dto.roleName}" not found`);
+      }
+      newRoleId = role.id;
+    }
+
+    // 2. Update user name/phone if provided
+    if (dto.name?.trim() || dto.phone?.trim()) {
+      await this.prisma.user.update({
+        where: { id: existingMember.userId },
+        data: {
+          name: dto.name?.trim() || existingMember.user.name,
+          phone: dto.phone?.trim() || existingMember.user.phone,
+        },
+      });
+    }
+
+    // 3. Update TenantMember
+    const updatedMember = await this.prisma.tenantMember.update({
+      where: { id: memberId },
+      data: {
+        roleId: newRoleId,
+        status: dto.status?.toLowerCase() || existingMember.status,
+        twoFactor:
+          dto.twoFactor !== undefined
+            ? dto.twoFactor
+            : existingMember.twoFactor,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            status: true,
+            lastLoginAt: true,
+            createdAt: true,
+          },
+        },
+        role: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            isSystem: true,
+            permissions: true,
+          },
+        },
+      },
+    });
+
+    const roleName = updatedMember.isOwner
+      ? 'Owner'
+      : updatedMember.role?.name || 'Staff';
+
+    const formatted = {
+      id: updatedMember.id,
+      userId: updatedMember.userId,
+      name:
+        updatedMember.user?.name ||
+        updatedMember.user?.email?.split('@')[0] ||
+        'Staff Member',
+      email: updatedMember.user?.email || '',
+      phone: updatedMember.user?.phone || '',
+      role: roleName,
+      roleId: updatedMember.roleId,
+      roleDetails: updatedMember.role || null,
+      isOwner: updatedMember.isOwner,
+      status: updatedMember.status,
+      twoFactor: updatedMember.twoFactor,
+      lastActiveAt:
+        updatedMember.lastActiveAt || updatedMember.user?.lastLoginAt || null,
+      invitedAt: updatedMember.inviteExpiresAt
+        ? updatedMember.createdAt
+        : null,
+      createdAt: updatedMember.createdAt,
+    };
+
+    return ResponseHelper.success(
+      formatted,
+      `Staff member "${formatted.name}" updated successfully`,
     );
   }
 }

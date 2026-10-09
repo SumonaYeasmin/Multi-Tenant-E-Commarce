@@ -5,6 +5,8 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -16,7 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { StaffService } from './staff.service';
-import { QueryStaffDto, InviteStaffDto } from './dto';
+import { QueryStaffDto, InviteStaffDto, UpdateStaffDto } from './dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
@@ -87,5 +89,37 @@ export class StaffController {
   ) {
     const tenantId = tenantHeader || user?.tenantId;
     return this.staffService.inviteStaff(dto, tenantId, user);
+  }
+
+  // 3. Update staff member role, status (active/deactivated), or basic info
+  @Patch('members/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update staff member role, status (active/deactivated), or details',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Staff member updated successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation failed or cannot deactivate owner',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Owner login token required',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Staff member or role not found',
+  })
+  async updateStaffMember(
+    @Param('id') id: string,
+    @Body() dto: UpdateStaffDto,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.updateStaffMember(id, dto, tenantId, user);
   }
 }
