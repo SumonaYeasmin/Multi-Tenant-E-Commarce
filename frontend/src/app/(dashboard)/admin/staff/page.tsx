@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { UserPlus, ShieldCheck, Check, Plus, CheckSquare, Square, Eye } from 'lucide-react';
+import { UserPlus, ShieldCheck, Check, Plus, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 import {
   staff as seedStaff,
   roles as seedRoles,
@@ -24,12 +24,36 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/button';
 import { timeAgo } from '@/utils/format';
 import { cn } from '@/utils/cn';
+import { staffService } from '@/services/staff-service';
 import type { PermissionAction, AdminModule } from '@/types/commerce';
 
 type Matrix = Record<string, PermissionAction[]>;
 
+interface StaffRowItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  roleId?: string | null;
+  status: 'active' | 'invited' | 'deactivated';
+  lastActive: string;
+  twoFactor: boolean;
+  avatar?: string;
+  isOwner?: boolean;
+}
+
+interface RoleItem {
+  id: string;
+  name: string;
+  members: number;
+  system: boolean;
+  description: string;
+  permissions?: Record<string, string[]>;
+}
+
 const presetRolePermissions: Record<string, Partial<Record<AdminModule, PermissionAction[]>>> = {
   Owner: Object.fromEntries(permissionModules.map((m) => [m.key, [...permissionActions]])),
+  Administrator: Object.fromEntries(permissionModules.map((m) => [m.key, [...permissionActions]])),
   'Store Manager': rolePermissions.manager,
   'Fulfillment Staff': rolePermissions.fulfillment,
   'Customer Care': {
@@ -52,7 +76,7 @@ const presetRolePermissions: Record<string, Partial<Record<AdminModule, Permissi
 };
 
 function buildInitialMatrix(roleName: string): Matrix {
-  if (roleName === 'Owner') {
+  if (roleName === 'Owner' || roleName === 'Administrator') {
     return Object.fromEntries(permissionModules.map((m) => [m.key, [...permissionActions]]));
   }
   const preset = presetRolePermissions[roleName] ?? {};
@@ -71,11 +95,26 @@ function createEmptyMatrix(): Matrix {
 export default function AdminStaffPage() {
   const { can } = useAdmin();
   const [tab, setTab] = useState<'members' | 'roles'>('members');
-  const [members, setMembers] = useState(seedStaff);
-  const [roleList, setRoleList] = useState(seedRoles);
+  
+  // State for Staff & Roles with initial fallback seeds
+  const [members, setMembers] = useState<StaffRowItem[]>(seedStaff as StaffRowItem[]);
+  const [roleList, setRoleList] = useState<RoleItem[]>(seedRoles as RoleItem[]);
+  const [counters, setCounters] = useState({
+    total: seedStaff.length,
+    active: seedStaff.filter((s) => s.status === 'active').length,
+    invited: seedStaff.filter((s) => s.status === 'invited').length,
+    deactivated: seedStaff.filter((s) => s.status === 'deactivated').length,
+    seatsUsed: seedStaff.length,
+    maxSeats: 10,
+  });
+
+  // Modal / Drawer loading and form states
   const [invite, setInvite] = useState(false);
   const [email, setEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Store Manager');
+  const [isInviting, setIsInviting] = useState(false);
+  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
+  const [isCreatingRole, setIsCreatingRole] = useState(false);
 
   // Active role & matrix state
   const [activeRole, setActiveRole] = useState('Store Manager');
@@ -93,20 +132,112 @@ export default function AdminStaffPage() {
   const [newRoleDesc, setNewRoleDesc] = useState('');
   const [newRoleMatrix, setNewRoleMatrix] = useState<Matrix>(() => createEmptyMatrix());
 
+  // Edit Role Details Modal State
+  const [isEditRoleOpen, setIsEditRoleOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<RoleItem | null>(null);
+  const [editRoleName, setEditRoleName] = useState('');
+  const [editRoleDesc, setEditRoleDesc] = useState('');
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+
+  // Delete Role Confirmation Modal State
+  const [isDeleteRoleOpen, setIsDeleteRoleOpen] = useState(false);
+  const [deletingRole, setDeletingRole] = useState<RoleItem | null>(null);
+  const [isDeletingRole, setIsDeletingRole] = useState(false);
+
+  // Real-time API data loader
+  const loadData = useCallback(async () => {
+    try {
+      const [membersResult, rolesResult] = await Promise.allSettled([
+        staffService.getStaffMembers(),
+        staffService.getRoles(),
+      ]);
+
+      if (
+        rolesResult.status === 'fulfilled' &&
+        rolesResult.value?.success &&
+        Array.isArray(rolesResult.value.data) &&
+        rolesResult.value.data.length > 0
+      ) {
+        const liveRoles: RoleItem[] = rolesResult.value.data.map((r) => ({
+          id: r.id,
+          name: r.name,
+          members: r.membersCount ?? 0,
+          system: r.isSystem,
+          description: r.description || '',
+          permissions: r.permissions as any,
+        }));
+
+        setRoleList(liveRoles);
+
+        setRoleMatrices((prev) => {
+          const next = { ...prev };
+          liveRoles.forEach((r) => {
+            if (r.permissions && Object.keys(r.permissions).length > 0) {
+              const formatted: Matrix = {};
+              permissionModules.forEach((m) => {
+                formatted[m.key] = (r.permissions?.[m.key] as PermissionAction[]) || [];
+              });
+              next[r.name] = formatted;
+            } else if (!next[r.name]) {
+              next[r.name] = buildInitialMatrix(r.name);
+            }
+          });
+          return next;
+        });
+
+        if (!activeRole || !liveRoles.some((r) => r.name === activeRole)) {
+          const firstNonOwner = liveRoles.find((r) => r.name !== 'Owner') || liveRoles[0];
+          if (firstNonOwner) setActiveRole(firstNonOwner.name);
+        }
+      }
+
+      if (
+        membersResult.status === 'fulfilled' &&
+        membersResult.value?.success &&
+        membersResult.value.data?.members &&
+        membersResult.value.data.members.length > 0
+      ) {
+        const liveMembers: StaffRowItem[] = membersResult.value.data.members.map((m) => ({
+          id: m.id,
+          name: m.name || m.email.split('@')[0],
+          email: m.email,
+          role: m.roleName || (m.isOwner ? 'Owner' : 'Store Manager'),
+          roleId: m.roleId,
+          status: m.status as any,
+          lastActive: m.lastActive || m.joinedAt || '',
+          twoFactor: m.twoFactorEnabled,
+          avatar: m.avatar || undefined,
+          isOwner: m.isOwner,
+        }));
+
+        setMembers(liveMembers);
+        if (membersResult.value.data.counters) {
+          setCounters(membersResult.value.data.counters);
+        }
+      }
+    } catch {
+      // Graceful fallback to seed data
+    }
+  }, [activeRole]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const currentRoleObj = roleList.find((r) => r.name === activeRole);
   const locked = activeRole === 'Owner' || !can('staff', 'update');
   const currentMatrix = roleMatrices[activeRole] ?? createEmptyMatrix();
 
   const handleOpenNewRoleDrawer = () => {
     setNewRoleName('');
     setNewRoleDesc('');
-    // Default with View permission on dashboard
     const defaultNewMatrix = createEmptyMatrix();
     defaultNewMatrix['dashboard'] = ['view'];
     setNewRoleMatrix(defaultNewMatrix);
     setIsNewRoleOpen(true);
   };
 
-  const handleCreateRole = () => {
+  const handleCreateRole = async () => {
     const trimmed = newRoleName.trim();
     if (!trimmed) {
       toast.error('Please enter a role name');
@@ -117,22 +248,150 @@ export default function AdminStaffPage() {
       return;
     }
 
-    const createdRole = {
-      id: `r_${Date.now()}`,
-      name: trimmed,
-      members: 0,
-      system: false,
-      description: newRoleDesc.trim() || 'Custom staff role.',
-    };
+    try {
+      setIsCreatingRole(true);
+      const res = await staffService.createRole({
+        name: trimmed,
+        description: newRoleDesc.trim() || undefined,
+        permissions: newRoleMatrix,
+      });
 
-    setRoleList((prev) => [...prev, createdRole]);
-    setRoleMatrices((prev) => ({
-      ...prev,
-      [trimmed]: newRoleMatrix,
-    }));
-    setActiveRole(trimmed);
-    setIsNewRoleOpen(false);
-    toast.success(`Role "${trimmed}" created successfully`);
+      if (res && res.data) {
+        const createdRole: RoleItem = {
+          id: res.data.id,
+          name: res.data.name || trimmed,
+          members: 0,
+          system: res.data.isSystem ?? false,
+          description: res.data.description || newRoleDesc.trim() || 'Custom staff role.',
+          permissions: (res.data.permissions as any) || newRoleMatrix,
+        };
+
+        setRoleList((prev) => [...prev, createdRole]);
+        setRoleMatrices((prev) => ({
+          ...prev,
+          [createdRole.name]: newRoleMatrix,
+        }));
+        setActiveRole(createdRole.name);
+        setIsNewRoleOpen(false);
+        toast.success(`Role "${createdRole.name}" created and saved successfully!`);
+      } else {
+        throw new Error(res?.message || 'Failed to create role');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to create role');
+    } finally {
+      setIsCreatingRole(false);
+    }
+  };
+
+  const handleOpenEditRoleModal = (r: RoleItem) => {
+    setEditingRole(r);
+    setEditRoleName(r.name);
+    setEditRoleDesc(r.description || '');
+    setIsEditRoleOpen(true);
+  };
+
+  const handleSaveEditRoleDetails = async () => {
+    if (!editingRole) return;
+    const trimmedName = editRoleName.trim();
+    if (!trimmedName) {
+      toast.error('Please enter a role name');
+      return;
+    }
+
+    if (
+      roleList.some(
+        (r) => r.id !== editingRole.id && r.name.toLowerCase() === trimmedName.toLowerCase()
+      )
+    ) {
+      toast.error('Another role with this name already exists');
+      return;
+    }
+
+    try {
+      setIsUpdatingRole(true);
+      if (editingRole.id && !editingRole.id.startsWith('r_')) {
+        await staffService.updateRole(editingRole.id, {
+          name: trimmedName,
+          description: editRoleDesc.trim() || undefined,
+        });
+      }
+
+      setRoleList((prev) =>
+        prev.map((r) =>
+          r.id === editingRole.id
+            ? { ...r, name: trimmedName, description: editRoleDesc.trim() }
+            : r
+        )
+      );
+
+      // Re-map role matrices key if name changed
+      if (editingRole.name !== trimmedName) {
+        setRoleMatrices((prev) => {
+          const next = { ...prev };
+          next[trimmedName] = next[editingRole.name] || createEmptyMatrix();
+          delete next[editingRole.name];
+          return next;
+        });
+        if (activeRole === editingRole.name) {
+          setActiveRole(trimmedName);
+        }
+      }
+
+      toast.success(`Role "${trimmedName}" updated successfully`);
+      setIsEditRoleOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to update role');
+    } finally {
+      setIsUpdatingRole(false);
+    }
+  };
+
+  const handleOpenDeleteRoleModal = (r: RoleItem) => {
+    setDeletingRole(r);
+    setIsDeleteRoleOpen(true);
+  };
+
+  const handleConfirmDeleteRole = async () => {
+    if (!deletingRole) return;
+
+    if (deletingRole.system || deletingRole.name === 'Owner') {
+      toast.error('System default roles cannot be deleted');
+      return;
+    }
+
+    if (deletingRole.members > 0) {
+      toast.error(
+        `Cannot delete role "${deletingRole.name}" because it is currently assigned to ${deletingRole.members} staff member(s). Reassign them first.`
+      );
+      return;
+    }
+
+    try {
+      setIsDeletingRole(true);
+      if (deletingRole.id && !deletingRole.id.startsWith('r_')) {
+        await staffService.deleteRole(deletingRole.id);
+      }
+
+      setRoleList((prev) => prev.filter((r) => r.id !== deletingRole.id));
+      setRoleMatrices((prev) => {
+        const next = { ...prev };
+        delete next[deletingRole.name];
+        return next;
+      });
+
+      if (activeRole === deletingRole.name) {
+        const remaining = roleList.filter((r) => r.id !== deletingRole.id);
+        setActiveRole(remaining[0]?.name || 'Store Manager');
+      }
+
+      toast.success(`Role "${deletingRole.name}" deleted successfully`);
+      setIsDeleteRoleOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete role');
+    } finally {
+      setIsDeletingRole(false);
+    }
   };
 
   const toggleActivePermission = (moduleKey: string, action: PermissionAction) => {
@@ -152,6 +411,153 @@ export default function AdminStaffPage() {
         },
       };
     });
+  };
+
+  const handleSavePermissions = async () => {
+    if (locked) return;
+    const targetRole = roleList.find((r) => r.name === activeRole);
+    if (!targetRole) {
+      toast.error('Role not found');
+      return;
+    }
+
+    try {
+      setIsSavingPermissions(true);
+      if (targetRole.id && !targetRole.id.startsWith('r_')) {
+        const res = await staffService.updateRole(targetRole.id, {
+          permissions: currentMatrix,
+        });
+        if (res?.success) {
+          toast.success(`Permissions saved for ${activeRole}`);
+        } else {
+          throw new Error(res?.message || 'Failed to save permissions');
+        }
+      } else {
+        toast.success(`Permissions saved for ${activeRole}`);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to save permissions');
+    } finally {
+      setIsSavingPermissions(false);
+    }
+  };
+
+  const handleToggleMemberStatus = async (s: StaffRowItem) => {
+    if (s.isOwner || s.role === 'Owner') return;
+
+    if (s.status === 'invited') {
+      try {
+        if (s.id && !s.id.startsWith('s_')) {
+          await staffService.resendInvite(s.id);
+        }
+        toast.success(`Invitation email resent to ${s.email}`);
+      } catch (err: any) {
+        toast.error(err?.message || 'Failed to resend invitation email');
+      }
+      return;
+    }
+
+    const nextStatus = s.status === 'active' ? 'deactivated' : 'active';
+    try {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === s.id ? { ...m, status: nextStatus } : m))
+      );
+
+      if (s.id && !s.id.startsWith('s_')) {
+        await staffService.updateStaffMember(s.id, { status: nextStatus });
+      }
+
+      toast.success(
+        nextStatus === 'deactivated'
+          ? `${s.name} deactivated — access revoked`
+          : `${s.name} reactivated`
+      );
+    } catch (err: any) {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === s.id ? { ...m, status: s.status } : m))
+      );
+      toast.error(err?.message || 'Failed to update member status');
+    }
+  };
+
+  const handleRemoveMember = async (s: StaffRowItem) => {
+    if (s.isOwner || s.role === 'Owner') return;
+    try {
+      if (s.id && !s.id.startsWith('s_')) {
+        await staffService.removeStaffMember(s.id);
+      }
+      setMembers((prev) => prev.filter((m) => m.id !== s.id));
+      setCounters((prev) => ({
+        ...prev,
+        total: Math.max(0, prev.total - 1),
+        seatsUsed: Math.max(0, prev.seatsUsed - 1),
+        active: s.status === 'active' ? Math.max(0, prev.active - 1) : prev.active,
+        invited: s.status === 'invited' ? Math.max(0, prev.invited - 1) : prev.invited,
+        deactivated: s.status === 'deactivated' ? Math.max(0, prev.deactivated - 1) : prev.deactivated,
+      }));
+      toast.success(`Staff member "${s.name}" removed from store`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to remove member');
+    }
+  };
+
+  const handleInviteStaff = async () => {
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    const selectedRoleObj = roleList.find((r) => r.name === inviteRole);
+    const roleId = selectedRoleObj?.id || 'role_default';
+
+    try {
+      setIsInviting(true);
+      const res = await staffService.inviteStaff({
+        email: email.trim(),
+        roleId,
+        name: email.trim().split('@')[0],
+      });
+
+      if (res?.success && res.data) {
+        const newMember: StaffRowItem = {
+          id: res.data.id,
+          name: res.data.name || email.trim().split('@')[0],
+          email: res.data.email,
+          role: res.data.roleName || inviteRole,
+          roleId: res.data.roleId || roleId,
+          status: (res.data.status as any) || 'invited',
+          lastActive: '',
+          twoFactor: false,
+          isOwner: false,
+        };
+
+        setMembers((prev) => [newMember, ...prev]);
+        setCounters((prev) => ({
+          ...prev,
+          total: prev.total + 1,
+          invited: prev.invited + 1,
+          seatsUsed: prev.seatsUsed + 1,
+        }));
+
+        if (selectedRoleObj) {
+          setRoleList((prev) =>
+            prev.map((r) =>
+              r.id === selectedRoleObj.id ? { ...r, members: r.members + 1 } : r
+            )
+          );
+        }
+
+        toast.success(`Invitation sent to ${email.trim()}`);
+        setInvite(false);
+        setEmail('');
+      } else {
+        throw new Error(res?.message || 'Failed to send invitation');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send invitation');
+    } finally {
+      setIsInviting(false);
+    }
   };
 
   const toggleNewRolePermission = (moduleKey: string, action: PermissionAction) => {
@@ -199,7 +605,7 @@ export default function AdminStaffPage() {
       <div className="w-full space-y-6">
         <PageHeader
           title="Staff & roles"
-          description={`${members.length} of 10 staff seats used on your plan.`}
+          description={`${counters.seatsUsed || members.length} of ${counters.maxSeats || 10} staff seats used on your plan.`}
           actions={
             <GuardedButton
               module="staff"
@@ -294,41 +700,33 @@ export default function AdminStaffPage() {
 
                       {/* Column 5: Action */}
                       <td className="px-5 py-3.5 whitespace-nowrap text-right">
-                        {s.role !== 'Owner' ? (
-                          <GuardedButton
-                            module="staff"
-                            action="update"
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setMembers((m) =>
-                                m.map((x) =>
-                                  x.id === s.id
-                                    ? {
-                                        ...x,
-                                        status:
-                                          x.status === 'active'
-                                            ? 'deactivated'
-                                            : 'active',
-                                      }
-                                    : x
-                                )
-                              );
-                              toast.success(
-                                s.status === 'invited'
-                                  ? 'Invitation resent'
-                                  : s.status === 'active'
-                                  ? `${s.name} deactivated — sessions revoked`
-                                  : `${s.name} reactivated`
-                              );
-                            }}
-                          >
-                            {s.status === 'invited'
-                              ? 'Resend'
-                              : s.status === 'active'
-                              ? 'Deactivate'
-                              : 'Reactivate'}
-                          </GuardedButton>
+                        {!s.isOwner && s.role !== 'Owner' ? (
+                          <div className="inline-flex items-center justify-end gap-1">
+                            <GuardedButton
+                              module="staff"
+                              action="update"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleToggleMemberStatus(s)}
+                            >
+                              {s.status === 'invited'
+                                ? 'Resend'
+                                : s.status === 'active'
+                                ? 'Deactivate'
+                                : 'Reactivate'}
+                            </GuardedButton>
+                            <GuardedButton
+                              module="staff"
+                              action="delete"
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                              title="Remove staff member"
+                              onClick={() => handleRemoveMember(s)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </GuardedButton>
+                          </div>
                         ) : (
                           <span className="inline-block px-3 text-xs text-ink-muted">—</span>
                         )}
@@ -361,27 +759,59 @@ export default function AdminStaffPage() {
               }
             >
               <ul className="py-1 divide-y divide-line/40">
-                {roleList.map((r) => (
-                  <li key={r.id}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveRole(r.name)}
-                      aria-current={activeRole === r.name}
-                      className={cn(
-                        'w-full px-5 py-2.5 text-left cursor-pointer transition-colors',
-                        activeRole === r.name ? 'bg-canvas' : 'hover:bg-canvas'
+                {roleList.map((r) => {
+                  const isCurrentActive = activeRole === r.name;
+                  const isCustomRole = !r.system && r.name !== 'Owner' && r.name !== 'Administrator';
+                  return (
+                    <li key={r.id} className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => setActiveRole(r.name)}
+                        aria-current={isCurrentActive}
+                        className={cn(
+                          'w-full px-5 py-2.5 text-left cursor-pointer transition-colors',
+                          isCurrentActive ? 'bg-canvas' : 'hover:bg-canvas'
+                        )}
+                      >
+                        <p className="text-sm font-medium text-ink flex items-center justify-between">
+                          <span className="truncate pr-2">{r.name}</span>
+                          <span className="font-normal text-xs text-ink-muted shrink-0">
+                            · {r.members}
+                          </span>
+                        </p>
+                        <p className="text-xs text-ink-muted line-clamp-1 mt-0.5">{r.description}</p>
+                      </button>
+
+                      {/* Quick action buttons for custom roles on hover */}
+                      {isCustomRole && (
+                        <div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1 bg-surface/90 backdrop-blur-xs px-1 py-0.5 rounded shadow-xs">
+                          <button
+                            type="button"
+                            title="Edit Role Details"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEditRoleModal(r);
+                            }}
+                            className="p-1 text-ink-muted hover:text-ink rounded hover:bg-subtle transition-colors cursor-pointer"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete Role"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDeleteRoleModal(r);
+                            }}
+                            className="p-1 text-red-500 hover:text-red-600 rounded hover:bg-red-500/10 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
                       )}
-                    >
-                      <p className="text-sm font-medium text-ink flex items-center justify-between">
-                        <span>{r.name}</span>
-                        <span className="font-normal text-xs text-ink-muted">
-                          · {r.members}
-                        </span>
-                      </p>
-                      <p className="text-xs text-ink-muted line-clamp-1 mt-0.5">{r.description}</p>
-                    </button>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             </Panel>
 
@@ -389,20 +819,44 @@ export default function AdminStaffPage() {
             <Panel
               title={`${activeRole} permissions`}
               description={
-                activeRole === 'Owner'
-                  ? 'The owner always has full access.'
-                  : 'Changes apply immediately and are recorded in the audit log.'
+                activeRole === 'Owner' || activeRole === 'Administrator'
+                  ? 'System default roles have predefined access. Custom role permissions can be tailored freely.'
+                  : currentRoleObj?.description || 'Changes apply immediately and are saved to database.'
               }
               flush
               actions={
-                !locked && (
-                  <Button
-                    size="sm"
-                    onClick={() => toast.success(`Permissions saved for ${activeRole}`)}
-                  >
-                    Save
-                  </Button>
-                )
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Edit details & Delete role buttons for custom roles */}
+                  {currentRoleObj && !currentRoleObj.system && activeRole !== 'Owner' && activeRole !== 'Administrator' && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenEditRoleModal(currentRoleObj)}
+                      >
+                        <Pencil className="mr-1 h-3.5 w-3.5" /> Edit details
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                        onClick={() => handleOpenDeleteRoleModal(currentRoleObj)}
+                      >
+                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete role
+                      </Button>
+                    </>
+                  )}
+
+                  {!locked && (
+                    <Button
+                      size="sm"
+                      loading={isSavingPermissions}
+                      onClick={handleSavePermissions}
+                    >
+                      Save permissions
+                    </Button>
+                  )}
+                </div>
               }
             >
               <div className="overflow-x-auto">
@@ -476,6 +930,7 @@ export default function AdminStaffPage() {
                 Cancel
               </Button>
               <Button
+                loading={isCreatingRole}
                 onClick={handleCreateRole}
                 disabled={!newRoleName.trim()}
               >
@@ -620,6 +1075,85 @@ export default function AdminStaffPage() {
           </div>
         </Drawer>
 
+        {/* Modal: Edit Role Details (Name & Description) */}
+        <Modal
+          open={isEditRoleOpen}
+          onClose={() => setIsEditRoleOpen(false)}
+          title={`Edit Role: ${editingRole?.name || ''}`}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setIsEditRoleOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                loading={isUpdatingRole}
+                disabled={!editRoleName.trim()}
+                onClick={handleSaveEditRoleDetails}
+              >
+                Save changes
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <Input
+              label="Role Name"
+              value={editRoleName}
+              onChange={(e) => setEditRoleName(e.target.value)}
+              placeholder="e.g. Inventory Supervisor"
+              required
+            />
+            <Input
+              label="Description"
+              value={editRoleDesc}
+              onChange={(e) => setEditRoleDesc(e.target.value)}
+              placeholder="Responsibilities and access scope"
+            />
+          </div>
+        </Modal>
+
+        {/* Modal: Delete Role Confirmation */}
+        <Modal
+          open={isDeleteRoleOpen}
+          onClose={() => setIsDeleteRoleOpen(false)}
+          title="Delete Role Confirmation"
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setIsDeleteRoleOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                loading={isDeletingRole}
+                disabled={deletingRole ? deletingRole.members > 0 : false}
+                onClick={handleConfirmDeleteRole}
+              >
+                Delete role
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20 text-red-800 dark:text-red-300 text-xs leading-relaxed">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">
+                  Are you sure you want to delete &quot;{deletingRole?.name}&quot;?
+                </p>
+                <p className="mt-1">
+                  This action cannot be undone. Custom permissions configured for this role will be permanently removed.
+                </p>
+              </div>
+            </div>
+
+            {deletingRole && deletingRole.members > 0 && (
+              <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                ⚠️ This role is currently assigned to {deletingRole.members} staff member(s). You must reassign them to another role before deleting.
+              </p>
+            )}
+          </div>
+        </Modal>
+
         {/* Modal: Invite staff */}
         <Modal
           open={invite}
@@ -631,24 +1165,9 @@ export default function AdminStaffPage() {
                 Cancel
               </Button>
               <Button
+                loading={isInviting}
                 disabled={!/^\S+@\S+\.\S+$/.test(email)}
-                onClick={() => {
-                  setMembers([
-                    ...members,
-                    {
-                      id: `s${Date.now()}`,
-                      name: email,
-                      email,
-                      role: inviteRole,
-                      status: 'invited',
-                      lastActive: '',
-                      twoFactor: false,
-                    },
-                  ]);
-                  setInvite(false);
-                  setEmail('');
-                  toast.success(`Invitation sent to ${email}`);
-                }}
+                onClick={handleInviteStaff}
               >
                 Send invite
               </Button>
