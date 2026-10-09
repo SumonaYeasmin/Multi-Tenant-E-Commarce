@@ -3,10 +3,13 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
+import { EmailService } from '../../../shared/mail/email-service';
+import { staffInviteEmailTemplate } from '../../../shared/mail/templates/staff-invite-email.template';
 import { UserRole, UserStatus } from '../../../../prisma/generated/client';
 import {
   QueryStaffDto,
@@ -18,7 +21,11 @@ import {
 
 @Injectable()
 export class StaffService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
+  ) {}
 
   // Helper to resolve tenant context safely
   private async resolveTenantId(tenantId?: string): Promise<string> {
@@ -347,7 +354,7 @@ export class StaffService {
       });
     }
 
-    // Create TenantMember record
+    // Create TenantMember record with invited status
     const inviteToken = crypto.randomBytes(24).toString('hex');
     const inviteExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
@@ -357,7 +364,7 @@ export class StaffService {
         userId: user.id,
         roleId: targetRole.id,
         isOwner: false,
-        status: 'active',
+        status: 'invited',
         inviteToken,
         inviteExpiresAt,
       },
@@ -381,8 +388,37 @@ export class StaffService {
             permissions: true,
           },
         },
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ||
+      process.env.FRONTEND_URL ||
+      'http://localhost:3000';
+    const inviteLink = `${frontendUrl}/staff/accept-invite?token=${inviteToken}`;
+
+    // Send invitation email
+    try {
+      await this.emailService.sendEmail(
+        email,
+        `Invitation to join ${member.tenant.name} as ${targetRole.name}`,
+        staffInviteEmailTemplate(
+          member.tenant.name,
+          targetRole.name,
+          inviteLink,
+          member.user?.name || undefined,
+        ),
+      );
+    } catch {
+      // Ignore background mail transport exceptions
+    }
 
     const formatted = {
       id: member.id,
@@ -403,7 +439,58 @@ export class StaffService {
 
     return ResponseHelper.created(
       formatted,
-      `Staff member "${formatted.name}" added successfully as "${formatted.role}"`,
+      `Invitation sent successfully to "${formatted.email}" as "${formatted.role}"`,
+    );
+  }
+
+  // Resend invitation email to a pending staff member
+  async resendInvite(memberId: string, tenantId?: string) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+    const member = await this.prisma.tenantMember.findFirst({
+      where: { id: memberId, tenantId: targetTenantId, deletedAt: null },
+      include: { user: true, role: true, tenant: true },
+    });
+
+    if (!member || !member.user?.email) {
+      throw new NotFoundException('Staff member not found');
+    }
+
+    if (member.status !== 'invited') {
+      throw new BadRequestException('Can only resend invitation to pending invited members');
+    }
+
+    const inviteToken = crypto.randomBytes(24).toString('hex');
+    const inviteExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await this.prisma.tenantMember.update({
+      where: { id: memberId },
+      data: { inviteToken, inviteExpiresAt },
+    });
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ||
+      process.env.FRONTEND_URL ||
+      'http://localhost:3000';
+    const inviteLink = `${frontendUrl}/staff/accept-invite?token=${inviteToken}`;
+
+    try {
+      await this.emailService.sendEmail(
+        member.user.email,
+        `Invitation to join ${member.tenant.name} as ${member.role?.name || 'Staff'}`,
+        staffInviteEmailTemplate(
+          member.tenant.name,
+          member.role?.name || 'Staff',
+          inviteLink,
+          member.user.name || undefined,
+        ),
+      );
+    } catch {
+      // Ignore transport errors
+    }
+
+    return ResponseHelper.success(
+      null,
+      `Invitation email resent successfully to ${member.user.email}`,
     );
   }
 

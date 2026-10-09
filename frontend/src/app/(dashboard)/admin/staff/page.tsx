@@ -445,21 +445,31 @@ export default function AdminStaffPage() {
   const handleToggleMemberStatus = async (s: StaffRowItem) => {
     if (s.isOwner || s.role === 'Owner') return;
 
+    if (s.status === 'invited') {
+      try {
+        if (s.id && !s.id.startsWith('s_')) {
+          await staffService.resendInvite(s.id);
+        }
+        toast.success(`Invitation email resent to ${s.email}`);
+      } catch (err: any) {
+        toast.error(err?.message || 'Failed to resend invitation email');
+      }
+      return;
+    }
+
     const nextStatus = s.status === 'active' ? 'deactivated' : 'active';
     try {
       setMembers((prev) =>
         prev.map((m) => (m.id === s.id ? { ...m, status: nextStatus } : m))
       );
 
-      if (s.id && !s.id.startsWith('s')) {
+      if (s.id && !s.id.startsWith('s_')) {
         await staffService.updateStaffMember(s.id, { status: nextStatus });
       }
 
       toast.success(
-        s.status === 'invited'
-          ? 'Invitation resent'
-          : nextStatus === 'deactivated'
-          ? `${s.name} deactivated — sessions revoked`
+        nextStatus === 'deactivated'
+          ? `${s.name} deactivated — access revoked`
           : `${s.name} reactivated`
       );
     } catch (err: any) {
@@ -467,6 +477,27 @@ export default function AdminStaffPage() {
         prev.map((m) => (m.id === s.id ? { ...m, status: s.status } : m))
       );
       toast.error(err?.message || 'Failed to update member status');
+    }
+  };
+
+  const handleRemoveMember = async (s: StaffRowItem) => {
+    if (s.isOwner || s.role === 'Owner') return;
+    try {
+      if (s.id && !s.id.startsWith('s_')) {
+        await staffService.removeStaffMember(s.id);
+      }
+      setMembers((prev) => prev.filter((m) => m.id !== s.id));
+      setCounters((prev) => ({
+        ...prev,
+        total: Math.max(0, prev.total - 1),
+        seatsUsed: Math.max(0, prev.seatsUsed - 1),
+        active: s.status === 'active' ? Math.max(0, prev.active - 1) : prev.active,
+        invited: s.status === 'invited' ? Math.max(0, prev.invited - 1) : prev.invited,
+        deactivated: s.status === 'deactivated' ? Math.max(0, prev.deactivated - 1) : prev.deactivated,
+      }));
+      toast.success(`Staff member "${s.name}" removed from store`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to remove member');
     }
   };
 
@@ -670,19 +701,32 @@ export default function AdminStaffPage() {
                       {/* Column 5: Action */}
                       <td className="px-5 py-3.5 whitespace-nowrap text-right">
                         {!s.isOwner && s.role !== 'Owner' ? (
-                          <GuardedButton
-                            module="staff"
-                            action="update"
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleToggleMemberStatus(s)}
-                          >
-                            {s.status === 'invited'
-                              ? 'Resend'
-                              : s.status === 'active'
-                              ? 'Deactivate'
-                              : 'Reactivate'}
-                          </GuardedButton>
+                          <div className="inline-flex items-center justify-end gap-1">
+                            <GuardedButton
+                              module="staff"
+                              action="update"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleToggleMemberStatus(s)}
+                            >
+                              {s.status === 'invited'
+                                ? 'Resend'
+                                : s.status === 'active'
+                                ? 'Deactivate'
+                                : 'Reactivate'}
+                            </GuardedButton>
+                            <GuardedButton
+                              module="staff"
+                              action="delete"
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                              title="Remove staff member"
+                              onClick={() => handleRemoveMember(s)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </GuardedButton>
+                          </div>
                         ) : (
                           <span className="inline-block px-3 text-xs text-ink-muted">—</span>
                         )}

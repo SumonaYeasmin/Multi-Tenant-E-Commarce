@@ -98,6 +98,29 @@ export class StaffController {
     return this.staffService.inviteStaff(dto, tenantId, user);
   }
 
+  // 2b. Resend invitation email to an invited staff member
+  @Post('members/:id/resend')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Resend invitation email to a pending staff member',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Invitation email resent successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Staff member not found',
+  })
+  async resendInvite(
+    @Param('id') id: string,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.resendInvite(id, tenantId);
+  }
+
   // 3. Update staff member role, status (active/deactivated), or basic info
   @Patch('members/:id')
   @HttpCode(HttpStatus.OK)

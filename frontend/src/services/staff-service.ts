@@ -11,6 +11,36 @@ import type {
   UpdateRolePayload,
 } from '@/types/staff';
 
+export interface ValidatedInviteData {
+  valid: boolean;
+  email: string;
+  name?: string | null;
+  roleName: string;
+  roleDescription?: string | null;
+  storeName: string;
+  storeSlug: string;
+  permissions: Record<string, string[]>;
+}
+
+export interface AcceptInviteResponseData {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    tenantId: string;
+    staffRole?: string;
+  };
+  store: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  redirectUrl: string;
+}
+
 export const staffService = {
   // ---------------------------------------------------------------------------
   // 1. Staff Members Management (/owner/staff/members)
@@ -42,6 +72,13 @@ export const staffService = {
    */
   async inviteStaff(payload: InviteStaffPayload): Promise<ApiResponse<StaffMember>> {
     return apiClient.post<ApiResponse<StaffMember>>('/owner/staff/invite', payload);
+  },
+
+  /**
+   * Resend invitation email to a pending invited staff member.
+   */
+  async resendInvite(id: string): Promise<ApiResponse<null>> {
+    return apiClient.post<ApiResponse<null>>(`/owner/staff/members/${id}/resend`, {});
   },
 
   /**
@@ -97,5 +134,32 @@ export const staffService = {
    */
   async deleteRole(id: string): Promise<ApiResponse<null>> {
     return apiClient.delete<ApiResponse<null>>(`/owner/staff/roles/${id}`);
+  },
+
+  // ---------------------------------------------------------------------------
+  // 3. Public Staff Invite Acceptance (/auth/staff)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Validate a staff invitation token received via email.
+   */
+  async validateStaffInvite(token: string): Promise<ApiResponse<ValidatedInviteData>> {
+    return apiClient.get<ApiResponse<ValidatedInviteData>>(
+      `/auth/staff/invite?token=${encodeURIComponent(token)}`
+    );
+  },
+
+  /**
+   * Accept staff invitation, set initial password, and auto-authenticate.
+   */
+  async acceptStaffInvite(payload: {
+    token: string;
+    password: string;
+    name?: string;
+  }): Promise<ApiResponse<AcceptInviteResponseData>> {
+    return apiClient.post<ApiResponse<AcceptInviteResponseData>>(
+      '/auth/staff/accept-invite',
+      payload
+    );
   },
 };
