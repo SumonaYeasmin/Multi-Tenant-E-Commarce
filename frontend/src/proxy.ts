@@ -1,144 +1,70 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { parseJwtPayload } from './utils/jwt';
 
-// Parse JWT payload without external dependencies
-function parseJwtPayload(token: string): {
-  sub?: string;
-  email?: string;
-  name?: string;
-  role?: string;
-  exp?: number;
-  tenantId?: string;
-} | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch {
-    return null;
-  }
-}
+// Staff roles permitted on the admin dashboard
+const STAFF_ROLES = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'];
 
-// Next.js 16 Network Boundary Proxy handling RBAC and multi-tenancy
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const hostname = request.headers.get('host') || 'localhost:3000';
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost';
-  const hostWithoutPort = hostname.split(':')[0].toLowerCase();
 
-  // Resolve tenant slug
-  let tenantSlug = 'tanti';
-  if (
-    hostWithoutPort !== rootDomain &&
-    hostWithoutPort !== `www.${rootDomain}` &&
-    hostWithoutPort !== 'localhost' &&
-    hostWithoutPort !== '127.0.0.1'
-  ) {
-    if (hostWithoutPort.endsWith(`.${rootDomain}`) || hostWithoutPort.endsWith('.localhost')) {
-      const parts = hostWithoutPort.split('.');
-      if (parts.length > 0 && parts[0] !== 'www') {
-        tenantSlug = parts[0];
-      }
-    } else {
-      tenantSlug = hostWithoutPort.replace(/\./g, '-');
-    }
-  }
-
-  // Extract access token from cookie
-  const token = request.cookies.get('access_token')?.value || request.cookies.get('auth_token')?.value;
+  // Extract access token and refresh token
+  const token = request.cookies.get('access_token')?.value;
+  const refreshToken = request.cookies.get('refresh_token')?.value;
 
   const jwtPayload = token ? parseJwtPayload(token) : null;
   const isTokenExpired = Boolean(jwtPayload?.exp && Date.now() >= jwtPayload.exp * 1000);
   const isAuthenticated = Boolean(token && !isTokenExpired && jwtPayload);
-  const userRole = (jwtPayload?.role || '').toUpperCase();
 
-  // Allowed staff roles for admin dashboard
-  const isStaffOrOwner = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(userRole);
+  const refreshPayload = refreshToken ? parseJwtPayload(refreshToken) : null;
+  const isRefreshTokenExpired = Boolean(
+    refreshPayload?.exp && Date.now() >= refreshPayload.exp * 1000
+  );
+  const hasValidRefreshToken = Boolean(refreshToken && !isRefreshTokenExpired && refreshPayload);
 
-  // Admin dashboard guard
-  if (pathname.startsWith('/admin')) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('next', `${pathname}${search}`);
-      const response = NextResponse.redirect(loginUrl);
-      if (isTokenExpired) {
-        response.cookies.delete('access_token');
-        response.cookies.delete('refresh_token');
-        response.cookies.delete('auth_token');
-        response.cookies.delete('auth_role');
-        response.cookies.delete('auth_user');
-      }
-      return response;
+  // Active or renewable session check
+  const canAuthenticate = isAuthenticated || hasValidRefreshToken;
+  const activePayload = isAuthenticated ? jwtPayload : (hasValidRefreshToken ? refreshPayload : null);
+  const userRole = (activePayload?.role || '').toUpperCase();
+  const isStaff = STAFF_ROLES.includes(userRole);
+
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isAccountRoute = pathname.startsWith('/account');
+
+  // Protected routes guard: redirect unauthenticated users to login
+  if ((isAdminRoute || isAccountRoute) && !canAuthenticate) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('next', `${pathname}${search}`);
+    const response = NextResponse.redirect(loginUrl);
+    if (isTokenExpired || isRefreshTokenExpired) {
+      response.cookies.delete('access_token');
+      response.cookies.delete('refresh_token');
     }
-
-    if (!isStaffOrOwner) {
-      return NextResponse.redirect(new URL('/account', request.url));
-    }
+    return response;
   }
 
-  // Customer account guard
-  if (pathname.startsWith('/account')) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('next', `${pathname}${search}`);
-      const response = NextResponse.redirect(loginUrl);
-      if (isTokenExpired) {
-        response.cookies.delete('access_token');
-        response.cookies.delete('refresh_token');
-        response.cookies.delete('auth_token');
-        response.cookies.delete('auth_role');
-        response.cookies.delete('auth_user');
-      }
-      return response;
-    }
-
-    // Redirect staff/owners away from customer dashboard to admin panel
-    if (isStaffOrOwner) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
+  // Cross-role boundary redirects for authenticated users
+  if (isAdminRoute && !isStaff) {
+    return NextResponse.redirect(new URL('/account', request.url));
   }
 
-  // Redirect already authenticated users from auth pages
-  if (pathname === '/login' || pathname === '/register') {
-    if (isAuthenticated) {
-      const nextParam = request.nextUrl.searchParams.get('next');
-      if (nextParam && !nextParam.startsWith('/login') && !nextParam.startsWith('/register')) {
-        if (nextParam.startsWith('/admin') && !isStaffOrOwner) {
-          return NextResponse.redirect(new URL('/account', request.url));
-        }
-        if (nextParam.startsWith('/account') && isStaffOrOwner) {
-          return NextResponse.redirect(new URL('/admin', request.url));
-        }
-        return NextResponse.redirect(new URL(nextParam, request.url));
-      }
-
-      return NextResponse.redirect(new URL(isStaffOrOwner ? '/admin' : '/account', request.url));
-    }
+  if (isAccountRoute && isStaff) {
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
-  // Forward tenant and user metadata via headers
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-tenant-slug', tenantSlug);
-  requestHeaders.set('x-tenant-host', hostWithoutPort);
-
-  if (isAuthenticated && jwtPayload) {
-    if (jwtPayload.sub) requestHeaders.set('x-user-id', jwtPayload.sub);
-    if (userRole) requestHeaders.set('x-user-role', userRole);
+  // Auth pages (/login, /register): redirect already-authenticated users
+  if ((pathname === '/login' || pathname === '/register') && canAuthenticate) {
+    const nextParam = request.nextUrl.searchParams.get('next');
+    const destination =
+      nextParam && !nextParam.startsWith('/login') && !nextParam.startsWith('/register')
+        ? nextParam
+        : isStaff
+        ? '/admin'
+        : '/account';
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  return NextResponse.next();
 }
 
 export const config = {
