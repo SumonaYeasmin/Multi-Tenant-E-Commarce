@@ -188,25 +188,33 @@ export class AuthService {
             const refreshSecret = this.configService.get<string>('jwt.refreshSecret') as string;
             const decoded = this.jwtService.verify(dto.refreshToken, { secret: refreshSecret });
 
-            // Check if token matches the one in Redis
+            // Check if token matches the current or grace-window previous token in Redis
             const storedToken = await this.redisService.get(`refresh_token:${decoded.sub}`);
-            if (!storedToken || storedToken !== dto.refreshToken) {
+            const prevToken = await this.redisService.get(`refresh_token_prev:${decoded.sub}`);
+            if (!storedToken || (storedToken !== dto.refreshToken && prevToken !== dto.refreshToken)) {
                 throw new UnauthorizedException('Invalid or expired refresh token');
             }
 
-            // Verify user exists and is active
+            // Verify user exists and is active, including tenant memberships
             const user = await this.prisma.user.findUnique({
                 where: { id: decoded.sub },
+                include: {
+                    tenantMemberships: true,
+                },
             });
             if (!user || user.status !== UserStatus.ACTIVE) {
                 throw new UnauthorizedException('Invalid or expired refresh token');
             }
 
-            // Generate a new token pair
+            const tenantId = user.tenantMemberships?.[0]?.tenantId;
+
+            // Generate a new token pair preserving all claims
             const payload = {
                 sub: user.id,
                 email: user.email,
-                role: user.role
+                name: user.name || 'User',
+                role: user.role,
+                tenantId,
             };
             const { accessToken, refreshToken } = generateTokens(
                 this.jwtService,
@@ -214,13 +222,25 @@ export class AuthService {
                 payload,
             );
 
-            // Update refresh token in Redis
+            // Update refresh token in Redis with rotation & 15s grace window for previous token
             const refreshExpiresInStr = this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN') as string;
-            const ttlSeconds = refreshExpiresInStr.includes('d') ? parseInt(refreshExpiresInStr) * 24 * 60 * 60 : 30 * 24 * 60 * 60;
+            const ttlSeconds = refreshExpiresInStr?.includes('d') ? parseInt(refreshExpiresInStr) * 24 * 60 * 60 : 30 * 24 * 60 * 60;
+            await this.redisService.set(`refresh_token_prev:${user.id}`, dto.refreshToken, 15);
             await this.redisService.set(`refresh_token:${user.id}`, refreshToken, ttlSeconds);
 
             return ResponseHelper.success(
-                { accessToken, refreshToken },
+                {
+                    accessToken,
+                    refreshToken,
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        phone: user.phone || undefined,
+                        role: user.role,
+                        tenantId,
+                    },
+                },
                 'Token refreshed successfully',
             );
         } catch (error) {
@@ -230,6 +250,7 @@ export class AuthService {
 
     async logout(userId: string) {
         await this.redisService.del(`refresh_token:${userId}`);
+        await this.redisService.del(`refresh_token_prev:${userId}`);
 
         // Invalidate current access tokens by storing a logout timestamp (TTL: 15 mins)
         await this.redisService.set(`user_logout:${userId}`, Date.now().toString(), 15 * 60);
