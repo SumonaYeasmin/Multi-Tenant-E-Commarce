@@ -1,7 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ResponseHelper } from '../../../common/helpers/response.helper';
-import { QueryStaffDto } from './dto';
+import { UserRole, UserStatus } from '../../../../prisma/generated/client';
+import { QueryStaffDto, InviteStaffDto } from './dto';
 
 @Injectable()
 export class StaffService {
@@ -239,6 +246,140 @@ export class StaffService {
         },
       },
       'Staff members retrieved successfully',
+    );
+  }
+
+  // 2. Invite or directly add a new staff member to the tenant with an assigned role
+  async inviteStaff(dto: InviteStaffDto, tenantId?: string, adminUser?: any) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+    await this.ensureDefaultRoles(targetTenantId);
+
+    const email = dto.email.trim().toLowerCase();
+    if (!email) {
+      throw new BadRequestException('Email address is required');
+    }
+
+    // Resolve assigned TenantRole
+    let targetRole: any = null;
+    if (dto.roleId) {
+      targetRole = await this.prisma.tenantRole.findFirst({
+        where: { id: dto.roleId, tenantId: targetTenantId },
+      });
+    } else if (dto.roleName) {
+      targetRole = await this.prisma.tenantRole.findFirst({
+        where: {
+          tenantId: targetTenantId,
+          name: { equals: dto.roleName.trim(), mode: 'insensitive' },
+        },
+      });
+    }
+
+    if (!targetRole) {
+      targetRole = await this.prisma.tenantRole.findFirst({
+        where: { tenantId: targetTenantId, name: 'Store Manager' },
+      });
+    }
+
+    if (!targetRole) {
+      throw new NotFoundException('Selected role not found in this store');
+    }
+
+    // Check if user already exists in users table
+    let user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (user) {
+      // Check if already an active member of this tenant
+      const existingMember = await this.prisma.tenantMember.findFirst({
+        where: {
+          tenantId: targetTenantId,
+          userId: user.id,
+          deletedAt: null,
+        },
+      });
+
+      if (existingMember) {
+        throw new BadRequestException(
+          `User with email "${email}" is already a staff member in this store`,
+        );
+      }
+    } else {
+      // Create user account for staff member
+      const rawPassword =
+        dto.password?.trim() ||
+        `Staff@${Math.floor(100000 + Math.random() * 900000)}`;
+      const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          name: dto.name?.trim() || email.split('@')[0],
+          phone: dto.phone?.trim() || null,
+          password: hashedPassword,
+          role: UserRole.CUSTOMER,
+          status: UserStatus.ACTIVE,
+        },
+      });
+    }
+
+    // Create TenantMember record
+    const inviteToken = crypto.randomBytes(24).toString('hex');
+    const inviteExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    const member = await this.prisma.tenantMember.create({
+      data: {
+        tenantId: targetTenantId,
+        userId: user.id,
+        roleId: targetRole.id,
+        isOwner: false,
+        status: 'active',
+        inviteToken,
+        inviteExpiresAt,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            status: true,
+            createdAt: true,
+          },
+        },
+        role: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            isSystem: true,
+            permissions: true,
+          },
+        },
+      },
+    });
+
+    const formatted = {
+      id: member.id,
+      userId: member.userId,
+      name: member.user?.name || email.split('@')[0],
+      email: member.user?.email || email,
+      phone: member.user?.phone || '',
+      role: member.role?.name || 'Staff',
+      roleId: member.roleId,
+      roleDetails: member.role || null,
+      isOwner: member.isOwner,
+      status: member.status,
+      twoFactor: member.twoFactor,
+      lastActiveAt: member.lastActiveAt,
+      invitedAt: member.createdAt,
+      createdAt: member.createdAt,
+    };
+
+    return ResponseHelper.created(
+      formatted,
+      `Staff member "${formatted.name}" added successfully as "${formatted.role}"`,
     );
   }
 }
