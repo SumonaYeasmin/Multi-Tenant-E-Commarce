@@ -87,7 +87,12 @@ export class AuthService {
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email },
             include: {
-                tenantMemberships: true,
+                tenantMemberships: {
+                    include: {
+                        role: true,
+                        tenant: true,
+                    },
+                },
             },
         });
         if (!user || !user.password) {
@@ -126,8 +131,26 @@ export class AuthService {
             metadata: { userId: user.id },
         });
 
-        const tenantId = user.tenantMemberships?.[0]?.tenantId;
-        const payload = { sub: user.id, email: user.email, name: user.name || 'User', role: user.role, tenantId };
+        const membership = user.tenantMemberships?.[0];
+        const tenantId = membership?.tenantId;
+        const isOwner = Boolean(membership?.isOwner || user.role === UserRole.OWNER || (user.role as any) === 'SUPER_ADMIN');
+        const staffRole = membership?.role?.name || (isOwner ? 'Owner' : 'Staff');
+        const permissions = (membership?.role?.permissions as Record<string, string[]>) || {};
+        const effectiveRole = isOwner ? 'OWNER' : (membership ? 'STAFF' : user.role);
+
+        // Calculate dynamic landing route for staff based on all modules
+        const redirectUrl = isOwner ? '/admin' : this.resolveFirstAllowedRoute(permissions);
+
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            name: user.name || 'User',
+            role: effectiveRole,
+            tenantId,
+            isOwner,
+            staffRole,
+            permissions,
+        };
         const { accessToken, refreshToken } = generateTokens(
             this.jwtService,
             this.configService,
@@ -135,7 +158,6 @@ export class AuthService {
         );
 
         // Store refresh token in Redis (e.g., valid for 30 days => 30 * 24 * 60 * 60)
-        // Extract TTL from config or default to 30 days
         const refreshExpiresInStr = this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN') as string;
         const ttlSeconds = refreshExpiresInStr.includes('d') ? parseInt(refreshExpiresInStr) * 24 * 60 * 60 : 30 * 24 * 60 * 60;
         await this.redisService.set(`refresh_token:${user.id}`, refreshToken, ttlSeconds);
@@ -149,9 +171,13 @@ export class AuthService {
                     name: user.name || 'User',
                     email: user.email,
                     phone: user.phone || undefined,
-                    role: user.role,
+                    role: effectiveRole,
                     tenantId,
+                    isOwner,
+                    staffRole,
+                    permissions,
                 },
+                redirectUrl,
             },
             'Login successful',
         );
@@ -324,25 +350,21 @@ export class AuthService {
             },
         });
 
-        // Determine destination redirect route based on staff permissions
         const permissions = (member.role?.permissions as Record<string, string[]>) || {};
-        let redirectUrl = '/admin';
-        if (permissions.orders && permissions.orders.includes('view')) {
-            redirectUrl = '/admin/orders';
-        } else if (permissions.products && permissions.products.includes('view')) {
-            redirectUrl = '/admin/products';
-        } else if (permissions.inventory && permissions.inventory.includes('view')) {
-            redirectUrl = '/admin/inventory';
-        } else if (permissions.customers && permissions.customers.includes('view')) {
-            redirectUrl = '/admin/customers';
-        }
+        const isOwner = Boolean(member.isOwner);
+        const staffRole = member.role?.name || (isOwner ? 'Owner' : 'Staff');
+        const effectiveRole = isOwner ? 'OWNER' : 'STAFF';
+        const redirectUrl = isOwner ? '/admin' : this.resolveFirstAllowedRoute(permissions);
 
         const payload = {
             sub: updatedUser.id,
             email: updatedUser.email,
             name: updatedUser.name || 'Staff',
-            role: updatedUser.role,
+            role: effectiveRole,
             tenantId: member.tenantId,
+            isOwner,
+            staffRole,
+            permissions,
         };
 
         const { accessToken, refreshToken } = generateTokens(
@@ -359,9 +381,11 @@ export class AuthService {
                     id: updatedUser.id,
                     name: updatedUser.name,
                     email: updatedUser.email,
-                    role: updatedUser.role,
+                    role: effectiveRole,
                     tenantId: member.tenantId,
-                    staffRole: member.role?.name,
+                    isOwner,
+                    staffRole,
+                    permissions,
                 },
                 store: {
                     id: member.tenant.id,
@@ -372,5 +396,50 @@ export class AuthService {
             },
             `Welcome to ${member.tenant.name}! Your account is now active.`,
         );
+    }
+
+    // Helper to calculate first authorized landing route for staff
+    private resolveFirstAllowedRoute(permissions: Record<string, string[]>): string {
+        if (!permissions || typeof permissions !== 'object') return '/admin';
+
+        const priorityOrder: Array<[string, string]> = [
+            ['payments', '/admin/payments'],
+            ['orders', '/admin/orders'],
+            ['returns', '/admin/returns'],
+            ['products', '/admin/products'],
+            ['categories', '/admin/categories'],
+            ['collections', '/admin/collections'],
+            ['brands', '/admin/brands'],
+            ['inventory', '/admin/inventory'],
+            ['customers', '/admin/customers'],
+            ['reviews', '/admin/reviews'],
+            ['discounts', '/admin/discounts'],
+            ['marketing', '/admin/marketing'],
+            ['shipping', '/admin/shipping'],
+            ['theme', '/admin/theme'],
+            ['content', '/admin/content'],
+            ['media', '/admin/media'],
+            ['analytics', '/admin/analytics'],
+            ['reports', '/admin/reports'],
+            ['staff', '/admin/staff'],
+            ['settings', '/admin/settings'],
+            ['notifications', '/admin/notifications'],
+            ['integrations', '/admin/integrations'],
+            ['dashboard', '/admin'],
+        ];
+
+        for (const [mod, route] of priorityOrder) {
+            if (permissions[mod] && permissions[mod].includes('view')) {
+                return route;
+            }
+        }
+
+        for (const [mod, actions] of Object.entries(permissions)) {
+            if (Array.isArray(actions) && actions.includes('view')) {
+                return `/admin/${mod}`;
+            }
+        }
+
+        return '/admin';
     }
 }

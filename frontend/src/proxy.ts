@@ -9,6 +9,9 @@ function parseJwtPayload(token: string): {
   role?: string;
   exp?: number;
   tenantId?: string;
+  isOwner?: boolean;
+  staffRole?: string;
+  permissions?: Record<string, string[]>;
 } | null {
   try {
     const parts = token.split('.');
@@ -60,8 +63,59 @@ export function proxy(request: NextRequest) {
   const isAuthenticated = Boolean(token && !isTokenExpired && jwtPayload);
   const userRole = (jwtPayload?.role || '').toUpperCase();
 
+  // Helper to resolve first allowed route for staff based on JWT permissions
+  const resolveFirstAllowedRoute = (perms?: Record<string, string[]>): string => {
+    if (!perms || typeof perms !== 'object') return '/admin';
+    const priorityOrder: Array<[string, string]> = [
+      ['payments', '/admin/payments'],
+      ['orders', '/admin/orders'],
+      ['returns', '/admin/returns'],
+      ['products', '/admin/products'],
+      ['categories', '/admin/categories'],
+      ['collections', '/admin/collections'],
+      ['brands', '/admin/brands'],
+      ['inventory', '/admin/inventory'],
+      ['customers', '/admin/customers'],
+      ['reviews', '/admin/reviews'],
+      ['discounts', '/admin/discounts'],
+      ['marketing', '/admin/marketing'],
+      ['shipping', '/admin/shipping'],
+      ['theme', '/admin/theme'],
+      ['content', '/admin/content'],
+      ['media', '/admin/media'],
+      ['analytics', '/admin/analytics'],
+      ['reports', '/admin/reports'],
+      ['staff', '/admin/staff'],
+      ['settings', '/admin/settings'],
+      ['notifications', '/admin/notifications'],
+      ['integrations', '/admin/integrations'],
+      ['dashboard', '/admin'],
+    ];
+
+    for (const [mod, route] of priorityOrder) {
+      if (perms[mod] && perms[mod].includes('view')) {
+        return route;
+      }
+    }
+    return '/admin';
+  };
+
+  const isStaff = Boolean(
+    jwtPayload?.staffRole ||
+    (jwtPayload?.permissions && Object.keys(jwtPayload.permissions).length > 0) ||
+    ['MANAGER', 'STAFF'].includes(userRole)
+  );
+
+  const isOwner = Boolean(
+    jwtPayload?.isOwner ||
+    userRole === 'OWNER' ||
+    userRole === 'SUPER_ADMIN' ||
+    (userRole === 'ADMIN' && !jwtPayload?.staffRole)
+  );
+
   // Allowed staff roles for admin dashboard
-  const isStaffOrOwner = ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'MANAGER', 'STAFF'].includes(userRole);
+  const isStaffOrOwner = isOwner || isStaff;
+  const defaultAdminRoute = isOwner ? '/admin' : resolveFirstAllowedRoute(jwtPayload?.permissions);
 
   // Admin dashboard guard
   if (pathname.startsWith('/admin')) {
@@ -102,25 +156,21 @@ export function proxy(request: NextRequest) {
 
     // Redirect staff/owners away from customer dashboard to admin panel
     if (isStaffOrOwner) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.redirect(new URL(defaultAdminRoute, request.url));
     }
   }
 
-  // Redirect already authenticated users from auth pages
+  // Auth pages (/login, /register): only redirect if next parameter is explicitly provided
   if (pathname === '/login' || pathname === '/register') {
-    if (isAuthenticated) {
-      const nextParam = request.nextUrl.searchParams.get('next');
-      if (nextParam && !nextParam.startsWith('/login') && !nextParam.startsWith('/register')) {
-        if (nextParam.startsWith('/admin') && !isStaffOrOwner) {
-          return NextResponse.redirect(new URL('/account', request.url));
-        }
-        if (nextParam.startsWith('/account') && isStaffOrOwner) {
-          return NextResponse.redirect(new URL('/admin', request.url));
-        }
-        return NextResponse.redirect(new URL(nextParam, request.url));
+    const nextParam = request.nextUrl.searchParams.get('next');
+    if (isAuthenticated && nextParam && !nextParam.startsWith('/login') && !nextParam.startsWith('/register')) {
+      if (nextParam.startsWith('/admin') && !isStaffOrOwner) {
+        return NextResponse.redirect(new URL('/account', request.url));
       }
-
-      return NextResponse.redirect(new URL(isStaffOrOwner ? '/admin' : '/account', request.url));
+      if (nextParam.startsWith('/account') && isStaffOrOwner) {
+        return NextResponse.redirect(new URL(defaultAdminRoute, request.url));
+      }
+      return NextResponse.redirect(new URL(nextParam, request.url));
     }
   }
 

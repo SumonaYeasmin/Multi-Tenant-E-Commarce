@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/Badge';
 import { staffService, ValidatedInviteData } from '@/services/staff-service';
-import { setAuthSession } from '@/services/auth/auth.storage';
+import { setAuthSession, clearAuthSession } from '@/services/auth/auth.storage';
 
 function AcceptInviteForm() {
   const router = useRouter();
@@ -116,6 +116,11 @@ function AcceptInviteForm() {
     }
   };
 
+  const handleGoToSignIn = () => {
+    clearAuthSession();
+    window.location.href = '/login';
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 space-y-4">
@@ -136,11 +141,9 @@ function AcceptInviteForm() {
           {error || 'This staff invitation link is no longer valid. Please ask your store owner to send a new invite.'}
         </p>
         <div className="pt-2">
-          <Link href="/login">
-            <Button variant="secondary" size="md">
-              Go to Sign in
-            </Button>
-          </Link>
+          <Button variant="secondary" size="md" onClick={handleGoToSignIn}>
+            Go to Sign in
+          </Button>
         </div>
       </div>
     );
@@ -257,9 +260,13 @@ export default function AcceptStaffInvitePage() {
 
         <p className="text-center text-xs text-ink-muted">
           Already have an active account?{' '}
-          <Link href="/login" className="font-medium text-ink underline underline-offset-4">
+          <a
+            href="/login"
+            onClick={() => clearAuthSession()}
+            className="font-medium text-ink underline underline-offset-4 cursor-pointer"
+          >
             Sign in here
-          </Link>
+          </a>
         </p>
       </div>
     </div>

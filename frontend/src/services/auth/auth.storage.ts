@@ -98,13 +98,23 @@ export function getAuthUser(): StoredUser | null {
   if (!payload) return null;
 
   const name = payload.name || payload.email?.split('@')[0] || 'User';
+  const isOwner = Boolean(payload.isOwner || payload.role === 'OWNER');
+  const isStaff = Boolean(
+    payload.staffRole ||
+    (payload.permissions && Object.keys(payload.permissions).length > 0) ||
+    ['OWNER', 'ADMIN', 'SUPER_ADMIN', 'STAFF', 'MANAGER'].includes(payload.role)
+  );
+  const effectiveRole = isOwner ? 'OWNER' : (isStaff ? 'STAFF' : payload.role || 'CUSTOMER');
 
   return {
     id: payload.sub,
     name,
     email: payload.email,
-    role: payload.role || 'CUSTOMER',
+    role: effectiveRole as any,
     tenantId: payload.tenantId,
+    isOwner,
+    staffRole: payload.staffRole,
+    permissions: payload.permissions || {},
   };
 }
 
@@ -114,6 +124,11 @@ export function getAuthRole(): UserRole | null {
   const token = getAuthToken();
   if (!token) return null;
   const payload = parseJwtPayload(token);
+  if (!payload) return null;
+  if (payload.isOwner || (payload.role as any) === 'OWNER') return 'OWNER' as any;
+  if (payload.staffRole || (payload.permissions && Object.keys(payload.permissions).length > 0) || (payload.role as any) === 'STAFF') {
+    return 'STAFF' as any;
+  }
   return payload?.role || null;
 }
 
