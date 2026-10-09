@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
@@ -121,5 +122,36 @@ export class StaffController {
   ) {
     const tenantId = tenantHeader || user?.tenantId;
     return this.staffService.updateStaffMember(id, dto, tenantId, user);
+  }
+
+  // 4. Remove a staff member from the store
+  @Delete('members/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Remove a staff member from the store (Soft delete)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Staff member removed successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot remove store owner or self',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Owner login token required',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Staff member not found',
+  })
+  async removeStaffMember(
+    @Param('id') id: string,
+    @CurrentUser() user?: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = tenantHeader || user?.tenantId;
+    return this.staffService.removeStaffMember(id, tenantId, user);
   }
 }

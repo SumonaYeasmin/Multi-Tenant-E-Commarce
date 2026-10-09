@@ -513,4 +513,60 @@ export class StaffService {
       `Staff member "${formatted.name}" updated successfully`,
     );
   }
+
+  // 4. Remove a staff member from the store (soft delete)
+  async removeStaffMember(
+    memberId: string,
+    tenantId?: string,
+    adminUser?: any,
+  ) {
+    const targetTenantId = await this.resolveTenantId(tenantId);
+
+    const existingMember = await this.prisma.tenantMember.findFirst({
+      where: {
+        id: memberId,
+        tenantId: targetTenantId,
+        deletedAt: null,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!existingMember) {
+      throw new NotFoundException(`Staff member with ID "${memberId}" not found`);
+    }
+
+    if (existingMember.isOwner) {
+      throw new BadRequestException('Store owner account cannot be removed from store');
+    }
+
+    if (adminUser?.id && adminUser.id === existingMember.userId) {
+      throw new BadRequestException('You cannot remove yourself from the store');
+    }
+
+    await this.prisma.tenantMember.update({
+      where: { id: memberId },
+      data: {
+        deletedAt: new Date(),
+        status: 'deactivated',
+      },
+    });
+
+    const staffName =
+      existingMember.user?.name ||
+      existingMember.user?.email?.split('@')[0] ||
+      'Staff member';
+
+    return ResponseHelper.success(
+      null,
+      `Staff member "${staffName}" removed successfully from store`,
+    );
+  }
 }
