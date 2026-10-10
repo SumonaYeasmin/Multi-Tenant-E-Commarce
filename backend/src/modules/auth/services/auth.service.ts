@@ -361,6 +361,7 @@ export class AuthService {
                 password: hashedPassword,
                 name: name?.trim() || member.user.name,
                 status: UserStatus.ACTIVE,
+                role: member.isOwner ? UserRole.OWNER : UserRole.STAFF,
                 lastLoginAt: new Date(),
             },
         });
@@ -379,7 +380,7 @@ export class AuthService {
         const permissions = (member.role?.permissions as Record<string, string[]>) || {};
         const isOwner = Boolean(member.isOwner);
         const staffRole = member.role?.name || (isOwner ? 'Owner' : 'Staff');
-        const effectiveRole = isOwner ? 'OWNER' : 'STAFF';
+        const effectiveRole = isOwner ? UserRole.OWNER : UserRole.STAFF;
         const redirectUrl = isOwner ? '/admin' : this.resolveFirstAllowedRoute(permissions);
 
         // Notify store owner that a staff member has accepted invite and joined (In-App)
