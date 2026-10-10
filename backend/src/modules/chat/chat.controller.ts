@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
@@ -27,7 +28,25 @@ export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   /**
-   * 1. 🏢 Owner/Staff: Send encrypted reply message to conversation
+   * 1. 🏢 Owner/Staff: Get decrypted message history for a conversation
+   */
+  @Get('owner/chat/conversations/:id/messages')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWNER, UserRole.STAFF)
+  @ApiOperation({ summary: 'Get decrypted message history for a conversation (Owner/Staff)' })
+  async getOwnerChatHistory(
+    @Param('id') conversationId: string,
+    @CurrentUser() user: any,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    const tenantId = user?.tenantId || tenantHeader;
+    return this.chatService.getChatHistory(conversationId, 'OWNER', tenantId);
+  }
+
+  /**
+   * 2. 🏢 Owner/Staff: Send encrypted reply message to conversation
    */
   @Post('owner/chat/conversations/:id/messages')
   @HttpCode(HttpStatus.CREATED)
@@ -53,7 +72,20 @@ export class ChatController {
   }
 
   /**
-   * 2. 🛍️ Customer/Guest: Send encrypted message from storefront chat widget
+   * 3. 🛍️ Customer/Guest: Get decrypted message history for storefront chat widget
+   */
+  @Get('customer/chat/conversations/:id/messages')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get decrypted message history for customer storefront widget' })
+  async getCustomerChatHistory(
+    @Param('id') conversationId: string,
+    @Headers('x-tenant-id') tenantHeader?: string,
+  ) {
+    return this.chatService.getChatHistory(conversationId, 'CUSTOMER', tenantHeader);
+  }
+
+  /**
+   * 4. 🛍️ Customer/Guest: Send encrypted message from storefront chat widget
    */
   @Post('customer/chat/conversations/:id/messages')
   @HttpCode(HttpStatus.CREATED)

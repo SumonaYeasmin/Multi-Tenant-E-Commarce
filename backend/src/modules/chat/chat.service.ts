@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
-import { encryptMessage } from '../../common/helpers/crypto.helper';
+import { encryptMessage, decryptMessage } from '../../common/helpers/crypto.helper';
 import { SendMessageDto } from './dto/send-message.dto';
 import { ResponseHelper } from '../../common/helpers/response.helper';
 
@@ -127,6 +127,93 @@ export class ChatService {
     };
 
     return ResponseHelper.created(decryptedResponse, 'Message sent successfully');
+  }
+
+  /**
+   * 🔓 Get Chat History: Fetches and decrypts all previous messages for a conversation
+   */
+  async getChatHistory(
+    conversationId: string,
+    viewerRole: 'OWNER' | 'CUSTOMER' = 'OWNER',
+    tenantId?: string,
+  ) {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    // 🔓 Decrypt each message for frontend display
+    const decryptedMessages: DecryptedChatMessage[] = conversation.messages.map((msg) => {
+      const text = decryptMessage(msg.encryptedText, msg.iv);
+      return {
+        id: msg.id,
+        conversationId: msg.conversationId,
+        tenantId: msg.tenantId,
+        senderId: msg.senderId,
+        senderRole: msg.senderRole,
+        senderName: msg.senderName,
+        text,
+        isRead: msg.isRead,
+        createdAt: msg.createdAt,
+      };
+    });
+
+    // Mark messages as read based on viewer role
+    (async () => {
+      try {
+        if (viewerRole === 'OWNER' && conversation.unreadByOwner > 0) {
+          await this.prisma.conversation.update({
+            where: { id: conversationId },
+            data: { unreadByOwner: 0 },
+          });
+          await this.prisma.chatMessage.updateMany({
+            where: { conversationId, senderRole: 'CUSTOMER', isRead: false },
+            data: { isRead: true },
+          });
+        } else if (viewerRole === 'CUSTOMER' && conversation.unreadByCustomer > 0) {
+          await this.prisma.conversation.update({
+            where: { id: conversationId },
+            data: { unreadByCustomer: 0 },
+          });
+          await this.prisma.chatMessage.updateMany({
+            where: {
+              conversationId,
+              senderRole: { in: ['OWNER', 'STAFF'] },
+              isRead: false,
+            },
+            data: { isRead: true },
+          });
+        }
+      } catch (err) {
+        this.logger.error('Failed to mark conversation read in background', err);
+      }
+    })();
+
+    return ResponseHelper.success(
+      {
+        conversation: {
+          id: conversation.id,
+          customerName: conversation.customerName,
+          customerEmail: conversation.customerEmail,
+          customerPhone: conversation.customerPhone,
+          status: conversation.status,
+          unreadByOwner: viewerRole === 'OWNER' ? 0 : conversation.unreadByOwner,
+          unreadByCustomer: viewerRole === 'CUSTOMER' ? 0 : conversation.unreadByCustomer,
+          lastMessageAt: conversation.lastMessageAt,
+          createdAt: conversation.createdAt,
+        },
+        messages: decryptedMessages,
+      },
+      'Chat history retrieved and decrypted successfully',
+    );
   }
 
   /**
