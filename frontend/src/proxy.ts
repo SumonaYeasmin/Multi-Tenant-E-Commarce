@@ -64,17 +64,18 @@ export function proxy(request: NextRequest) {
   const activePayload = isAuthenticated ? jwtPayload : (hasValidRefreshToken ? refreshPayload : null);
   const userRole = (activePayload?.role || '').toUpperCase();
 
-  const isStaff = Boolean(
-    activePayload?.staffRole ||
-    (activePayload?.permissions && Object.keys(activePayload.permissions).length > 0) ||
-    STAFF_ROLES.includes(userRole)
-  );
-
   const isOwner = Boolean(
     activePayload?.isOwner ||
     userRole === 'OWNER' ||
-    userRole === 'SUPER_ADMIN' ||
-    (userRole === 'ADMIN' && !activePayload?.staffRole)
+    userRole === 'SUPER_ADMIN'
+  );
+
+  const isCustomer = (userRole === 'CUSTOMER' || (!userRole && !isOwner)) && !activePayload?.staffRole && !activePayload?.isOwner;
+
+  const isStaff = !isCustomer && !isOwner && Boolean(
+    activePayload?.staffRole ||
+    (activePayload?.permissions && Object.keys(activePayload.permissions).length > 0) ||
+    STAFF_ROLES.includes(userRole)
   );
 
   const isStaffOrOwner = isOwner || isStaff;
