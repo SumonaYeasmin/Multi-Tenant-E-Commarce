@@ -100,6 +100,13 @@ export const adminNavItems: NavItem[] = [
     module: 'customers',
   },
   {
+    title: 'Support',
+    href: '/admin/messages',
+    icon: 'Headphones',
+    category: 'Customers',
+    module: 'customers',
+  },
+  {
     title: 'Reviews',
     href: '/admin/reviews',
     icon: 'Star',
