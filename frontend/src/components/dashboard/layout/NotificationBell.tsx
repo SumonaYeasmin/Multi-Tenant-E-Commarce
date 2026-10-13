@@ -42,11 +42,16 @@ export function NotificationBell({}: NotificationBellProps = {}) {
   const [hasNewAlert, setHasNewAlert] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (isUserViewing = false) => {
     try {
       const res = await notificationService.getNotifications({ limit: 15 });
-      setNotifications(res.items || []);
-      setUnreadCount(res.meta?.unreadCount || 0);
+      if (isUserViewing) {
+        setNotifications((res.items || []).map((n) => ({ ...n, isRead: true })));
+        setUnreadCount(0);
+      } else {
+        setNotifications(res.items || []);
+        setUnreadCount(res.meta?.unreadCount || 0);
+      }
     } catch (err) {
       console.error('Failed to load notifications', err);
     } finally {
@@ -123,15 +128,13 @@ export function NotificationBell({}: NotificationBellProps = {}) {
   }, [open]);
 
   const handleMarkAsRead = async (item: NotificationItem) => {
-    if (!item.isRead) {
-      // Optimistic update
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-      await notificationService.markAsRead(item.id);
-    }
+    // Optimistic update
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n))
+    );
+    setUnreadCount(0);
     setOpen(false);
+    await notificationService.markAsRead(item.id).catch(() => {});
   };
 
   const handleMarkAllAsRead = async (e: React.MouseEvent) => {
@@ -155,8 +158,18 @@ export function NotificationBell({}: NotificationBellProps = {}) {
       <button
         type="button"
         onClick={() => {
-          setOpen((prev) => !prev);
-          if (!open) fetchNotifications();
+          const willOpen = !open;
+          setOpen(willOpen);
+          if (willOpen) {
+            // Automatically clear unread badge and mark notifications as read on view
+            setUnreadCount(0);
+            setHasNewAlert(false);
+            setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+            fetchNotifications(true);
+            notificationService.markAllAsRead().catch((err) => {
+              console.error('Failed to mark all as read:', err);
+            });
+          }
         }}
         className={`relative rounded-md p-2 hover:bg-subtle text-ink cursor-pointer transition-all ${
           hasNewAlert ? 'ring-2 ring-clay/40 bg-clay/10 scale-105' : ''
