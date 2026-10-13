@@ -19,7 +19,6 @@ import {
   salesSeries as mockSalesSeries,
   kpis as mockKpis,
   salesByRegion as mockSalesByRegion,
-  salesByChannel as mockSalesByChannel,
 } from '@/data/analytics';
 import { PageHeader } from '@/components/dashboard/shared/PageHeader';
 import { Panel } from '@/components/dashboard/shared/Panel';
@@ -102,10 +101,8 @@ export default function AdminAnalyticsPage() {
     ['Avg. order value', formatBDT(mockKpis.aov), '+4%'],
     ['Conversion rate', `${mockKpis.conversionRate}%`, '+0.3 pt'],
     ['Returning customers', `${mockKpis.returningRate}%`, '+2 pt'],
-    ['Refunds', formatBDT(mockKpis.refunds), '−6%'],
     ['Discounts', formatBDT(mockKpis.discounts), '+11%'],
     ['Shipping revenue', formatBDT(mockKpis.shippingRevenue), '+9%'],
-    ['Cart abandonment', `${mockKpis.cartAbandonment}%`, '−1.4 pt'],
   ];
 
   return (
@@ -226,7 +223,7 @@ export default function AdminAnalyticsPage() {
           </div>
         </Panel>
 
-        <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4">
+        <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3 lg:grid-cols-6">
           {secondary.map(([l, v, d]) => (
             <div key={l} className="bg-surface px-4 py-3">
               <dt className="text-xs text-ink-muted">{l}</dt>
@@ -238,7 +235,7 @@ export default function AdminAnalyticsPage() {
           ))}
         </dl>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
           {/* Real Database Connected: Sales by District */}
           <Panel
             title="Sales by district"
@@ -299,29 +296,6 @@ export default function AdminAnalyticsPage() {
             </div>
           </Panel>
 
-          {/* Traffic Source */}
-          <Panel title="Traffic source">
-            <ul className="space-y-2.5">
-              {mockSalesByChannel.map((d) => (
-                <li
-                  key={d.name}
-                  className="grid grid-cols-[130px_1fr_40px] items-center gap-3 text-sm"
-                >
-                  <span className="text-ink">{d.name}</span>
-                  <div className="h-2 rounded-full bg-subtle">
-                    <div
-                      className="h-full rounded-full bg-clay"
-                      style={{ width: `${d.value}%` }}
-                    />
-                  </div>
-                  <span className="text-right tabular-nums text-ink-muted">
-                    {d.value}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-
           {/* Real Database Connected: Top Searches */}
           <Panel
             title="Top searches"
@@ -349,7 +323,6 @@ export default function AdminAnalyticsPage() {
               </div>
             }
             flush
-            className="lg:col-span-2"
           >
             {searchesData.length === 0 ? (
               <div className="px-5 py-8 text-center text-xs text-ink-muted">
