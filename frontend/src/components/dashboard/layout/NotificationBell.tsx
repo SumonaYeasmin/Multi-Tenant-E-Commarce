@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Bell, Check, Loader2, Sparkles } from 'lucide-react';
+import { Bell, Check, Loader2, Sparkles, X } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 import type { UserInfo } from '@/types/user';
 import { getAuthToken, getAuthUser } from '@/services/auth';
@@ -201,21 +201,32 @@ export function NotificationBell({}: NotificationBellProps = {}) {
                 </span>
               )}
             </div>
-            {unreadCount > 0 && (
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleMarkAllAsRead}
+                  disabled={markingAll}
+                  className="text-xs font-medium text-clay hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                >
+                  {markingAll ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Check className="h-3 w-3" />
+                  )}
+                  Mark all read
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleMarkAllAsRead}
-                disabled={markingAll}
-                className="text-xs font-medium text-clay hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                onClick={() => setOpen(false)}
+                className="rounded-md p-1 text-ink-muted hover:text-ink hover:bg-subtle transition-colors cursor-pointer"
+                title="Close notifications"
+                aria-label="Close notifications"
               >
-                {markingAll ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Check className="h-3 w-3" />
-                )}
-                Mark all read
+                <X className="h-4 w-4" />
               </button>
-            )}
+            </div>
           </div>
 
           <ul className="max-h-96 overflow-y-auto divide-y divide-line">
