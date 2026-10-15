@@ -14,7 +14,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { OwnerPageService } from './page.service';
-import { UpdateAboutPageDto } from './dto';
+import { UpdateAboutPageDto, UpdateReturnsPageDto } from './dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
@@ -63,4 +63,30 @@ export class OwnerPageController {
   async getAllPages(@CurrentUser() user?: any) {
     return this.pageService.getAllPages(user?.tenantId);
   }
+
+  @Get('returns')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get Returns & Refund page content for editing' })
+  @ApiResponse({ status: 200, description: 'Returns page retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Owner role required' })
+  async getReturnsPage(@CurrentUser() user?: any) {
+    return this.pageService.getReturnsPage(user?.tenantId);
+  }
+
+  @Put('returns')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update or save Returns & Refund page content' })
+  @ApiResponse({ status: 200, description: 'Returns page saved successfully' })
+  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Owner role required' })
+  async updateReturnsPage(
+    @Body() dto: UpdateReturnsPageDto,
+    @CurrentUser() user?: any
+  ) {
+    const authorName = user?.name || user?.email || 'Store Admin';
+    return this.pageService.updateReturnsPage(dto, user?.tenantId, authorName);
+  }
 }
+
